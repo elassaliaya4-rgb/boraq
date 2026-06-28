@@ -64,7 +64,6 @@ export default function PackageForm({ agencies, onClose, onSaved }) {
       return;
     }
 
-    // إشعار للأجونسي المرسل إليه دائماً
     await supabase.from("notifications").insert({
       target: "agency",
       agency_id: form.agency_id,
@@ -73,7 +72,6 @@ export default function PackageForm({ agencies, onClose, onSaved }) {
       is_read: false,
     });
 
-    // إلا الأجونسي هو اللي زاد → إشعار للأدمين تا هو
     if (!isAdmin) {
       await supabase.from("notifications").insert({
         target: "admin",
@@ -88,55 +86,50 @@ export default function PackageForm({ agencies, onClose, onSaved }) {
     onSaved();
   }
 
-  function Field({ label, children }) {
-    return (
-      <div className="field">
-        <label>{label}</label>
-        {children}
-      </div>
-    );
-  }
-
   return (
     <div className="modal-bg" onClick={onClose}>
       <div className="modal" onClick={(e) => e.stopPropagation()}>
         <h2>{t.addPackage}</h2>
         {err && <div className="error">{err}</div>}
 
-        <Field label={t.senderName}>
+        <div className="field">
+          <label>{t.senderName}</label>
           <input value={form.sender_name} onChange={(e) => set("sender_name", e.target.value)} />
-        </Field>
-        <Field label={"📱 " + t.senderPhone}>
+        </div>
+        <div className="field">
+          <label>📱 {t.senderPhone}</label>
           <input value={form.sender_phone} onChange={(e) => set("sender_phone", e.target.value)} placeholder="33XXXXXXXXX" />
-        </Field>
-        <Field label={t.receiverName}>
+        </div>
+        <div className="field">
+          <label>{t.receiverName}</label>
           <input value={form.receiver_name} onChange={(e) => set("receiver_name", e.target.value)} />
-        </Field>
-        <Field label={"📱 " + t.receiverPhone}>
+        </div>
+        <div className="field">
+          <label>📱 {t.receiverPhone}</label>
           <input value={form.receiver_phone} onChange={(e) => set("receiver_phone", e.target.value)} placeholder="212XXXXXXXXX" />
-        </Field>
-        <Field label={t.origin}>
+        </div>
+        <div className="field">
+          <label>{t.origin}</label>
           <input value={form.origin} onChange={(e) => set("origin", e.target.value)} placeholder="France" />
-        </Field>
-        <Field label={t.destination}>
+        </div>
+        <div className="field">
+          <label>{t.destination}</label>
           <input value={form.destination} onChange={(e) => set("destination", e.target.value)} placeholder="Casablanca" />
-        </Field>
+        </div>
 
         <div style={{ display: "flex", gap: 10 }}>
-          <div style={{ flex: 1 }}>
-            <Field label={"⚖️ " + t.weight + " (" + t.kg + ")"}>
-              <input type="number" value={form.weight} onChange={(e) => set("weight", e.target.value)} placeholder="10" />
-            </Field>
+          <div style={{ flex: 1 }} className="field">
+            <label>⚖️ {t.weight} ({t.kg})</label>
+            <input type="number" value={form.weight} onChange={(e) => set("weight", e.target.value)} placeholder="10" />
           </div>
-          <div style={{ flex: 1 }}>
-            <Field label={"📅 " + t.dateSent}>
-              <input type="date" value={form.date_sent} onChange={(e) => set("date_sent", e.target.value)} />
-            </Field>
+          <div style={{ flex: 1 }} className="field">
+            <label>📅 {t.dateSent}</label>
+            <input type="date" value={form.date_sent} onChange={(e) => set("date_sent", e.target.value)} />
           </div>
         </div>
 
-        {/* لائحة الأجونسيات — تبان للكل (أدمين + أجونسي) */}
-        <Field label={"📍 " + t.destAgency}>
+        <div className="field">
+          <label>📍 {t.destAgency}</label>
           <select value={form.agency_id} onChange={(e) => set("agency_id", e.target.value)}>
             <option value="">— {t.chooseAgency} —</option>
             {agencies.map((a) => (
@@ -145,7 +138,7 @@ export default function PackageForm({ agencies, onClose, onSaved }) {
               </option>
             ))}
           </select>
-        </Field>
+        </div>
 
         <div className="modal-actions">
           <button className="btn-primary" onClick={save} disabled={busy}>
