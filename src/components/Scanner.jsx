@@ -5,32 +5,34 @@ import { supabase } from "../lib/supabase";
 import { statusColors, statusBg } from "../lib/helpers";
 
 export default function Scanner({ onClose, onOpenPackage, agencies = [] }) {
-  const { t, lang } = useApp();
-  const html5QrCodeRef = useRef(null);
+  const { t } = useApp();
+  const qrRef = useRef(null);
+  const stoppedRef = useRef(false);
   const lastScanRef = useRef({ text: "", at: 0 });
   const [error, setError] = useState("");
   const [starting, setStarting] = useState(true);
-  const [scanned, setScanned] = useState([]); // [{pkg, at}]
+  const [scanned, setScanned] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // إعادة التشغيل بعد إيقاف
-  async function restartCamera() {
-    if (!html5QrCodeRef.current) return;
+  // إيقاف آمن — كنتأكد ما نوقفش مرتين
+  async function safeStop() {
+    if (stoppedRef.current) return;
+    stoppedRef.current = true;
+    const qr = qrRef.current;
+    if (!qr) return;
     try {
-      const state = html5QrCodeRef.current.getState();
-      if (state !== 2 /* SCANNING */) {
-        await html5QrCodeRef.current.start(
-          { facingMode: "environment" },
-          { fps: 15, qrbox: { width: 240, height: 240 }, aspectRatio: 1.0 },
-          onDecoded,
-          () => {}
-        );
+      if (qr.isScanning) {
+        await qr.stop();
       }
+    } catch (e) {}
+    try {
+      qr.clear();
     } catch (e) {}
   }
 
   async function onDecoded(decodedText) {
-    // تجنب التكرار السريع (debounce)
+    if (stoppedRef.current) return;
+
     const now = Date.now();
     if (
       lastScanRef.current.text === decodedText &&
@@ -39,21 +41,13 @@ export default function Scanner({ onClose, onOpenPackage, agencies = [] }) {
       return;
     lastScanRef.current = { text: decodedText, at: now };
 
-    // اهتزاز التيليفون كتأكيد
     if (navigator.vibrate) navigator.vibrate(80);
 
-    // استخراج رقم التتبع
     let tracking = decodedText;
     try {
       const obj = JSON.parse(decodedText);
       tracking = obj.n || obj.tracking_number || decodedText;
     } catch (e) {}
-
-    // واش الطرد ديجا فاللائحة؟
-    setScanned((prev) => {
-      if (prev.find((s) => s.pkg.tracking_number === tracking)) return prev;
-      return prev;
-    });
 
     setLoading(true);
     const { data: pkg } = await supabase
@@ -62,6 +56,8 @@ export default function Scanner({ onClose, onOpenPackage, agencies = [] }) {
       .eq("tracking_number", tracking)
       .maybeSingle();
     setLoading(false);
+
+    if (stoppedRef.current) return;
 
     if (!pkg) {
       setError(`${t.notFound}: ${tracking}`);
@@ -80,11 +76,11 @@ export default function Scanner({ onClose, onOpenPackage, agencies = [] }) {
     let mounted = true;
     const startScanner = async () => {
       try {
-        const qr = new Html5Qrcode("scanner-area");
-        html5QrCodeRef.current = qr;
+        const qr = new Html5Qrcode("scanner-area", { verbose: false });
+        qrRef.current = qr;
         await qr.start(
           { facingMode: "environment" },
-          { fps: 15, qrbox: { width: 240, height: 240 }, aspectRatio: 1.0 },
+          { fps: 12, qrbox: { width: 240, height: 240 }, aspectRatio: 1.0 },
           onDecoded,
           () => {}
         );
@@ -96,24 +92,32 @@ export default function Scanner({ onClose, onOpenPackage, agencies = [] }) {
         }
       }
     };
-    const timer = setTimeout(startScanner, 200);
+    const timer = setTimeout(startScanner, 250);
     return () => {
       mounted = false;
       clearTimeout(timer);
-      if (html5QrCodeRef.current) {
-        try {
-          html5QrCodeRef.current.stop().then(() => html5QrCodeRef.current.clear()).catch(() => {});
-        } catch (e) {}
-      }
+      safeStop();
     };
   }, []);
+
+  // إغلاق آمن
+  async function handleClose() {
+    await safeStop();
+    onClose();
+  }
+
+  function handleOpenPackage(pkg) {
+    safeStop().then(() => {
+      if (onOpenPackage) onOpenPackage(pkg);
+    });
+  }
 
   function getAgencyName(id) {
     return agencies.find((a) => a.id === id)?.name || "—";
   }
 
   return (
-    <div className="modal-bg" onClick={onClose} style={{ zIndex: 300 }}>
+    <div className="modal-bg" onClick={handleClose} style={{ zIndex: 300 }}>
       <div
         className="modal"
         onClick={(e) => e.stopPropagation()}
@@ -156,13 +160,12 @@ export default function Scanner({ onClose, onOpenPackage, agencies = [] }) {
             <div style={{ color: "#fff", fontSize: 13 }}>📷 ...</div>
           )}
           {loading && (
-            <div style={{ position: "absolute", bottom: 10, left: 10, background: "rgba(0,0,0,0.6)", color: "#fff", padding: "4px 10px", borderRadius: 12, fontSize: 12 }}>
+            <div style={{ position: "absolute", bottom: 10, insetInlineStart: 10, background: "rgba(0,0,0,0.6)", color: "#fff", padding: "4px 10px", borderRadius: 12, fontSize: 12 }}>
               ⌛
             </div>
           )}
         </div>
 
-        {/* لائحة الطرود المسكنية */}
         {scanned.length > 0 && (
           <div style={{ marginTop: 14 }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
@@ -180,7 +183,7 @@ export default function Scanner({ onClose, onOpenPackage, agencies = [] }) {
               {scanned.map(({ pkg }) => (
                 <div
                   key={pkg.id}
-                  onClick={() => onOpenPackage && onOpenPackage(pkg)}
+                  onClick={() => handleOpenPackage(pkg)}
                   style={{
                     cursor: "pointer",
                     background: "var(--surface-2)",
@@ -223,7 +226,7 @@ export default function Scanner({ onClose, onOpenPackage, agencies = [] }) {
         )}
 
         <button
-          onClick={onClose}
+          onClick={handleClose}
           style={{ marginTop: 14, width: "100%", padding: 12 }}
         >
           {t.cancel}
