@@ -3,6 +3,7 @@ import { useApp } from "../lib/context";
 import { supabase } from "../lib/supabase";
 import PackageForm from "../components/PackageForm";
 import PackageDetails from "../components/PackageDetails";
+import Scanner from "../components/Scanner";
 
 export default function AdminPanel() {
   const { t, lang, setLang, signOut } = useApp();
@@ -13,6 +14,7 @@ export default function AdminPanel() {
   const [showPkgForm, setShowPkgForm] = useState(false);
   const [showAgForm, setShowAgForm] = useState(false);
   const [detailPkg, setDetailPkg] = useState(null);
+  const [showScanner, setShowScanner] = useState(false);
 
   const unread = notifs.filter((n) => !n.is_read).length;
 
@@ -59,6 +61,32 @@ export default function AdminPanel() {
     loadData();
   }
 
+  async function deletePackage(p) {
+    const msg =
+      lang === "ar"
+        ? `واش متأكد بغيتي تمسح الطرد "${p.tracking_number}"؟`
+        : `Supprimer le colis "${p.tracking_number}" ?`;
+    if (!window.confirm(msg)) return;
+    await supabase.from("packages").delete().eq("id", p.id);
+    loadData();
+  }
+
+  function handleScanResult(text) {
+    setShowScanner(false);
+    // كنحاولو نستخرجو رقم التتبع من النص
+    let tracking = text;
+    try {
+      const obj = JSON.parse(text);
+      tracking = obj.n || obj.tracking_number || text;
+    } catch (e) {}
+    // قلب على الطرد فاللائحة
+    const found = packages.find(
+      (p) => p.tracking_number === tracking || p.tracking_number === text
+    );
+    if (found) setDetailPkg(found);
+    else alert(t.notFound + ": " + tracking);
+  }
+
   return (
     <div className="app">
       <aside className="sidebar">
@@ -75,6 +103,7 @@ export default function AdminPanel() {
         <div className="topbar">
           <h1>{t.adminPanel}</h1>
           <div className="topbar-actions">
+            <button className="btn-sm" onClick={() => setShowScanner(true)}>📷 {t.scan}</button>
             <button className="btn-sm" onClick={() => setLang(lang === "ar" ? "fr" : "ar")}>🌐 {lang === "ar" ? "FR" : "ع"}</button>
             <button className="btn-sm" onClick={signOut}>{t.logout}</button>
           </div>
@@ -88,14 +117,14 @@ export default function AdminPanel() {
               <Stat val={packages.filter((p) => p.status === "arrived").length} lbl={t.newArrivals} />
             </div>
             <PkgHeader t={t} onAdd={() => setShowPkgForm(true)} />
-            <PackagesTable packages={packages} t={t} onManage={setDetailPkg} />
+            <PackagesTable packages={packages} t={t} onManage={setDetailPkg} onDelete={deletePackage} />
           </>
         )}
 
         {tab === "packages" && (
           <>
             <PkgHeader t={t} onAdd={() => setShowPkgForm(true)} />
-            <PackagesTable packages={packages} t={t} onManage={setDetailPkg} />
+            <PackagesTable packages={packages} t={t} onManage={setDetailPkg} onDelete={deletePackage} />
           </>
         )}
 
@@ -151,6 +180,9 @@ export default function AdminPanel() {
       {detailPkg && (
         <PackageDetails pkg={detailPkg} agencies={agencies} onClose={() => setDetailPkg(null)} onUpdated={() => { loadData(); setDetailPkg(null); }} />
       )}
+      {showScanner && (
+        <Scanner onResult={handleScanResult} onClose={() => setShowScanner(false)} />
+      )}
     </div>
   );
 }
@@ -177,7 +209,7 @@ function PkgHeader({ t, onAdd }) {
   );
 }
 
-function PackagesTable({ packages, t, onManage }) {
+function PackagesTable({ packages, t, onManage, onDelete }) {
   if (!packages.length) return <div className="empty">{t.noPackages}</div>;
   return (
     <div className="table-wrap">
@@ -191,7 +223,10 @@ function PackagesTable({ packages, t, onManage }) {
               <td>{p.destination}</td>
               <td>{p.weight} {t.kg}</td>
               <td><span className={`status ${p.status}`}>{t[p.status]}</span></td>
-              <td><button className="btn-manage" onClick={() => onManage(p)}>⚙️ {t.manage}</button></td>
+              <td style={{ display: "flex", gap: 6 }}>
+                <button className="btn-manage" onClick={() => onManage(p)}>⚙️</button>
+                {onDelete && <button className="btn-danger btn-sm" onClick={() => onDelete(p)}>🗑️</button>}
+              </td>
             </tr>
           ))}
         </tbody>

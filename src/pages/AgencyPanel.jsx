@@ -3,6 +3,7 @@ import { useApp } from "../lib/context";
 import { supabase } from "../lib/supabase";
 import PackageForm from "../components/PackageForm";
 import PackageDetails from "../components/PackageDetails";
+import Scanner from "../components/Scanner";
 
 export default function AgencyPanel() {
   const { t, lang, setLang, signOut, profile } = useApp();
@@ -13,8 +14,23 @@ export default function AgencyPanel() {
   const [agencyName, setAgencyName] = useState("");
   const [showPkgForm, setShowPkgForm] = useState(false);
   const [detailPkg, setDetailPkg] = useState(null);
+  const [showScanner, setShowScanner] = useState(false);
 
   const unread = notifs.filter((n) => !n.is_read).length;
+
+  function handleScanResult(text) {
+    setShowScanner(false);
+    let tracking = text;
+    try {
+      const obj = JSON.parse(text);
+      tracking = obj.n || obj.tracking_number || text;
+    } catch (e) {}
+    const found = packages.find(
+      (p) => p.tracking_number === tracking || p.tracking_number === text
+    );
+    if (found) setDetailPkg(found);
+    else alert(t.notFound + ": " + tracking);
+  }
 
   useEffect(() => {
     if (profile?.agency_id) loadData();
@@ -69,6 +85,7 @@ export default function AgencyPanel() {
         <div className="topbar">
           <h1>{t.welcome} {agencyName} 👋</h1>
           <div className="topbar-actions">
+            <button className="btn-sm" onClick={() => setShowScanner(true)}>📷 {t.scan}</button>
             <button className="btn-sm" onClick={() => setLang(lang === "ar" ? "fr" : "ar")}>🌐 {lang === "ar" ? "FR" : "ع"}</button>
             <button className="btn-sm" onClick={signOut}>{t.logout}</button>
           </div>
@@ -129,6 +146,9 @@ export default function AgencyPanel() {
       )}
       {detailPkg && (
         <PackageDetails pkg={detailPkg} agencies={agencies} onClose={() => setDetailPkg(null)} onUpdated={() => { loadData(); setDetailPkg(null); }} />
+      )}
+      {showScanner && (
+        <Scanner onResult={handleScanResult} onClose={() => setShowScanner(false)} />
       )}
     </div>
   );
