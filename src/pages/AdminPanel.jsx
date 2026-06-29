@@ -46,14 +46,29 @@ export default function AdminPanel() {
     loadData();
   }
 
+  async function deleteAgency(a) {
+    const count = packages.filter((p) => p.agency_id === a.id).length;
+    const msg =
+      lang === "ar"
+        ? `واش متأكد بغيتي تمسح "${a.name}"؟` +
+          (count > 0 ? `\n⚠️ عندو ${count} طرد، غادي يتمسحو تا هوما.` : "")
+        : `Supprimer "${a.name}" ?` +
+          (count > 0 ? `\n⚠️ ${count} colis seront aussi supprimés.` : "");
+    if (!window.confirm(msg)) return;
+    await supabase.from("agencies").delete().eq("id", a.id);
+    loadData();
+  }
+
   return (
     <div className="app">
       <aside className="sidebar">
         <div className="logo" style={{ fontSize: 22, marginBottom: 18 }}>⚡ {t.appName}</div>
-        <NavBtn icon="📊" label={t.dashboard} active={tab === "dashboard"} onClick={() => setTab("dashboard")} />
-        <NavBtn icon="📦" label={t.packages} active={tab === "packages"} onClick={() => setTab("packages")} />
-        <NavBtn icon="🏢" label={t.agencies} active={tab === "agencies"} onClick={() => setTab("agencies")} />
-        <NavBtn icon="🔔" label={t.notifications} active={tab === "notifs"} onClick={() => setTab("notifs")} badge={unread} />
+        <div className="nav-grid">
+          <NavBtn icon="📊" label={t.dashboard} active={tab === "dashboard"} onClick={() => setTab("dashboard")} />
+          <NavBtn icon="📦" label={t.packages} active={tab === "packages"} onClick={() => setTab("packages")} />
+          <NavBtn icon="🏢" label={t.agencies} active={tab === "agencies"} onClick={() => setTab("agencies")} />
+          <NavBtn icon="🔔" label={t.notifications} active={tab === "notifs"} onClick={() => setTab("notifs")} badge={unread} />
+        </div>
       </aside>
 
       <main className="main">
@@ -92,12 +107,13 @@ export default function AdminPanel() {
             </div>
             <div className="table-wrap">
               <table>
-                <thead><tr><th>{t.name}</th><th>{t.code}</th><th>{t.city}</th><th>{t.packages}</th></tr></thead>
+                <thead><tr><th>{t.name}</th><th>{t.code}</th><th>{t.city}</th><th>{t.packages}</th><th>{t.actions}</th></tr></thead>
                 <tbody>
                   {agencies.map((a) => (
                     <tr key={a.id}>
                       <td><b>{a.name}</b></td><td>{a.code}</td><td>{a.city}</td>
                       <td>{packages.filter((p) => p.agency_id === a.id).length}</td>
+                      <td><button className="btn-danger btn-sm" onClick={() => deleteAgency(a)}>🗑️</button></td>
                     </tr>
                   ))}
                 </tbody>

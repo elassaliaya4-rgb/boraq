@@ -133,6 +133,13 @@ select:focus {
   color: #fff;
 }
 
+/* nav-grid: PC = أزرار عمودية عادية، الموبايل = شبكة 2x2 (فالـ media query) */
+.nav-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
 .error {
   background: rgba(239, 68, 68, 0.12);
   color: #fca5a5;
@@ -300,10 +307,12 @@ tr:last-child td {
   inset: 0;
   background: rgba(0, 0, 0, 0.6);
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
   padding: 20px;
   z-index: 100;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .modal {
@@ -313,8 +322,7 @@ tr:last-child td {
   padding: 28px;
   width: 100%;
   max-width: 480px;
-  max-height: 90vh;
-  overflow-y: auto;
+  margin: auto;
 }
 
 .modal h2 {
@@ -434,20 +442,6 @@ tr:last-child td {
   }
 }
 
-@media (max-width: 720px) {
-  .app {
-    flex-direction: column;
-  }
-  .sidebar {
-    width: 100%;
-    flex-direction: row;
-    overflow-x: auto;
-  }
-  .main {
-    padding: 18px;
-  }
-}
-
 /* ===== الميزات الجديدة v2 ===== */
 .row-head {
   display: flex;
@@ -562,4 +556,122 @@ tr:last-child td {
   font-size: 13px;
   line-height: 1.6;
   white-space: pre-wrap;
+}
+
+/* ============================================
+   📱 التصميم المتجاوب — موبايل + PC
+   ============================================ */
+
+/* مهم: حجم الخط 16px فالخانات باش الموبايل ما يزوّمش ملي تكتب */
+input, select, textarea {
+  font-size: 16px !important;
+}
+
+/* الموبايل (شاشة أصغر من 768px) */
+@media (max-width: 768px) {
+  /* القائمة الجانبية تولي فوق بشكل أفقي */
+  .app {
+    flex-direction: column;
+  }
+  .sidebar {
+    width: 100%;
+    flex-direction: column;
+    padding: 12px;
+    gap: 8px;
+    border-inline-end: none;
+    border-bottom: 1px solid var(--border);
+  }
+  .sidebar .logo {
+    font-size: 22px !important;
+    margin-bottom: 4px !important;
+    padding: 6px 8px;
+    text-align: start;
+  }
+  /* الأزرار 2x2 grid فالموبايل — مرتبين وواضحين */
+  .sidebar .nav-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .nav-item {
+    white-space: nowrap;
+    padding: 12px 14px;
+    font-size: 14px;
+    text-align: center;
+    justify-content: center;
+    border: 1px solid var(--border);
+  }
+  .nav-item.active {
+    border-color: var(--primary);
+  }
+
+  .main {
+    padding: 16px;
+  }
+  .topbar {
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .topbar h1 {
+    font-size: 18px;
+    flex: 1;
+  }
+  .topbar-actions {
+    justify-content: flex-end;
+  }
+
+  /* الإحصائيات وحدة تحت الأخرى */
+  .stats {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .stat-card { padding: 16px; }
+  .stat-card .val { font-size: 26px; }
+
+  /* الجداول: تمرير أفقي سلس */
+  .table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  table { min-width: 480px; }
+  th, td {
+    padding: 11px 12px;
+    font-size: 13px;
+  }
+
+  /* النوافذ تاخذ عرض الشاشة */
+  .modal {
+    padding: 20px;
+    border-radius: 16px;
+  }
+  .modal h2 { font-size: 18px; }
+
+  /* الأزرار ديال النافذة فوق بعضها فالموبايل */
+  .modal-actions {
+    flex-direction: column;
+  }
+  .modal-actions button {
+    width: 100%;
+  }
+
+  /* أزرار واتساب فوق بعضها */
+  .wa-row {
+    flex-direction: column;
+  }
+
+  /* مؤشر المراحل أصغر */
+  .step-lbl { font-size: 9px; }
+  .step-dot { width: 22px; height: 22px; font-size: 11px; }
+
+  .row-head h2 { font-size: 16px; }
+}
+
+/* الموبايل الصغير جدا */
+@media (max-width: 420px) {
+  .stats {
+    grid-template-columns: 1fr;
+  }
+  .main { padding: 12px; }
 }

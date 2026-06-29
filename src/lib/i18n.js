@@ -65,6 +65,13 @@ export const translations = {
     waSender: "WhatsApp expéditeur",
     waMessage: "Message WhatsApp",
     sendWA: "Envoyer WhatsApp",
+    scan: "Scanner",
+    scanTitle: "Scanner un colis",
+    scanHint: "Pointez la caméra vers le QR code du ticket",
+    scanError: "Code non reconnu",
+    notFound: "Colis introuvable",
+    delete: "Supprimer",
+    confirmDelete: "Confirmer la suppression",
   },
   ar: {
     appName: "البراق",
@@ -132,6 +139,13 @@ export const translations = {
     waSender: "واتساب للمرسل",
     waMessage: "رسالة واتساب",
     sendWA: "صيفط واتساب",
+    scan: "تسكاني",
+    scanTitle: "تسكاني الطرد",
+    scanHint: "وجّه الكاميرا على QR ديال التيكيت",
+    scanError: "الكود غير معروف",
+    notFound: "الطرد غير موجود",
+    delete: "مسح",
+    confirmDelete: "تأكيد المسح",
   },
 };
 

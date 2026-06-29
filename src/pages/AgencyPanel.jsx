@@ -54,13 +54,15 @@ export default function AgencyPanel() {
     <div className="app">
       <aside className="sidebar">
         <div className="logo" style={{ fontSize: 22, marginBottom: 18 }}>⚡ {t.appName}</div>
-        <button className={`nav-item ${tab === "packages" ? "active" : ""}`} onClick={() => setTab("packages")}>
-          📦 {t.myPackages}
-        </button>
-        <button className={`nav-item ${tab === "notifs" ? "active" : ""}`} onClick={() => setTab("notifs")}>
-          🔔 {t.notifications}
-          {unread > 0 && <span className="badge">{unread}</span>}
-        </button>
+        <div className="nav-grid">
+          <button className={`nav-item ${tab === "packages" ? "active" : ""}`} onClick={() => setTab("packages")}>
+            📦 {t.myPackages}
+          </button>
+          <button className={`nav-item ${tab === "notifs" ? "active" : ""}`} onClick={() => setTab("notifs")}>
+            🔔 {t.notifications}
+            {unread > 0 && <span className="badge">{unread}</span>}
+          </button>
+        </div>
       </aside>
 
       <main className="main">
