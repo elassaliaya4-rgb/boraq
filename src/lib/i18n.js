@@ -72,6 +72,11 @@ export const translations = {
     notFound: "Colis introuvable",
     delete: "Supprimer",
     confirmDelete: "Confirmer la suppression",
+    scannedPackages: "Colis scannés",
+    scanCount: "scannés",
+    clearList: "Vider la liste",
+    keepScanning: "Continuer à scanner",
+    scanAgain: "Scanner un autre",
   },
   ar: {
     appName: "البراق",
@@ -146,6 +151,11 @@ export const translations = {
     notFound: "الطرد غير موجود",
     delete: "مسح",
     confirmDelete: "تأكيد المسح",
+    scannedPackages: "الطرود المسكنية",
+    scanCount: "مسكنيين",
+    clearList: "فرّغ اللائحة",
+    keepScanning: "كمّل السكان",
+    scanAgain: "سكاني آخر",
   },
 };
 

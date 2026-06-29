@@ -181,7 +181,11 @@ export default function AdminPanel() {
         <PackageDetails pkg={detailPkg} agencies={agencies} onClose={() => setDetailPkg(null)} onUpdated={() => { loadData(); setDetailPkg(null); }} />
       )}
       {showScanner && (
-        <Scanner onResult={handleScanResult} onClose={() => setShowScanner(false)} />
+        <Scanner
+          agencies={agencies}
+          onOpenPackage={(pkg) => { setShowScanner(false); setDetailPkg(pkg); }}
+          onClose={() => setShowScanner(false)}
+        />
       )}
     </div>
   );
