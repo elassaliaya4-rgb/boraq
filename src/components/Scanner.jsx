@@ -83,7 +83,10 @@ export default function Scanner({ onClose, onOpenPackage, agencies = [] }) {
         qrRef.current = qr;
         await qr.start(
           { facingMode: "environment" },
-          { fps: 10, qrbox: 250 },
+          { 
+            fps: 10, 
+            qrbox: 220
+          },
           onDecoded,
           () => {}
         );
