@@ -300,14 +300,25 @@ function AgencyForm({ onClose, onSaved }) {
       })
       .select().single();
 
-    if (!agErr && authData.user) {
-      await supabase
+    if (agErr) { setErr(agErr.message); setBusy(false); return; }
+
+    if (authData.user) {
+      const { error: profErr } = await supabase
         .from("profiles")
-        .update({ agency_id: agency.id })
-        .eq("id", authData.user.id);
+        .insert({
+          id: authData.user.id,
+          role: "agency",
+          agency_id: agency.id
+        });
+      
+      if (profErr) {
+        setErr("Profile error: " + profErr.message);
+        setBusy(false);
+        return;
+      }
     }
     setBusy(false);
-    if (!agErr) onSaved(); else setErr(agErr.message);
+    onSaved();
   }
 
   return (
