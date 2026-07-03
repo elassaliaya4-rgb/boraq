@@ -92,9 +92,27 @@ export default function Scanner({ onClose, onOpenPackage, agencies = [] }) {
       try {
         const qr = new Html5Qrcode("scanner-area", { verbose: false });
         qrRef.current = qr;
+
+        // 1. Get available cameras (triggers permission request)
+        const devices = await Html5Qrcode.getCameras();
+        if (!devices || devices.length === 0) {
+          throw new Error(lang === "ar" ? "لم يتم العثور على كاميرا في هذا الجهاز" : "Aucune caméra trouvée sur cet appareil");
+        }
+
+        // 2. Select back camera if available, otherwise default to first camera (front/webcam)
+        let cameraId = devices[0].id;
+        const backCamera = devices.find(d => 
+          d.label.toLowerCase().includes("back") || 
+          d.label.toLowerCase().includes("rear") || 
+          d.label.toLowerCase().includes("environment") ||
+          d.label.toLowerCase().includes("arrière")
+        );
+        if (backCamera) {
+          cameraId = backCamera.id;
+        }
         
         const p = qr.start(
-          { facingMode: "environment" },
+          cameraId,
           { 
             fps: 10, 
             qrbox: 220
