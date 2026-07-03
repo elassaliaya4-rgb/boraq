@@ -10,6 +10,7 @@ export default function Scanner({ onClose, onOpenPackage, agencies = [] }) {
   const stoppedRef = useRef(false);
   const lastScanRef = useRef({ text: "", at: 0 });
   const isScanningRef = useRef(false);
+  const startPromiseRef = useRef(null); // Tracks the camera start promise
   const [error, setError] = useState("");
   const [starting, setStarting] = useState(true);
   const [scanned, setScanned] = useState([]);
@@ -19,6 +20,16 @@ export default function Scanner({ onClose, onOpenPackage, agencies = [] }) {
   async function safeStop() {
     if (stoppedRef.current) return;
     stoppedRef.current = true;
+    
+    // If camera is still starting, wait for it to finish first
+    if (startPromiseRef.current) {
+      try {
+        await startPromiseRef.current;
+      } catch (e) {
+        return; // Start failed, nothing to stop
+      }
+    }
+    
     const qr = qrRef.current;
     if (!qr) return;
     try {
@@ -81,7 +92,8 @@ export default function Scanner({ onClose, onOpenPackage, agencies = [] }) {
       try {
         const qr = new Html5Qrcode("scanner-area", { verbose: false });
         qrRef.current = qr;
-        await qr.start(
+        
+        const p = qr.start(
           { facingMode: "environment" },
           { 
             fps: 10, 
@@ -90,6 +102,8 @@ export default function Scanner({ onClose, onOpenPackage, agencies = [] }) {
           onDecoded,
           () => {}
         );
+        startPromiseRef.current = p;
+        await p;
         isScanningRef.current = true;
 
         if (stoppedRef.current) {
@@ -104,6 +118,8 @@ export default function Scanner({ onClose, onOpenPackage, agencies = [] }) {
           setError(err?.message || String(err) || "Camera error");
           setStarting(false);
         }
+      } finally {
+        startPromiseRef.current = null;
       }
     };
     const timer = setTimeout(startScanner, 250);
