@@ -4,7 +4,7 @@ import AdminPanel from "./pages/AdminPanel";
 import AgencyPanel from "./pages/AgencyPanel";
 
 export default function App() {
-  const { user, profile, loading, dir, lang } = useApp();
+  const { user, profile, loading, dir, lang, signOut, t } = useApp();
 
   // ضبط اتجاه الصفحة حسب اللغة
   document.documentElement.dir = dir;
@@ -29,9 +29,12 @@ export default function App() {
     <div className="login-wrap">
       <div className="login-card" style={{ textAlign: "center" }}>
         <div className="logo">⚡ Boraq</div>
-        <p style={{ color: "var(--text-dim)", marginTop: 14 }}>
+        <p style={{ color: "var(--text-dim)", marginTop: 14, marginBottom: 20 }}>
           Compte sans rôle. Contactez l'administrateur.
         </p>
+        <button className="btn-primary" onClick={signOut}>
+          Déconnexion / تسجيل الخروج
+        </button>
       </div>
     </div>
   );

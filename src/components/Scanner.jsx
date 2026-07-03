@@ -9,6 +9,7 @@ export default function Scanner({ onClose, onOpenPackage, agencies = [] }) {
   const qrRef = useRef(null);
   const stoppedRef = useRef(false);
   const lastScanRef = useRef({ text: "", at: 0 });
+  const isScanningRef = useRef(false);
   const [error, setError] = useState("");
   const [starting, setStarting] = useState(true);
   const [scanned, setScanned] = useState([]);
@@ -21,8 +22,9 @@ export default function Scanner({ onClose, onOpenPackage, agencies = [] }) {
     const qr = qrRef.current;
     if (!qr) return;
     try {
-      if (qr.isScanning) {
+      if (isScanningRef.current) {
         await qr.stop();
+        isScanningRef.current = false;
       }
     } catch (e) {}
     try {
@@ -75,16 +77,25 @@ export default function Scanner({ onClose, onOpenPackage, agencies = [] }) {
   useEffect(() => {
     let mounted = true;
     const startScanner = async () => {
+      if (!document.getElementById("scanner-area")) return;
       try {
         const qr = new Html5Qrcode("scanner-area", { verbose: false });
         qrRef.current = qr;
         await qr.start(
           { facingMode: "environment" },
-          { fps: 12, qrbox: { width: 240, height: 240 }, aspectRatio: 1.0 },
+          { fps: 10, qrbox: 250 },
           onDecoded,
           () => {}
         );
-        if (mounted) setStarting(false);
+        isScanningRef.current = true;
+
+        if (stoppedRef.current) {
+          await qr.stop();
+          isScanningRef.current = false;
+          qr.clear();
+        } else {
+          if (mounted) setStarting(false);
+        }
       } catch (err) {
         if (mounted) {
           setError(err?.message || String(err) || "Camera error");

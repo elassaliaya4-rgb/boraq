@@ -40,8 +40,9 @@ export function AppProvider({ children }) {
       .from("profiles")
       .select("*")
       .eq("id", userId)
-      .single();
-    setProfile(data);
+      .maybeSingle();
+
+    setProfile(data || null);
     setLoading(false);
   }
 

@@ -11,7 +11,7 @@ export default function AgencyPanel() {
   const [packages, setPackages] = useState([]);
   const [agencies, setAgencies] = useState([]);
   const [notifs, setNotifs] = useState([]);
-  const [agencyName, setAgencyName] = useState("");
+  const [agencyInfo, setAgencyInfo] = useState(null);
   const [showPkgForm, setShowPkgForm] = useState(false);
   const [detailPkg, setDetailPkg] = useState(null);
   const [showScanner, setShowScanner] = useState(false);
@@ -33,13 +33,41 @@ export default function AgencyPanel() {
   }
 
   useEffect(() => {
-    if (profile?.agency_id) loadData();
+    if (!profile?.agency_id) return;
+    loadData();
+
+    // Subscribe to real-time notifications for this agency
+    const channel = supabase
+      .channel("agency-notifs")
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "notifications",
+          filter: `agency_id=eq.${profile.agency_id}`,
+        },
+        (payload) => {
+          if (payload.new.target === "agency") {
+            if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+            loadData();
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [profile]);
 
   async function loadData() {
     const { data: ag } = await supabase
-      .from("agencies").select("name").eq("id", profile.agency_id).single();
-    setAgencyName(ag?.name || "");
+      .from("agencies")
+      .select("name, city, code")
+      .eq("id", profile.agency_id)
+      .maybeSingle();
+    setAgencyInfo(ag);
 
     // لائحة كل الأجونسيات (باش يختار وجهة الطرد)
     const { data: allAg } = await supabase.from("agencies").select("*");
@@ -69,7 +97,24 @@ export default function AgencyPanel() {
   return (
     <div className="app">
       <aside className="sidebar">
-        <div className="logo" style={{ fontSize: 22, marginBottom: 18 }}>⚡ {t.appName}</div>
+        <div className="logo" style={{ fontSize: 22, marginBottom: 12 }}>⚡ {t.appName}</div>
+        {agencyInfo && (
+          <div style={{
+            background: "rgba(255, 255, 255, 0.08)",
+            padding: "8px 12px",
+            borderRadius: 8,
+            fontSize: 11,
+            marginBottom: 16,
+            border: "1px solid rgba(255, 255, 255, 0.12)",
+            color: "#e2e8f0",
+            lineHeight: "1.4"
+          }}>
+            <div style={{ fontWeight: 600, color: "var(--accent, #fbbf24)" }}>🏢 {agencyInfo.name}</div>
+            <div style={{ fontSize: 10, color: "#94a3b8", marginTop: 2 }}>
+              📍 {agencyInfo.city} • 🔑 {agencyInfo.code}
+            </div>
+          </div>
+        )}
         <div className="nav-grid">
           <button className={`nav-item ${tab === "packages" ? "active" : ""}`} onClick={() => setTab("packages")}>
             📦 {t.myPackages}
@@ -83,7 +128,7 @@ export default function AgencyPanel() {
 
       <main className="main">
         <div className="topbar">
-          <h1>{t.welcome} {agencyName} 👋</h1>
+          <h1>{t.welcome} {agencyInfo?.name || "Agence"} 👋</h1>
           <div className="topbar-actions">
             <button className="btn-sm" onClick={() => setShowScanner(true)}>📷 {t.scan}</button>
             <button className="btn-sm" onClick={() => setLang(lang === "ar" ? "fr" : "ar")}>🌐 {lang === "ar" ? "FR" : "ع"}</button>

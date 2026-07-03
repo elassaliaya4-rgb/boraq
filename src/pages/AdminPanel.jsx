@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useApp } from "../lib/context";
-import { supabase } from "../lib/supabase";
+import { supabase, SUPABASE_URL, SUPABASE_ANON_KEY } from "../lib/supabase";
+import { createClient } from "@supabase/supabase-js";
 import PackageForm from "../components/PackageForm";
 import PackageDetails from "../components/PackageDetails";
 import Scanner from "../components/Scanner";
@@ -20,6 +21,28 @@ export default function AdminPanel() {
 
   useEffect(() => {
     loadData();
+
+    // Subscribe to real-time notifications for the admin
+    const channel = supabase
+      .channel("admin-notifs")
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "notifications",
+          filter: "target=eq.admin",
+        },
+        (payload) => {
+          if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+          loadData();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   async function loadData() {
@@ -241,18 +264,30 @@ function PackagesTable({ packages, t, onManage, onDelete }) {
 
 function AgencyForm({ onClose, onSaved }) {
   const { t } = useApp();
-  const [form, setForm] = useState({ name: "", city: "", code: "", email: "", password: "" });
+  const [form, setForm] = useState({ name: "", city: "", code: "" });
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
 
   function set(k, v) { setForm((f) => ({ ...f, [k]: v })); }
 
   async function save() {
-    if (!form.email || !form.password || !form.name) { setErr(t.fillAll); return; }
+    if (!form.name || !form.code) { setErr(t.fillAll); return; }
     setBusy(true); setErr("");
 
-    const { data: authData, error: authErr } = await supabase.auth.signUp({
-      email: form.email, password: form.password,
+    const generatedEmail = `${form.code.toLowerCase().trim()}@boraq.com`;
+    const generatedPassword = `${form.code.toLowerCase().trim()}123`;
+
+    // Create a temp client just for auth signup so we don't hijack the admin's session
+    const tempClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth: {
+        persistSession: false,
+        autoRefreshToken: false,
+        detectSessionInUrl: false
+      }
+    });
+
+    const { data: authData, error: authErr } = await tempClient.auth.signUp({
+      email: generatedEmail, password: generatedPassword,
     });
     if (authErr) { setErr(authErr.message); setBusy(false); return; }
 
@@ -260,15 +295,16 @@ function AgencyForm({ onClose, onSaved }) {
       .from("agencies")
       .insert({
         name: form.name,
-        code: form.code || "AG-" + Date.now().toString().slice(-5),
-        city: form.city, email: form.email,
+        code: form.code.toUpperCase().trim(),
+        city: form.city, email: generatedEmail,
       })
       .select().single();
 
     if (!agErr && authData.user) {
-      await supabase.from("profiles").insert({
-        id: authData.user.id, role: "agency", agency_id: agency.id,
-      });
+      await supabase
+        .from("profiles")
+        .update({ agency_id: agency.id })
+        .eq("id", authData.user.id);
     }
     setBusy(false);
     if (!agErr) onSaved(); else setErr(agErr.message);
@@ -279,11 +315,9 @@ function AgencyForm({ onClose, onSaved }) {
       <div className="modal" onClick={(e) => e.stopPropagation()}>
         <h2>{t.addAgency}</h2>
         {err && <div className="error">{err}</div>}
-        <div className="field"><label>{t.name}</label><input value={form.name} onChange={(e) => set("name", e.target.value)} /></div>
-        <div className="field"><label>{t.city}</label><input value={form.city} onChange={(e) => set("city", e.target.value)} /></div>
-        <div className="field"><label>{t.code}</label><input value={form.code} onChange={(e) => set("code", e.target.value)} placeholder="AG-001" /></div>
-        <div className="field"><label>{t.email}</label><input type="email" value={form.email} onChange={(e) => set("email", e.target.value)} /></div>
-        <div className="field"><label>{t.password}</label><input type="password" value={form.password} onChange={(e) => set("password", e.target.value)} /></div>
+        <div className="field"><label>{t.name}</label><input value={form.name} onChange={(e) => set("name", e.target.value)} placeholder="Agence Mohammedia" /></div>
+        <div className="field"><label>{t.city}</label><input value={form.city} onChange={(e) => set("city", e.target.value)} placeholder="Mohammedia" /></div>
+        <div className="field"><label>{t.code}</label><input value={form.code} onChange={(e) => set("code", e.target.value)} placeholder="MHM" style={{ textTransform: "uppercase" }} /></div>
         <div className="modal-actions">
           <button className="btn-primary" onClick={save} disabled={busy}>{busy ? "..." : t.save}</button>
           <button className="btn-sm" onClick={onClose}>{t.cancel}</button>
