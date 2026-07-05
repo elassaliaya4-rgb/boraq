@@ -70,6 +70,17 @@ export default function Scanner({ onClose, onOpenPackage, agencies = [] }) {
       .select("*")
       .eq("tracking_number", tracking)
       .maybeSingle();
+
+    let siblings = [];
+    if (pkg) {
+      const { data: sibs } = await supabase
+        .from("packages")
+        .select("id, tracking_number, status")
+        .eq("sender_phone", pkg.sender_phone)
+        .eq("receiver_phone", pkg.receiver_phone)
+        .neq("status", "delivered");
+      siblings = sibs || [];
+    }
     setLoading(false);
 
     if (stoppedRef.current) return;
@@ -83,7 +94,7 @@ export default function Scanner({ onClose, onOpenPackage, agencies = [] }) {
     setError("");
     setScanned((prev) => {
       if (prev.find((s) => s.pkg.id === pkg.id)) return prev;
-      return [{ pkg, at: now }, ...prev];
+      return [{ pkg, siblings, at: now }, ...prev];
     });
   }
 
@@ -241,47 +252,86 @@ export default function Scanner({ onClose, onOpenPackage, agencies = [] }) {
               </button>
             </div>
             <div style={{ maxHeight: 220, overflowY: "auto", display: "flex", flexDirection: "column", gap: 8 }}>
-              {scanned.map(({ pkg }) => (
-                <div
-                  key={pkg.id}
-                  onClick={() => handleOpenPackage(pkg)}
-                  style={{
-                    cursor: "pointer",
-                    background: "var(--surface-2)",
-                    border: "1px solid var(--border)",
-                    borderRadius: 10,
-                    padding: "10px 12px",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 10,
-                  }}
-                >
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: 13, fontWeight: 600, color: "var(--primary)" }}>
-                      {pkg.tracking_number}
+              {scanned.map(({ pkg, siblings }) => {
+                const isGroup = siblings && siblings.length > 1;
+                // Count how many siblings are also in the current scanned list
+                const scannedSiblings = siblings ? siblings.filter(sib =>
+                  scanned.find(s => s.pkg.id === sib.id)
+                ) : [];
+
+                return (
+                  <div key={pkg.id} style={{ display: "flex", flexDirection: "column", gap: 6, background: "var(--surface-2)", border: "1px solid var(--border)", borderRadius: 10, padding: "10px 12px" }}>
+                    <div
+                      onClick={() => handleOpenPackage(pkg)}
+                      style={{
+                        cursor: "pointer",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 10,
+                      }}
+                    >
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: 13, fontWeight: 600, color: "var(--primary)" }}>
+                          {pkg.tracking_number}
+                        </div>
+                        <div style={{ fontSize: 12, color: "var(--text-dim)", marginTop: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                          {pkg.sender_name} → {pkg.destination}
+                        </div>
+                        <div style={{ fontSize: 11, color: "var(--text-dim)", marginTop: 2 }}>
+                          🏢 {getAgencyName(pkg.agency_id)} • ⚖️ {pkg.weight} {t.kg}
+                        </div>
+                      </div>
+                      <span
+                        style={{
+                          padding: "3px 9px",
+                          borderRadius: 20,
+                          fontSize: 11,
+                          fontWeight: 600,
+                          background: statusBg[pkg.status],
+                          color: statusColors[pkg.status],
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        {t[pkg.status]}
+                      </span>
                     </div>
-                    <div style={{ fontSize: 12, color: "var(--text-dim)", marginTop: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                      {pkg.sender_name} → {pkg.destination}
-                    </div>
-                    <div style={{ fontSize: 11, color: "var(--text-dim)", marginTop: 2 }}>
-                      🏢 {getAgencyName(pkg.agency_id)} • ⚖️ {pkg.weight} {t.kg}
-                    </div>
+
+                    {isGroup && (
+                      <div style={{
+                        marginTop: 4,
+                        fontSize: 11,
+                        padding: "6px 10px",
+                        borderRadius: 6,
+                        background: "rgba(251, 191, 36, 0.08)",
+                        border: "1px solid rgba(251, 191, 36, 0.2)",
+                        color: "var(--accent, #fbbf24)"
+                      }}>
+                        🔗 <b>{lang === "ar" ? "شحنة مشتركة" : "Envoi groupé"}:</b> {scannedSiblings.length}/{siblings.length} {lang === "ar" ? "طرود تم مسحها" : "colis scannés"}
+                        <div style={{ marginTop: 4, display: "flex", flexWrap: "wrap", gap: 6 }}>
+                          {siblings.map(sib => {
+                            const isScanned = scanned.find(s => s.pkg.id === sib.id);
+                            return (
+                              <span 
+                                key={sib.id} 
+                                style={{ 
+                                  fontSize: 10,
+                                  padding: "2px 6px",
+                                  borderRadius: 4,
+                                  background: isScanned ? "rgba(16, 185, 129, 0.15)" : "rgba(255, 255, 255, 0.05)",
+                                  color: isScanned ? "#10b981" : "#94a3b8",
+                                  border: isScanned ? "1px solid rgba(16, 185, 129, 0.3)" : "1px solid rgba(255, 255, 255, 0.1)"
+                                }}
+                              >
+                                {sib.tracking_number} {isScanned ? "✓" : ""}
+                              </span>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
                   </div>
-                  <span
-                    style={{
-                      padding: "3px 9px",
-                      borderRadius: 20,
-                      fontSize: 11,
-                      fontWeight: 600,
-                      background: statusBg[pkg.status],
-                      color: statusColors[pkg.status],
-                      whiteSpace: "nowrap",
-                    }}
-                  >
-                    {t[pkg.status]}
-                  </span>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         )}
