@@ -156,8 +156,7 @@ export default function Scanner({ onClose, onOpenPackage, agencies = [], onUpdat
         const p = qr.start(
           cameraId,
           { 
-            fps: 10, 
-            qrbox: 220
+            fps: 15
           },
           onDecoded,
           () => {}
