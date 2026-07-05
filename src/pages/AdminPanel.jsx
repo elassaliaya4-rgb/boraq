@@ -18,13 +18,13 @@ export default function AdminPanel() {
   const [showDrForm, setShowDrForm] = useState(false);
   const [detailPkg, setDetailPkg] = useState(null);
   const [showScanner, setShowScanner] = useState(false);
+  const [mapDriver, setMapDriver] = useState(null);
 
   const unread = notifs?.filter((n) => !n.is_read)?.length || 0;
 
   useEffect(() => {
     loadData();
 
-    // Subscribe to real-time notifications for the admin
     const channel = supabase
       .channel("admin-notifs")
       .on(
@@ -46,6 +46,60 @@ export default function AdminPanel() {
       supabase.removeChannel(channel);
     };
   }, []);
+
+  useEffect(() => {
+    let mapInstance = null;
+
+    if (mapDriver) {
+      if (!document.getElementById("leaflet-css")) {
+        const css = document.createElement("link");
+        css.id = "leaflet-css";
+        css.rel = "stylesheet";
+        css.href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
+        document.head.appendChild(css);
+      }
+      if (!window.L) {
+        const script = document.createElement("script");
+        script.src = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";
+        script.onload = initMap;
+        document.body.appendChild(script);
+      } else {
+        setTimeout(initMap, 150);
+      }
+    }
+
+    function initMap() {
+      if (!mapDriver?.latitude || !mapDriver?.longitude) return;
+      const container = document.getElementById("live-map");
+      if (!container) return;
+
+      try {
+        mapInstance = window.L.map("live-map").setView([mapDriver.latitude, mapDriver.longitude], 15);
+        window.L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          maxZoom: 19,
+          attribution: "© OpenStreetMap"
+        }).addTo(mapInstance);
+
+        const deliveryIcon = window.L.divIcon({
+          html: '<div style="font-size: 32px; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.4)); animation: map-pulse 1.8s infinite ease-in-out;">🚚</div>',
+          className: "custom-leaflet-icon",
+          iconSize: [40, 40],
+          iconAnchor: [20, 20]
+        });
+
+        const marker = window.L.marker([mapDriver.latitude, mapDriver.longitude], { icon: deliveryIcon }).addTo(mapInstance);
+        marker.bindPopup(`<b>${mapDriver.name}</b><br>🛰️ GPS Live Position`).openPopup();
+      } catch (err) {
+        console.warn("Map error:", err);
+      }
+    }
+
+    return () => {
+      if (mapInstance) {
+        mapInstance.remove();
+      }
+    };
+  }, [mapDriver]);
 
   async function loadData() {
     const { data: pkgs } = await supabase
@@ -275,15 +329,12 @@ export default function AdminPanel() {
                         </td>
                         <td>
                           {d.latitude && d.longitude ? (
-                            <a
-                              href={`https://www.google.com/maps/search/?api=1&query=${d.latitude},${d.longitude}`}
-                              target="_blank"
-                              rel="noreferrer"
+                            <button
+                              onClick={() => setMapDriver(d)}
                               className="btn-primary"
                               style={{
                                 padding: "4px 10px",
                                 fontSize: 12,
-                                textDecoration: "none",
                                 borderRadius: 6,
                                 display: "inline-flex",
                                 alignItems: "center",
@@ -292,7 +343,7 @@ export default function AdminPanel() {
                               }}
                             >
                               📍 {lang === "ar" ? "تحديد الموقع" : "Localiser"}
-                            </a>
+                            </button>
                           ) : (
                             <span style={{ color: "var(--text-dim)", fontSize: 12 }}>—</span>
                           )}
@@ -329,6 +380,33 @@ export default function AdminPanel() {
       )}
       {showDrForm && (
         <ChauffeurForm onClose={() => setShowDrForm(false)} onSaved={() => { setShowDrForm(false); loadData(); }} />
+      )}
+      {mapDriver && (
+        <div className="modal-overlay" onClick={() => setMapDriver(null)}>
+          <div className="modal-card" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 600 }}>
+            <div className="modal-head">
+              <h3>📍 {lang === "ar" ? `موقع الشوفور: ${mapDriver.name}` : `Position de ${mapDriver.name}`}</h3>
+              <button className="btn-close" onClick={() => setMapDriver(null)}>✕</button>
+            </div>
+            <div style={{ padding: "10px 0 0 0" }}>
+              <div id="live-map" style={{ width: "100%", height: "400px", borderRadius: 12, background: "#1e293b" }}></div>
+              <div style={{ marginTop: 15, display: "flex", gap: 10, justifyContent: "flex-end" }}>
+                <a
+                  href={`https://www.google.com/maps/search/?api=1&query=${mapDriver.latitude},${mapDriver.longitude}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="btn-secondary btn-sm"
+                  style={{ textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 5 }}
+                >
+                  🗺️ {lang === "ar" ? "فتح في Google Maps" : "Ouvrir f Google Maps"}
+                </a>
+                <button className="btn-primary btn-sm" onClick={() => setMapDriver(null)}>
+                  {lang === "ar" ? "إغلاق" : "Fermer"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

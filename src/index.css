@@ -793,3 +793,8 @@ input, select, textarea {
   70% { width: 85%; }
   100% { width: 100%; }
 }
+
+@keyframes map-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.15) translateY(-5px); }
+}
