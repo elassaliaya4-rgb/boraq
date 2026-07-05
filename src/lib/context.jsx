@@ -36,20 +36,32 @@ export function AppProvider({ children }) {
   }, []);
 
   async function loadProfile(userId) {
-    const { data } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("id", userId)
-      .maybeSingle();
+    try {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", userId)
+        .maybeSingle();
 
-    if (data) {
-      setProfile(data);
-      setLoading(false);
-    } else {
-      // User logged in but has no profile (was deleted). Sign them out immediately.
-      await supabase.auth.signOut();
+      if (error) throw error;
+
+      if (data) {
+        setProfile(data);
+      } else {
+        // User has no database profile. Force sign out.
+        try {
+          await supabase.auth.signOut();
+        } catch (e) {
+          console.warn("SignOut error:", e);
+        }
+        setUser(null);
+        setProfile(null);
+      }
+    } catch (e) {
+      console.error("loadProfile error:", e);
       setUser(null);
       setProfile(null);
+    } finally {
       setLoading(false);
     }
   }
