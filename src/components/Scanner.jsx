@@ -162,7 +162,13 @@ export default function Scanner({ onClose, onOpenPackage, agencies = [], onUpdat
         const p = qr.start(
           cameraId,
           { 
-            fps: 15
+            fps: 15,
+            videoConstraints: {
+              width: { min: 640, ideal: 1280, max: 1920 },
+              height: { min: 480, ideal: 720, max: 1080 },
+              facingMode: "environment",
+              focusMode: "continuous"
+            }
           },
           onDecoded,
           () => {}
@@ -207,11 +213,13 @@ export default function Scanner({ onClose, onOpenPackage, agencies = [], onUpdat
       if (!canvas) return;
       const ctx = canvas.getContext("2d");
 
-      // Offscreen canvas to read video frames programmatically
+      // Offscreen canvas for jsQR fallback frame capture
       const offscreen = document.createElement("canvas");
       const offscreenCtx = offscreen.getContext("2d");
 
-      const trackLoop = () => {
+      let lastScanTime = 0;
+
+      const trackLoop = async () => {
         if (stoppedRef.current || !videoEl || !canvasRef.current) return;
 
         if (canvas.width !== videoEl.clientWidth || canvas.height !== videoEl.clientHeight) {
@@ -219,42 +227,75 @@ export default function Scanner({ onClose, onOpenPackage, agencies = [], onUpdat
           canvas.height = videoEl.clientHeight;
         }
 
-        if (ctx) {
-          ctx.clearRect(0, 0, canvas.width, canvas.height);
-        }
+        const now = Date.now();
+        if (now - lastScanTime > 150) { // Throttle: 6 times per second max (silky smooth camera, zero lag)
+          lastScanTime = now;
 
-        if (videoEl.videoWidth > 0 && videoEl.videoHeight > 0) {
-          offscreen.width = videoEl.videoWidth;
-          offscreen.height = videoEl.videoHeight;
+          if (ctx) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+          }
 
-          try {
-            offscreenCtx.drawImage(videoEl, 0, 0, offscreen.width, offscreen.height);
-            const imgData = offscreenCtx.getImageData(0, 0, offscreen.width, offscreen.height);
-            
-            const code = jsQR(imgData.data, imgData.width, imgData.height, {
-              inversionAttempts: "dontInvert"
-            });
+          if (window.BarcodeDetector) {
+            try {
+              const detector = new window.BarcodeDetector({ formats: ["qr_code"] });
+              const barcodes = await detector.detect(videoEl);
+              if (barcodes.length > 0 && ctx && canvasRef.current && !stoppedRef.current) {
+                const barcode = barcodes[0];
+                const { x, y, width, height } = barcode.boundingBox;
+                const scaleX = canvas.width / videoEl.videoWidth;
+                const scaleY = canvas.height / videoEl.videoHeight;
+                const rx = x * scaleX;
+                const ry = y * scaleY;
+                const rw = width * scaleX;
+                const rh = height * scaleY;
 
-            if (code && ctx && canvasRef.current && !stoppedRef.current) {
-              const loc = code.location;
-              const scaleX = canvas.width / videoEl.videoWidth;
-              const scaleY = canvas.height / videoEl.videoHeight;
+                ctx.strokeStyle = "#ffffff"; // Telegram white borders
+                ctx.lineWidth = 4;
+                ctx.lineJoin = "round";
+                ctx.beginPath();
+                ctx.roundRect(rx, ry, rw, rh, 16);
+                ctx.stroke();
 
-              ctx.strokeStyle = "#10b981"; // emerald green
-              ctx.lineWidth = 4;
-              ctx.lineJoin = "round";
-              ctx.beginPath();
-              ctx.moveTo(loc.topLeftCorner.x * scaleX, loc.topLeftCorner.y * scaleY);
-              ctx.lineTo(loc.topRightCorner.x * scaleX, loc.topRightCorner.y * scaleY);
-              ctx.lineTo(loc.bottomRightCorner.x * scaleX, loc.bottomRightCorner.y * scaleY);
-              ctx.lineTo(loc.bottomLeftCorner.x * scaleX, loc.bottomLeftCorner.y * scaleY);
-              ctx.closePath();
-              ctx.stroke();
+                ctx.fillStyle = "rgba(255, 255, 255, 0.15)";
+                ctx.fill();
+              }
+            } catch (e) {}
+          } else {
+            // CPU Fallback with jsQR
+            if (videoEl.videoWidth > 0 && videoEl.videoHeight > 0) {
+              offscreen.width = videoEl.videoWidth;
+              offscreen.height = videoEl.videoHeight;
 
-              ctx.fillStyle = "rgba(16, 185, 129, 0.15)";
-              ctx.fill();
+              try {
+                offscreenCtx.drawImage(videoEl, 0, 0, offscreen.width, offscreen.height);
+                const imgData = offscreenCtx.getImageData(0, 0, offscreen.width, offscreen.height);
+                
+                const code = jsQR(imgData.data, imgData.width, imgData.height, {
+                  inversionAttempts: "dontInvert"
+                });
+
+                if (code && ctx && canvasRef.current && !stoppedRef.current) {
+                  const loc = code.location;
+                  const scaleX = canvas.width / videoEl.videoWidth;
+                  const scaleY = canvas.height / videoEl.videoHeight;
+
+                  ctx.strokeStyle = "#ffffff"; // Telegram white borders
+                  ctx.lineWidth = 4;
+                  ctx.lineJoin = "round";
+                  ctx.beginPath();
+                  ctx.moveTo(loc.topLeftCorner.x * scaleX, loc.topLeftCorner.y * scaleY);
+                  ctx.lineTo(loc.topRightCorner.x * scaleX, loc.topRightCorner.y * scaleY);
+                  ctx.lineTo(loc.bottomRightCorner.x * scaleX, loc.bottomRightCorner.y * scaleY);
+                  ctx.lineTo(loc.bottomLeftCorner.x * scaleX, loc.bottomLeftCorner.y * scaleY);
+                  ctx.closePath();
+                  ctx.stroke();
+
+                  ctx.fillStyle = "rgba(255, 255, 255, 0.15)";
+                  ctx.fill();
+                }
+              } catch (e) {}
             }
-          } catch (e) {}
+          }
         }
 
         if (!stoppedRef.current) {
@@ -330,7 +371,20 @@ export default function Scanner({ onClose, onOpenPackage, agencies = [], onUpdat
       );
       if (backCamera) cameraId = backCamera.id;
       
-      const p = qr.start(cameraId, { fps: 15 }, onDecoded, () => {});
+      const p = qr.start(
+        cameraId,
+        { 
+          fps: 15,
+          videoConstraints: {
+            width: { min: 640, ideal: 1280, max: 1920 },
+            height: { min: 480, ideal: 720, max: 1080 },
+            facingMode: "environment",
+            focusMode: "continuous"
+          }
+        },
+        onDecoded,
+        () => {}
+      );
       startPromiseRef.current = p;
       await p;
       isScanningRef.current = true;
