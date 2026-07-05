@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useApp } from "../lib/context";
 import { supabase } from "../lib/supabase";
 import { statusColors, statusBg } from "../lib/helpers";
+import { Geolocation } from "@capacitor/geolocation";
 import Scanner from "../components/Scanner";
 import PackageDetails from "../components/PackageDetails";
 
@@ -51,25 +52,34 @@ export default function DriverPanel() {
     const interval = setInterval(updateLocation, 30000);
     return () => clearInterval(interval);
 
-    function updateLocation() {
-      if (!navigator.geolocation) return;
-      navigator.geolocation.getCurrentPosition(
-        async (position) => {
-          const { latitude, longitude } = position.coords;
-          await supabase
-            .from("drivers")
-            .update({
-              latitude,
-              longitude,
-              last_active: new Date().toISOString()
-            })
-            .eq("id", profile.driver_id);
-        },
-        (error) => {
-          console.warn("Geolocation error:", error);
-        },
-        { enableHighAccuracy: true, timeout: 10000 }
-      );
+    async function updateLocation() {
+      try {
+        const perm = await Geolocation.checkPermissions();
+        if (perm.location !== "granted") {
+          const req = await Geolocation.requestPermissions();
+          if (req.location !== "granted") {
+            console.warn("Location permission denied.");
+            return;
+          }
+        }
+
+        const position = await Geolocation.getCurrentPosition({
+          enableHighAccuracy: true,
+          timeout: 10000
+        });
+
+        const { latitude, longitude } = position.coords;
+        await supabase
+          .from("drivers")
+          .update({
+            latitude,
+            longitude,
+            last_active: new Date().toISOString()
+          })
+          .eq("id", profile.driver_id);
+      } catch (error) {
+        console.warn("Geolocation error:", error);
+      }
     }
   }, [profile]);
 
