@@ -379,334 +379,155 @@ export default function Scanner({ onClose, onOpenPackage, agencies = [], onUpdat
   }
 
   return (
-    <div className="modal-bg" onClick={handleClose} style={{ zIndex: 300 }}>
-      <div
-        className="modal"
-        onClick={(e) => e.stopPropagation()}
-        style={{ maxWidth: 480 }}
-      >
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <button 
-              onClick={handleClose} 
-              style={{ 
-                background: "none", 
-                border: "none", 
-                fontSize: 18, 
-                color: "var(--text)", 
-                cursor: "pointer", 
-                padding: "2px 6px",
-                display: "inline-flex",
-                alignItems: "center"
-              }}
-              title="Retour / رجوع"
-            >
-              {lang === "ar" ? "→" : "←"}
-            </button>
-            <div style={{ fontSize: 17, fontWeight: 600 }}>
-              📷 {t.scanTitle}
-            </div>
-          </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            {scanned.length > 0 && (
-              <div style={{ fontSize: 13, color: "var(--primary)", fontWeight: 600 }}>
-                {scanned.length} {t.scanCount}
-              </div>
-            )}
-            <button 
-              onClick={handleClose} 
-              style={{ 
-                background: "none", 
-                border: "none", 
-                fontSize: 18, 
-                color: "var(--text-dim)", 
-                cursor: "pointer",
-                padding: "2px 6px",
-                display: "inline-flex",
-                alignItems: "center"
-              }}
-            >
-              ✕
-            </button>
-          </div>
-        </div>
-        <div style={{ fontSize: 12, color: "var(--text-dim)", marginBottom: 12 }}>
-          {t.scanHint}
-        </div>
-
-        {error && (
-          <div className="error" style={{ marginBottom: 10 }}>⚠️ {error}</div>
+    <div className="scanner-fullscreen-modal">
+      {/* Telegram-style Top Header */}
+      <header className="scanner-header">
+        <button className="scanner-header-back" onClick={handleClose}>
+          {lang === "ar" ? "→" : "←"}
+        </button>
+        <span className="scanner-header-title">
+          {t.scanTitle}
+        </span>
+        {scanned.length > 0 && (
+          <span style={{ fontSize: 13, color: "var(--primary)", fontWeight: "600", background: "rgba(251, 191, 36, 0.15)", padding: "4px 10px", borderRadius: 12 }}>
+            {scanned.length} {t.scanCount}
+          </span>
         )}
+      </header>
 
-        <div
-          style={{
-            position: "relative",
-            width: "100%",
-            aspectRatio: "1 / 1",
-            maxHeight: 320,
-            background: "#000",
-            borderRadius: 12,
-            overflow: "hidden",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center"
-          }}
-        >
-          {/* Clean target container for html5-qrcode. React does not touch its subtree! */}
-          <div
-            id="scanner-area"
+      {/* Fullscreen camera container */}
+      <div className="scanner-camera-container">
+        <div id="scanner-area" style={{ width: "100%", height: "100%", position: "relative" }}>
+          <canvas
+            ref={canvasRef}
             style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
               width: "100%",
               height: "100%",
-              position: "relative"
+              zIndex: 10002,
+              pointerEvents: "none"
             }}
-          >
-            <canvas
-              ref={canvasRef}
-              style={{
-                position: "absolute",
-                top: 0,
-                left: 0,
-                width: "100%",
-                height: "100%",
-                zIndex: 11,
-                pointerEvents: "none"
-              }}
-            />
-            {!error && !starting && (
-              <div className="scanner-overlay">
-                <div className="scanner-viewfinder">
-                  <div className="scanner-laser"></div>
-                  <div className="scanner-viewfinder-corners"></div>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Sibling React overlays */}
-          {starting && !error && (
-            <div style={{ position: "absolute", color: "#fff", fontSize: 13, zIndex: 1 }}>
-              📷 ...
-            </div>
-          )}
-          {loading && (
-            <div style={{ position: "absolute", bottom: 10, insetInlineStart: 10, background: "rgba(0,0,0,0.6)", color: "#fff", padding: "4px 10px", borderRadius: 12, fontSize: 12, zIndex: 2 }}>
-              ⌛
-            </div>
-          )}
+          />
         </div>
+      </div>
 
-        {/* Hidden File Input for Gallery Import */}
-        <input 
-          type="file" 
-          ref={fileInputRef} 
-          accept="image/*" 
-          style={{ display: "none" }} 
-          onChange={handleFileScan} 
-        />
+      {/* Viewfinder Target Layer (Mask overlay + corner borders) */}
+      {!error && !starting && (
+        <div className="scanner-viewfinder-overlay">
+          <div className="scanner-telegram-box">
+            <div className="scanner-telegram-corners"></div>
+            {/* Pulsating red laser scanning line inside the box */}
+            <div className="scanner-laser" style={{ left: "5%", width: "90%" }}></div>
+          </div>
+          
+          <div style={{ marginTop: 24, fontSize: 13, color: "rgba(255, 255, 255, 0.75)", textShadow: "0 2px 4px rgba(0,0,0,0.8)", fontWeight: "500" }}>
+            {t.scanHint}
+          </div>
+        </div>
+      )}
 
-        {/* Telegram-style Control Bar */}
-        <div 
-          style={{ 
-            display: "flex", 
-            justifyContent: "center", 
-            gap: 16, 
-            marginTop: 14, 
-            marginBottom: 6 
-          }}
-        >
-          {torchSupported && (
-            <button
-              onClick={toggleTorch}
-              className="btn-secondary"
-              style={{
-                width: 48,
-                height: 48,
-                borderRadius: "50%",
-                padding: 0,
-                display: "inline-flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: 18,
-                border: isTorchOn ? "2px solid var(--primary)" : "1px solid var(--border)",
-                background: isTorchOn ? "rgba(251, 191, 36, 0.15)" : "var(--surface-2)"
-              }}
-              title={lang === "ar" ? "الفلاش" : "Flashlight"}
-            >
-              🔦
-            </button>
-          )}
+      {/* Sibling React loaders */}
+      {starting && !error && (
+        <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", zIndex: 10004, background: "#000" }}>
+          <div style={{ textAlign: "center" }}>
+            <div style={{ fontSize: 24 }}>📷</div>
+            <div style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", marginTop: 8 }}>
+              {lang === "ar" ? "جاري تشغيل الكاميرا..." : "Démarrage de la caméra..."}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {error && (
+        <div style={{ position: "absolute", top: 80, left: 16, right: 16, zIndex: 10005, background: "rgba(239, 68, 68, 0.95)", color: "#fff", padding: "10px 14px", borderRadius: 10, fontSize: 13, textAlign: "center", boxShadow: "0 4px 12px rgba(0,0,0,0.3)" }}>
+          ⚠️ {error}
+        </div>
+      )}
+
+      {/* Hidden File Input for Gallery Import */}
+      <input 
+        type="file" 
+        ref={fileInputRef} 
+        accept="image/*" 
+        style={{ display: "none" }} 
+        onChange={handleFileScan} 
+      />
+
+      {/* Floating Controls Row (Flashlight & Gallery image scan) */}
+      <div className="scanner-floating-controls">
+        {torchSupported && (
           <button
-            onClick={() => fileInputRef.current?.click()}
-            className="btn-secondary"
-            style={{
-              width: 48,
-              height: 48,
-              borderRadius: "50%",
-              padding: 0,
-              display: "inline-flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: 18,
-              border: "1px solid var(--border)",
-              background: "var(--surface-2)"
-            }}
-            title={lang === "ar" ? "المعرض" : "Galerie"}
+            onClick={toggleTorch}
+            className={`scanner-circle-btn ${isTorchOn ? "active" : ""}`}
+            title={lang === "ar" ? "الفلاش" : "Flashlight"}
           >
-            🖼️
+            🔦
           </button>
-        </div>
-
-        {scanned.length > 0 && (
-          <div style={{ marginTop: 14 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-              <div style={{ fontSize: 14, fontWeight: 600 }}>
-                📋 {t.scannedPackages}
-              </div>
-              <button
-                onClick={() => setScanned([])}
-                style={{ fontSize: 12, padding: "5px 10px" }}
-              >
-                🗑️ {t.clearList}
-              </button>
-            </div>
-
-            {/* Auto status update notice & WhatsApp trigger button */}
-            <div style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: 8,
-              marginBottom: 12,
-              padding: 10,
-              background: "var(--surface-2)",
-              border: "1px solid var(--border)",
-              borderRadius: 10
-            }}>
-              <div style={{ fontSize: 12, color: "var(--text-dim)", display: "flex", alignItems: "center", gap: 6 }}>
-                🔄 <span>
-                  {lang === "ar" 
-                    ? `تحديث تلقائي إلى: ${profile?.role === "admin" ? t.inTransit : t.arrived}`
-                    : `Statut auto : ${profile?.role === "admin" ? t.inTransit : t.arrived}`
-                  }
-                </span>
-              </div>
-              <button
-                onClick={handleOpenWaQueue}
-                className="btn-accent"
-                style={{
-                  padding: "8px 12px",
-                  fontSize: 12,
-                  margin: 0,
-                  width: "100%",
-                  background: "#10b981",
-                  borderColor: "#10b981",
-                  color: "#fff",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: 6
-                }}
-              >
-                🟢 {lang === "ar" ? "إرسال إشعارات واتساب للكل" : "Notifier tout par WhatsApp"}
-              </button>
-            </div>
-
-            <div style={{ maxHeight: 220, overflowY: "auto", display: "flex", flexDirection: "column", gap: 8 }}>
-              {scanned.map(({ pkg, siblings }) => {
-                const isGroup = siblings && siblings.length > 1;
-                // Count how many siblings are also in the current scanned list
-                const scannedSiblings = siblings ? siblings.filter(sib =>
-                  scanned.find(s => s.pkg.id === sib.id)
-                ) : [];
-
-                return (
-                  <div key={pkg.id} style={{ display: "flex", flexDirection: "column", gap: 6, background: "var(--surface-2)", border: "1px solid var(--border)", borderRadius: 10, padding: "10px 12px" }}>
-                    <div
-                      onClick={() => handleOpenPackage(pkg)}
-                      style={{
-                        cursor: "pointer",
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 10,
-                      }}
-                    >
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontSize: 13, fontWeight: 600, color: "var(--primary)" }}>
-                          {pkg.tracking_number}
-                        </div>
-                        <div style={{ fontSize: 12, color: "var(--text-dim)", marginTop: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                          {pkg.sender_name} → {pkg.destination}
-                        </div>
-                        <div style={{ fontSize: 11, color: "var(--text-dim)", marginTop: 2 }}>
-                          🏢 {getAgencyName(pkg.agency_id)} • ⚖️ {pkg.weight} {t.kg}
-                        </div>
-                      </div>
-                      <span
-                        style={{
-                          padding: "3px 9px",
-                          borderRadius: 20,
-                          fontSize: 11,
-                          fontWeight: 600,
-                          background: statusBg[pkg.status],
-                          color: statusColors[pkg.status],
-                          whiteSpace: "nowrap",
-                        }}
-                      >
-                        {t[pkg.status]}
-                      </span>
-                    </div>
-
-                    {isGroup && (
-                      <div style={{
-                        marginTop: 4,
-                        fontSize: 11,
-                        padding: "6px 10px",
-                        borderRadius: 6,
-                        background: "rgba(251, 191, 36, 0.08)",
-                        border: "1px solid rgba(251, 191, 36, 0.2)",
-                        color: "var(--accent, #fbbf24)"
-                      }}>
-                        🔗 <b>{lang === "ar" ? "شحنة مشتركة" : "Envoi groupé"}:</b> {scannedSiblings.length}/{siblings.length} {lang === "ar" ? "طرود تم مسحها" : "colis scannés"}
-                        <div style={{ marginTop: 4, display: "flex", flexWrap: "wrap", gap: 6 }}>
-                          {siblings.map(sib => {
-                            const isScanned = scanned.find(s => s.pkg.id === sib.id);
-                            return (
-                              <span 
-                                key={sib.id} 
-                                style={{ 
-                                  fontSize: 10,
-                                  padding: "2px 6px",
-                                  borderRadius: 4,
-                                  background: isScanned ? "rgba(16, 185, 129, 0.15)" : "rgba(255, 255, 255, 0.05)",
-                                  color: isScanned ? "#10b981" : "#94a3b8",
-                                  border: isScanned ? "1px solid rgba(16, 185, 129, 0.3)" : "1px solid rgba(255, 255, 255, 0.1)"
-                                }}
-                              >
-                                {sib.tracking_number} {isScanned ? "✓" : ""}
-                              </span>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
         )}
-
         <button
-          onClick={handleClose}
-          style={{ marginTop: 14, width: "100%", padding: 12 }}
+          onClick={() => fileInputRef.current?.click()}
+          className="scanner-circle-btn"
+          title={lang === "ar" ? "المعرض" : "Galerie"}
         >
-          {t.cancel}
+          🖼️
         </button>
       </div>
 
+      {/* Floating Scanned List Tray */}
+      {scanned.length > 0 && (
+        <div className="scanner-tray">
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8, paddingBottom: 6, borderBottom: "1px solid rgba(255,255,255,0.1)" }}>
+            <span style={{ fontSize: 13, fontWeight: "600" }}>📋 {t.scannedPackages}</span>
+            <button
+              onClick={() => setScanned([])}
+              style={{ fontSize: 11, padding: "3px 8px", background: "rgba(239,68,68,0.2)", border: "none", color: "#f87171", borderRadius: 4, cursor: "pointer" }}
+            >
+              🗑️
+            </button>
+          </div>
+          
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {scanned.map((item) => (
+              <div key={item.pkg.id} style={{ display: "flex", flexDirection: "column", gap: 6, padding: "8px 10px", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 8 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <span style={{ fontSize: 12, fontWeight: "600" }}>📦 {item.pkg.tracking_number}</span>
+                  <span style={{ fontSize: 11, color: "#10b981", background: "rgba(16,185,129,0.15)", padding: "2px 6px", borderRadius: 8 }}>
+                    {t[item.pkg.status]}
+                  </span>
+                </div>
+                
+                {/* Whatsapp notifications options */}
+                <div style={{ display: "flex", gap: 6, marginTop: 4 }}>
+                  <button 
+                    onClick={() => {
+                      const waData = buildWhatsAppLink(item.pkg, "receiver", getAgencyName(item.pkg.agency_id), lang, t);
+                      window.open(waData.link, "_blank");
+                    }} 
+                    style={{ flex: 1, padding: "5px", fontSize: 10, background: "#10b981", border: "none", color: "#fff", borderRadius: 4, cursor: "pointer" }}
+                  >
+                    🟢 {t.waReceiver}
+                  </button>
+                  <button 
+                    onClick={() => {
+                      const waData = buildWhatsAppLink(item.pkg, "sender", getAgencyName(item.pkg.agency_id), lang, t);
+                      window.open(waData.link, "_blank");
+                    }} 
+                    style={{ flex: 1, padding: "5px", fontSize: 10, background: "#10b981", border: "none", color: "#fff", borderRadius: 4, cursor: "pointer" }}
+                  >
+                    🟢 {t.waSender}
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* WhatsApp Queue Modal */}
       {waQueue.length > 0 && (
-        <div className="modal-bg" onClick={() => setWaQueue([])} style={{ zIndex: 400 }}>
+        <div className="modal-bg" onClick={() => setWaQueue([])} style={{ zIndex: 10006 }}>
           <div className="modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 420 }}>
             <div style={{ fontSize: 17, fontWeight: 600, marginBottom: 8 }}>
               🟢 {lang === "ar" ? "إرسال إشعارات واتساب" : "Envoyer WhatsApp en masse"}
@@ -743,7 +564,6 @@ export default function Scanner({ onClose, onOpenPackage, agencies = [], onUpdat
                     target="_blank"
                     rel="noreferrer"
                     onClick={() => {
-                      // Mark this package as sent f the state
                       setWaQueue(prev => prev.map((q, idx) => 
                         idx === index ? { ...q, sent: true } : q
                       ));
