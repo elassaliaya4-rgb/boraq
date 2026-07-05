@@ -42,8 +42,16 @@ export function AppProvider({ children }) {
       .eq("id", userId)
       .maybeSingle();
 
-    setProfile(data || null);
-    setLoading(false);
+    if (data) {
+      setProfile(data);
+      setLoading(false);
+    } else {
+      // User logged in but has no profile (was deleted). Sign them out immediately.
+      await supabase.auth.signOut();
+      setUser(null);
+      setProfile(null);
+      setLoading(false);
+    }
   }
 
   async function signIn(email, password) {
