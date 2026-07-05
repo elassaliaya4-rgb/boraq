@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Boraq</string>
+    <string name="title_activity_main">Boraq</string>
+    <string name="package_name">ma.boraq.app</string>
+    <string name="custom_url_scheme">ma.boraq.app</string>
+</resources>
