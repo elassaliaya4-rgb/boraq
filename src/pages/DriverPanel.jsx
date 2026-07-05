@@ -74,7 +74,7 @@ export default function DriverPanel() {
   }
 
   return (
-    <div className="admin-layout">
+    <div className="app">
       {/* Sidebar / Left Menu */}
       <aside className="sidebar">
         <div className="logo">⚡ Boraq</div>
@@ -105,7 +105,7 @@ export default function DriverPanel() {
       </aside>
 
       {/* Main Content Area */}
-      <main className="main-content">
+      <main className="main">
         <header className="topbar">
           <div>
             <h1>🚚 {lang === "ar" ? "مهام التوصيل" : "Feuille de Route"}</h1>
