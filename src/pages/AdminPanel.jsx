@@ -19,7 +19,7 @@ export default function AdminPanel() {
   const [detailPkg, setDetailPkg] = useState(null);
   const [showScanner, setShowScanner] = useState(false);
 
-  const unread = notifs.filter((n) => !n.is_read).length;
+  const unread = notifs?.filter((n) => !n.is_read)?.length || 0;
 
   useEffect(() => {
     loadData();
@@ -174,9 +174,9 @@ export default function AdminPanel() {
         {tab === "dashboard" && (
           <>
             <div className="stats">
-              <Stat val={packages.length} lbl={t.totalPackages} />
-              <Stat val={agencies.length} lbl={t.totalAgencies} />
-              <Stat val={packages.filter((p) => p.status === "arrived").length} lbl={t.newArrivals} />
+              <Stat val={packages?.length || 0} lbl={t.totalPackages} />
+              <Stat val={agencies?.length || 0} lbl={t.totalAgencies} />
+              <Stat val={packages?.filter((p) => p?.status === "arrived")?.length || 0} lbl={t.newArrivals} />
             </div>
             <PkgHeader t={t} onAdd={() => setShowPkgForm(true)} />
             <PackagesTable packages={packages} t={t} onManage={setDetailPkg} onDelete={deletePackage} />
@@ -200,10 +200,10 @@ export default function AdminPanel() {
               <table>
                 <thead><tr><th>{t.name}</th><th>{t.code}</th><th>{t.city}</th><th>{t.packages}</th><th>{t.actions}</th></tr></thead>
                 <tbody>
-                  {agencies.map((a) => (
+                  {agencies?.map((a) => (
                     <tr key={a.id}>
                       <td><b>{a.name}</b></td><td>{a.code}</td><td>{a.city}</td>
-                      <td>{packages.filter((p) => p.agency_id === a.id).length}</td>
+                      <td>{packages?.filter((p) => p?.agency_id === a?.id)?.length || 0}</td>
                       <td><button className="btn-danger btn-sm" onClick={() => deleteAgency(a)}>🗑️</button></td>
                     </tr>
                   ))}
@@ -215,7 +215,7 @@ export default function AdminPanel() {
 
         {tab === "notifs" && (
           <div>
-            {notifs.length === 0 ? (
+            {!notifs || notifs.length === 0 ? (
               <div className="notif">{t.noNotifications}</div>
             ) : (
               notifs.map((n) => (
@@ -252,7 +252,7 @@ export default function AdminPanel() {
                   </tr>
                 </thead>
                 <tbody>
-                  {drivers.map((d) => {
+                  {drivers?.map((d) => {
                     const isOnline = d.last_active && (new Date() - new Date(d.last_active)) < 180000;
                     return (
                       <tr key={d.id}>
@@ -357,13 +357,13 @@ function PkgHeader({ t, onAdd }) {
 }
 
 function PackagesTable({ packages, t, onManage, onDelete }) {
-  if (!packages.length) return <div className="empty">{t.noPackages}</div>;
+  if (!packages || !packages.length) return <div className="empty">{t.noPackages}</div>;
   return (
     <div className="table-wrap">
       <table>
         <thead><tr><th>{t.trackingNumber}</th><th>{t.senderName}</th><th>{t.destination}</th><th>{t.weight}</th><th>{t.status}</th><th>{t.manage}</th></tr></thead>
         <tbody>
-          {packages.map((p) => (
+          {packages?.map((p) => (
             <tr key={p.id}>
               <td><b>{p.tracking_number}</b></td>
               <td>{p.sender_name}</td>
