@@ -70,6 +70,11 @@ returns uuid as $$
   select agency_id from profiles where id = auth.uid();
 $$ language sql security definer;
 
+create or replace function is_driver()
+returns boolean as $$
+  select exists(select 1 from profiles where id = auth.uid() and role = 'driver');
+$$ language sql security definer;
+
 -- ---- profiles ----
 create policy "read own profile" on profiles for select using (id = auth.uid() or is_admin());
 create policy "admin manage profiles" on profiles for all using (is_admin());
@@ -85,10 +90,14 @@ create policy "all read agencies list" on agencies for select using (auth.uid() 
 create policy "admin all packages" on packages for all using (is_admin());
 -- الأجونسي يقرا الطرود ديالو
 create policy "agency read own packages" on packages for select using (agency_id = my_agency() or is_admin());
+-- الشوفور يقرا الطرود
+create policy "driver read all packages" on packages for select using (is_driver());
 -- الأجونسي يقدر يزيد طرد
 create policy "agency insert packages" on packages for insert with check (auth.uid() is not null);
 -- الأجونسي يقدر يبدل حالة الطرود ديالو
 create policy "agency update own packages" on packages for update using (agency_id = my_agency() or is_admin());
+-- الشوفور يقدر يبدل حالة الطرود (سكان)
+create policy "driver update own packages" on packages for update using (is_driver());
 
 -- ---- notifications ----
 create policy "admin all notifs" on notifications for all using (is_admin());
