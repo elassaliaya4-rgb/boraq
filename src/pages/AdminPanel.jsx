@@ -217,7 +217,26 @@ export default function AdminPanel() {
 
       <main className="main">
         <div className="topbar">
-          <h1>{t.adminPanel}</h1>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            {tab !== "dashboard" && (
+              <button 
+                onClick={() => setTab("dashboard")} 
+                className="btn-accent" 
+                style={{ 
+                  padding: "6px 12px", 
+                  fontSize: 13, 
+                  display: "inline-flex", 
+                  alignItems: "center", 
+                  gap: 5,
+                  cursor: "pointer",
+                  borderRadius: 6
+                }}
+              >
+                {lang === "ar" ? "→ رجوع" : "← Retour"}
+              </button>
+            )}
+            <h1>{t.adminPanel}</h1>
+          </div>
           <div className="topbar-actions">
             <button className="btn-sm" onClick={() => setShowScanner(true)}>📷 {t.scan}</button>
             <button className="btn-sm" onClick={() => setLang(lang === "ar" ? "fr" : "ar")}>🌐 {lang === "ar" ? "FR" : "ع"}</button>
