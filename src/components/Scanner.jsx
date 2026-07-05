@@ -67,6 +67,7 @@ export default function Scanner({ onClose, onOpenPackage, agencies = [], onUpdat
       tracking = obj.n || obj.tracking_number || decodedText;
     } catch (e) {}
 
+    if (stoppedRef.current) return;
     setLoading(true);
     const { data: pkg } = await supabase
       .from("packages")
@@ -75,10 +76,12 @@ export default function Scanner({ onClose, onOpenPackage, agencies = [], onUpdat
       .maybeSingle();
 
     if (!pkg) {
-      setLoading(false);
       if (stoppedRef.current) return;
+      setLoading(false);
       setError(`${t.notFound}: ${tracking}`);
-      setTimeout(() => setError(""), 2500);
+      setTimeout(() => {
+        if (!stoppedRef.current) setError("");
+      }, 2500);
       return;
     }
 
@@ -93,6 +96,7 @@ export default function Scanner({ onClose, onOpenPackage, agencies = [], onUpdat
       .eq("id", pkg.id);
 
     if (updateErr) {
+      if (stoppedRef.current) return;
       setLoading(false);
       setError(updateErr.message);
       return;
@@ -110,9 +114,8 @@ export default function Scanner({ onClose, onOpenPackage, agencies = [], onUpdat
       .neq("status", "delivered");
     siblings = sibs || [];
     
-    setLoading(false);
-
     if (stoppedRef.current) return;
+    setLoading(false);
 
     // Trigger parent state updates
     if (onUpdated) onUpdated();

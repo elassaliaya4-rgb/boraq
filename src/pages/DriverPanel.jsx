@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useApp } from "../lib/context";
 import { supabase } from "../lib/supabase";
 import { statusColors, statusBg } from "../lib/helpers";
@@ -13,6 +13,14 @@ export default function DriverPanel() {
   const [showScanner, setShowScanner] = useState(false);
   const [detailPkg, setDetailPkg] = useState(null);
   const [loading, setLoading] = useState(true);
+  const mountedRef = useRef(true);
+
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
 
   useEffect(() => {
     if (profile?.driver_id) {
@@ -66,6 +74,7 @@ export default function DriverPanel() {
   }, [profile]);
 
   async function loadData() {
+    if (!mountedRef.current) return;
     setLoading(true);
     try {
       // 1. Fetch Driver info
@@ -74,12 +83,14 @@ export default function DriverPanel() {
         .select("*")
         .eq("id", profile.driver_id)
         .single();
+      if (!mountedRef.current) return;
       setDriverInfo(drv);
 
       // 2. Fetch all agencies
       const { data: ags } = await supabase
         .from("agencies")
         .select("*");
+      if (!mountedRef.current) return;
       setAgencies(ags || []);
 
       // 3. Fetch all active packages (not delivered yet)
@@ -88,11 +99,12 @@ export default function DriverPanel() {
         .select("*")
         .neq("status", "delivered")
         .order("created_at", { ascending: false });
+      if (!mountedRef.current) return;
       setPackages(pkgs || []);
     } catch (e) {
       console.error(e);
     } finally {
-      setLoading(false);
+      if (mountedRef.current) setLoading(false);
     }
   }
 
