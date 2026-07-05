@@ -3,6 +3,7 @@ import { Html5Qrcode } from "html5-qrcode";
 import { useApp } from "../lib/context";
 import { supabase } from "../lib/supabase";
 import { statusColors, statusBg, buildWhatsAppLink } from "../lib/helpers";
+import jsQR from "jsqr";
 
 export default function Scanner({ onClose, onOpenPackage, agencies = [], onUpdated }) {
   const { t, lang, profile } = useApp();
@@ -188,60 +189,68 @@ export default function Scanner({ onClose, onOpenPackage, agencies = [], onUpdat
     function startTracking() {
       if (stoppedRef.current) return;
       const videoEl = document.querySelector("#scanner-area video");
-      if (!videoEl || !window.BarcodeDetector) return;
+      if (!videoEl) return;
 
-      try {
-        const detector = new window.BarcodeDetector({ formats: ["qr_code"] });
-        const canvas = canvasRef.current;
-        if (!canvas) return;
-        const ctx = canvas.getContext("2d");
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+      const ctx = canvas.getContext("2d");
 
-        const trackLoop = async () => {
-          if (stoppedRef.current || !videoEl || !canvasRef.current) return;
+      // Offscreen canvas to read video frames programmatically
+      const offscreen = document.createElement("canvas");
+      const offscreenCtx = offscreen.getContext("2d");
 
-          if (canvas.width !== videoEl.clientWidth || canvas.height !== videoEl.clientHeight) {
-            canvas.width = videoEl.clientWidth;
-            canvas.height = videoEl.clientHeight;
-          }
+      const trackLoop = () => {
+        if (stoppedRef.current || !videoEl || !canvasRef.current) return;
 
-          if (ctx) {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-          }
+        if (canvas.width !== videoEl.clientWidth || canvas.height !== videoEl.clientHeight) {
+          canvas.width = videoEl.clientWidth;
+          canvas.height = videoEl.clientHeight;
+        }
+
+        if (ctx) {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        if (videoEl.videoWidth > 0 && videoEl.videoHeight > 0) {
+          offscreen.width = videoEl.videoWidth;
+          offscreen.height = videoEl.videoHeight;
 
           try {
-            const barcodes = await detector.detect(videoEl);
-            if (barcodes.length > 0 && ctx && canvasRef.current && !stoppedRef.current) {
-              barcodes.forEach((barcode) => {
-                const { x, y, width, height } = barcode.boundingBox;
-                const scaleX = canvas.width / videoEl.videoWidth;
-                const scaleY = canvas.height / videoEl.videoHeight;
-                const rx = x * scaleX;
-                const ry = y * scaleY;
-                const rw = width * scaleX;
-                const rh = height * scaleY;
+            offscreenCtx.drawImage(videoEl, 0, 0, offscreen.width, offscreen.height);
+            const imgData = offscreenCtx.getImageData(0, 0, offscreen.width, offscreen.height);
+            
+            const code = jsQR(imgData.data, imgData.width, imgData.height, {
+              inversionAttempts: "dontInvert"
+            });
 
-                ctx.strokeStyle = "#10b981"; // emerald green
-                ctx.lineWidth = 3;
-                ctx.lineJoin = "round";
-                ctx.beginPath();
-                ctx.roundRect(rx, ry, rw, rh, 8);
-                ctx.stroke();
+            if (code && ctx && canvasRef.current && !stoppedRef.current) {
+              const loc = code.location;
+              const scaleX = canvas.width / videoEl.videoWidth;
+              const scaleY = canvas.height / videoEl.videoHeight;
 
-                ctx.fillStyle = "rgba(16, 185, 129, 0.15)";
-                ctx.fill();
-              });
+              ctx.strokeStyle = "#10b981"; // emerald green
+              ctx.lineWidth = 4;
+              ctx.lineJoin = "round";
+              ctx.beginPath();
+              ctx.moveTo(loc.topLeftCorner.x * scaleX, loc.topLeftCorner.y * scaleY);
+              ctx.lineTo(loc.topRightCorner.x * scaleX, loc.topRightCorner.y * scaleY);
+              ctx.lineTo(loc.bottomRightCorner.x * scaleX, loc.bottomRightCorner.y * scaleY);
+              ctx.lineTo(loc.bottomLeftCorner.x * scaleX, loc.bottomLeftCorner.y * scaleY);
+              ctx.closePath();
+              ctx.stroke();
+
+              ctx.fillStyle = "rgba(16, 185, 129, 0.15)";
+              ctx.fill();
             }
           } catch (e) {}
+        }
 
-          if (!stoppedRef.current) {
-            loopRef.current = requestAnimationFrame(trackLoop);
-          }
-        };
+        if (!stoppedRef.current) {
+          loopRef.current = requestAnimationFrame(trackLoop);
+        }
+      };
 
-        loopRef.current = requestAnimationFrame(trackLoop);
-      } catch (e) {
-        console.warn("BarcodeDetector setup error:", e);
-      }
+      loopRef.current = requestAnimationFrame(trackLoop);
     }
 
     const timer = setTimeout(startScanner, 250);

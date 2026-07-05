@@ -3,7 +3,7 @@ import QRCode from "qrcode";
 import { useApp } from "../lib/context";
 
 export default function Ticket({ pkg, onClose }) {
-  const { t } = useApp();
+  const { t, lang } = useApp();
   const canvasRef = useRef(null);
 
   useEffect(() => {
@@ -42,7 +42,7 @@ export default function Ticket({ pkg, onClose }) {
         </div>
         <div className="modal-actions">
           <button className="btn-primary" onClick={() => window.print()}>🖨️ {t.print}</button>
-          <button className="btn-sm" onClick={onClose}>{t.cancel}</button>
+          <button className="btn-sm" onClick={onClose}>⬅️ {lang === "ar" ? "رجوع" : "Retour"}</button>
         </div>
       </div>
     </div>

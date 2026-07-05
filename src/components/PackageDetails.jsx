@@ -143,7 +143,7 @@ export default function PackageDetails({ pkg, agencies, onClose, onUpdated }) {
             🎫 {t.ticket}
           </button>
           <button className="btn-sm" onClick={onClose}>
-            {t.cancel}
+            ⬅️ {lang === "ar" ? "رجوع" : "Retour"}
           </button>
         </div>
       </div>
