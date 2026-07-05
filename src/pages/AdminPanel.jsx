@@ -158,7 +158,7 @@ export default function AdminPanel() {
   }
 
   async function deleteDriver(d) {
-    const msg = lang === "ar" ? `هل تريد مسح الشوفور "${d.name}"؟` : `Supprimer le chauffeur "${d.name}" ?`;
+    const msg = lang === "ar" ? `هل تريد حذف السائق "${d.name}"؟` : `Supprimer le chauffeur "${d.name}" ?`;
     if (!window.confirm(msg)) return;
 
     const { data: prof } = await supabase
@@ -210,7 +210,7 @@ export default function AdminPanel() {
           <NavBtn icon="📊" label={t.dashboard} active={tab === "dashboard"} onClick={() => setTab("dashboard")} />
           <NavBtn icon="📦" label={t.packages} active={tab === "packages"} onClick={() => setTab("packages")} />
           <NavBtn icon="🏢" label={t.agencies} active={tab === "agencies"} onClick={() => setTab("agencies")} />
-          <NavBtn icon="🚚" label={lang === "ar" ? "الشوفورات" : "Chauffeurs"} active={tab === "drivers"} onClick={() => setTab("drivers")} />
+          <NavBtn icon="🚚" label={lang === "ar" ? "السائقين" : "Chauffeurs"} active={tab === "drivers"} onClick={() => setTab("drivers")} />
           <NavBtn icon="🔔" label={t.notifications} active={tab === "notifs"} onClick={() => setTab("notifs")} badge={unread} />
         </div>
       </aside>
@@ -289,9 +289,9 @@ export default function AdminPanel() {
         {tab === "drivers" && (
           <>
             <div className="row-head">
-              <h2>{lang === "ar" ? "الشوفورات" : "Chauffeurs"}</h2>
+              <h2>{lang === "ar" ? "السائقين" : "Chauffeurs"}</h2>
               <button className="btn-accent btn-sm" onClick={() => setShowDrForm(true)}>
-                + {lang === "ar" ? "إضافة شوفور" : "Ajouter Chauffeur"}
+                + {lang === "ar" ? "إضافة سائق" : "Ajouter Chauffeur"}
               </button>
             </div>
             <div className="table-wrap">
@@ -385,7 +385,7 @@ export default function AdminPanel() {
         <div className="modal-bg" onClick={() => setMapDriver(null)}>
           <div className="modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 600 }}>
             <div className="modal-head">
-              <h2>📍 {lang === "ar" ? `موقع الشوفور: ${mapDriver.name}` : `Position de ${mapDriver.name}`}</h2>
+              <h2>📍 {lang === "ar" ? `موقع السائق: ${mapDriver.name}` : `Position de ${mapDriver.name}`}</h2>
               <button className="btn-close" onClick={() => setMapDriver(null)}>✕</button>
             </div>
             <div style={{ padding: "10px 0 0 0" }}>
@@ -598,9 +598,9 @@ function ChauffeurForm({ onClose, onSaved }) {
   return (
     <div className="modal-bg" onClick={onClose}>
       <div className="modal" onClick={(e) => e.stopPropagation()}>
-        <h2>{lang === "ar" ? "إضافة شوفور جديد" : "Ajouter Chauffeur"}</h2>
+        <h2>{lang === "ar" ? "إضافة سائق جديد" : "Ajouter Chauffeur"}</h2>
         {err && <div className="error">{err}</div>}
-        <div className="field"><label>{t.name}</label><input value={form.name} onChange={(e) => set("name", e.target.value)} placeholder="Yassine Chifoor" /></div>
+        <div className="field"><label>{t.name}</label><input value={form.name} onChange={(e) => set("name", e.target.value)} placeholder="Yassine Saidi" /></div>
         <div className="field"><label>{t.code}</label><input value={form.code} onChange={(e) => set("code", e.target.value)} placeholder="DRV-001" style={{ textTransform: "uppercase" }} /></div>
         <div className="modal-actions">
           <button className="btn-primary" onClick={save} disabled={busy}>{busy ? "..." : t.save}</button>

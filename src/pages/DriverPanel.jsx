@@ -174,7 +174,7 @@ export default function DriverPanel() {
             border: "1px solid var(--border)",
             borderRadius: "10px"
           }}>
-            <div style={{ fontSize: 10, color: "var(--text-dim)" }}>🚚 {lang === "ar" ? "الشوفور" : "Chauffeur"}</div>
+            <div style={{ fontSize: 10, color: "var(--text-dim)" }}>🚚 {lang === "ar" ? "السائق" : "Chauffeur"}</div>
             <div style={{ fontSize: 14, fontWeight: 600, color: "var(--primary)", marginTop: 2 }}>{driverInfo.name}</div>
             <div style={{ fontSize: 10, color: "var(--text-dim)", marginTop: 2 }}>🔑 {driverInfo.code}</div>
           </div>
