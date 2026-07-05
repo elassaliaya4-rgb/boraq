@@ -159,24 +159,22 @@ export default function AgencyPanel() {
           </button>
         </div>
 
-        {/* Logout at bottom of sidebar */}
-        <div style={{ marginTop: "auto", paddingTop: 20 }}>
+        {/* Discreet Logout Link at bottom of sidebar */}
+        <div style={{ marginTop: "auto", paddingTop: 14, textAlign: "center" }}>
           <button 
-            className="nav-item" 
             onClick={signOut}
             style={{ 
-              width: "100%", 
-              color: "#ef4444", 
-              border: "1px solid rgba(239, 68, 68, 0.15)",
-              background: "rgba(239, 68, 68, 0.05)",
-              borderRadius: 10,
-              padding: "10px 14px",
-              display: "flex",
-              alignItems: "center",
-              gap: 10,
+              background: "none",
+              border: "none",
+              color: "#f87171", 
+              fontSize: "12px",
               cursor: "pointer",
-              fontWeight: "600",
-              transition: "all 0.2s ease"
+              padding: "6px 12px",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "6px",
+              opacity: 0.85,
+              fontWeight: "600"
             }}
           >
             🚪 {lang === "ar" ? "تسجيل الخروج" : "Déconnexion"}
@@ -229,6 +227,22 @@ export default function AgencyPanel() {
                 <line x1="7" y1="12" x2="17" y2="12" />
               </svg>
               <span>{t.scan}</span>
+            </button>
+            <button 
+              className="btn-sm" 
+              onClick={() => setLang(lang === "ar" ? "fr" : "ar")}
+              style={{
+                padding: "8px 12px",
+                fontSize: "13px",
+                fontWeight: "600",
+                borderRadius: "8px",
+                cursor: "pointer",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "5px"
+              }}
+            >
+              🌐 {lang === "ar" ? "FR" : "عربي"}
             </button>
           </div>
         </div>
