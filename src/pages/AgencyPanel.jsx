@@ -197,6 +197,7 @@ export default function AgencyPanel() {
           agencies={agencies}
           onOpenPackage={(pkg) => { setShowScanner(false); setDetailPkg(pkg); }}
           onClose={() => setShowScanner(false)}
+          onUpdated={loadData}
         />
       )}
     </div>

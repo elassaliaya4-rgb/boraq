@@ -4,8 +4,8 @@ import { useApp } from "../lib/context";
 import { supabase } from "../lib/supabase";
 import { statusColors, statusBg } from "../lib/helpers";
 
-export default function Scanner({ onClose, onOpenPackage, agencies = [] }) {
-  const { t } = useApp();
+export default function Scanner({ onClose, onOpenPackage, agencies = [], onUpdated }) {
+  const { t, lang } = useApp();
   const qrRef = useRef(null);
   const stoppedRef = useRef(false);
   const lastScanRef = useRef({ text: "", at: 0 });
@@ -15,6 +15,8 @@ export default function Scanner({ onClose, onOpenPackage, agencies = [] }) {
   const [starting, setStarting] = useState(true);
   const [scanned, setScanned] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [bulkStatus, setBulkStatus] = useState("");
+  const [bulkUpdating, setBulkUpdating] = useState(false);
 
   // إيقاف آمن — كنتأكد ما نوقفش مرتين
   async function safeStop() {
@@ -173,6 +175,38 @@ export default function Scanner({ onClose, onOpenPackage, agencies = [] }) {
     });
   }
 
+  async function handleBulkUpdate() {
+    if (!bulkStatus || scanned.length === 0) return;
+    setBulkUpdating(true);
+    setError("");
+    const packageIds = scanned.map((s) => s.pkg.id);
+
+    try {
+      const { error: err } = await supabase
+        .from("packages")
+        .update({ status: bulkStatus })
+        .in("id", packageIds);
+
+      if (!err) {
+        setScanned((prev) =>
+          prev.map((item) => ({
+            ...item,
+            pkg: { ...item.pkg, status: bulkStatus },
+          }))
+        );
+        if (onUpdated) onUpdated();
+        setError(lang === "ar" ? "تم تحديث الطرود بنجاح!" : "Colis mis à jour avec succès!");
+        setTimeout(() => setError(""), 3000);
+      } else {
+        setError(err.message);
+      }
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setBulkUpdating(false);
+    }
+  }
+
   function getAgencyName(id) {
     return agencies.find((a) => a.id === id)?.name || "—";
   }
@@ -251,6 +285,52 @@ export default function Scanner({ onClose, onOpenPackage, agencies = [] }) {
                 🗑️ {t.clearList}
               </button>
             </div>
+
+            {/* Bulk actions select/button */}
+            <div style={{
+              display: "flex",
+              gap: 8,
+              alignItems: "center",
+              marginBottom: 12,
+              padding: 10,
+              background: "var(--surface-2)",
+              border: "1px solid var(--border)",
+              borderRadius: 10
+            }}>
+              <select
+                value={bulkStatus}
+                onChange={(e) => setBulkStatus(e.target.value)}
+                style={{
+                  flex: 1,
+                  padding: "6px 8px",
+                  fontSize: 12,
+                  background: "var(--background)",
+                  border: "1px solid var(--border)",
+                  borderRadius: 6,
+                  color: "var(--text)"
+                }}
+              >
+                <option value="">{lang === "ar" ? "تحديث حالة الكل..." : "Modifier statut global..."}</option>
+                <option value="pending">{t.pending}</option>
+                <option value="inTransit">{t.inTransit}</option>
+                <option value="arrived">{t.arrived}</option>
+                <option value="delivered">{t.delivered}</option>
+              </select>
+              <button
+                onClick={handleBulkUpdate}
+                disabled={!bulkStatus || bulkUpdating}
+                className="btn-primary"
+                style={{
+                  padding: "6px 12px",
+                  fontSize: 12,
+                  margin: 0,
+                  width: "auto"
+                }}
+              >
+                {bulkUpdating ? "..." : (lang === "ar" ? "تطبيق" : "Appliquer")}
+              </button>
+            </div>
+
             <div style={{ maxHeight: 220, overflowY: "auto", display: "flex", flexDirection: "column", gap: 8 }}>
               {scanned.map(({ pkg, siblings }) => {
                 const isGroup = siblings && siblings.length > 1;

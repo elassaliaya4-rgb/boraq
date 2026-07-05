@@ -208,6 +208,7 @@ export default function AdminPanel() {
           agencies={agencies}
           onOpenPackage={(pkg) => { setShowScanner(false); setDetailPkg(pkg); }}
           onClose={() => setShowScanner(false)}
+          onUpdated={loadData}
         />
       )}
     </div>
