@@ -816,12 +816,61 @@ input, select, textarea {
 }
 
 .scanner-viewfinder {
-  width: 200px;
-  height: 200px;
-  border: 3px solid var(--primary);
-  border-radius: 20px;
-  box-shadow: 0 0 0 2000px rgba(15, 23, 41, 0.6); /* Dim outer viewfinder area */
+  width: 220px;
+  height: 220px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 16px;
+  box-shadow: 0 0 0 2000px rgba(15, 23, 41, 0.7); /* Darken outer area like Telegram */
   position: relative;
+}
+
+/* Telegram Style Viewfinder Corner Brackets */
+.scanner-viewfinder::before,
+.scanner-viewfinder::after,
+.scanner-viewfinder-corners::before,
+.scanner-viewfinder-corners::after {
+  content: "";
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  border: 4px solid var(--primary); /* Glowing gold */
+  z-index: 12;
+}
+
+/* Top-Left */
+.scanner-viewfinder::before {
+  top: -2px;
+  left: -2px;
+  border-right: none;
+  border-bottom: none;
+  border-top-left-radius: 12px;
+}
+
+/* Top-Right */
+.scanner-viewfinder::after {
+  top: -2px;
+  right: -2px;
+  border-left: none;
+  border-bottom: none;
+  border-top-right-radius: 12px;
+}
+
+/* Bottom-Left */
+.scanner-viewfinder-corners::before {
+  bottom: -2px;
+  left: -2px;
+  border-right: none;
+  border-top: none;
+  border-bottom-left-radius: 12px;
+}
+
+/* Bottom-Right */
+.scanner-viewfinder-corners::after {
+  bottom: -2px;
+  right: -2px;
+  border-left: none;
+  border-top: none;
+  border-bottom-right-radius: 12px;
 }
 
 .scanner-laser {

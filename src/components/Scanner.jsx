@@ -14,6 +14,9 @@ export default function Scanner({ onClose, onOpenPackage, agencies = [], onUpdat
   const startPromiseRef = useRef(null); // Tracks the camera start promise
   const canvasRef = useRef(null);
   const loopRef = useRef(null);
+  const fileInputRef = useRef(null);
+  const [isTorchOn, setIsTorchOn] = useState(false);
+  const [torchSupported, setTorchSupported] = useState(false);
   const [error, setError] = useState("");
   const [starting, setStarting] = useState(true);
   const [scanned, setScanned] = useState([]);
@@ -168,6 +171,15 @@ export default function Scanner({ onClose, onOpenPackage, agencies = [], onUpdat
         await p;
         isScanningRef.current = true;
 
+        try {
+          const capabilities = qr.getRunningTrackCapabilities();
+          if (capabilities.torch) {
+            setTorchSupported(true);
+          }
+        } catch (e) {
+          console.warn("Torch check failed:", e);
+        }
+
         if (stoppedRef.current) {
           await qr.stop();
           isScanningRef.current = false;
@@ -264,6 +276,79 @@ export default function Scanner({ onClose, onOpenPackage, agencies = [], onUpdat
     };
   }, []);
 
+  async function toggleTorch() {
+    const qr = qrRef.current;
+    if (!qr) return;
+    try {
+      const wantTorch = !isTorchOn;
+      await qr.applyVideoConstraints({
+        advanced: [{ torch: wantTorch }]
+      });
+      setIsTorchOn(wantTorch);
+    } catch (err) {
+      console.warn("Failed to toggle torch:", err);
+    }
+  }
+
+  async function handleFileScan(e) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    await safeStop();
+    setLoading(true);
+
+    const qr = new Html5Qrcode("scanner-area", { verbose: false });
+    try {
+      const decodedText = await qr.scanFile(file, true);
+      await onDecoded(decodedText);
+    } catch (err) {
+      setError(lang === "ar" ? "لم يتم العثور على رمز QR في الصورة" : "Aucun QR code trouvé dans l'image");
+      setLoading(false);
+      setTimeout(restartScanner, 2500);
+    }
+  }
+
+  async function restartScanner() {
+    if (stoppedRef.current) return;
+    setLoading(true);
+    setError("");
+    stoppedRef.current = false;
+    
+    try {
+      const qr = new Html5Qrcode("scanner-area", { verbose: false });
+      qrRef.current = qr;
+      
+      const devices = await Html5Qrcode.getCameras();
+      if (!devices || devices.length === 0) return;
+      
+      let cameraId = devices[0].id;
+      const backCamera = devices.find(d => 
+        d.label.toLowerCase().includes("back") || 
+        d.label.toLowerCase().includes("rear") || 
+        d.label.toLowerCase().includes("environment") ||
+        d.label.toLowerCase().includes("arrière")
+      );
+      if (backCamera) cameraId = backCamera.id;
+      
+      const p = qr.start(cameraId, { fps: 15 }, onDecoded, () => {});
+      startPromiseRef.current = p;
+      await p;
+      isScanningRef.current = true;
+      setLoading(false);
+      setStarting(false);
+      
+      try {
+        const capabilities = qr.getRunningTrackCapabilities();
+        if (capabilities.torch) setTorchSupported(true);
+      } catch (e) {}
+      
+      setTimeout(startTracking, 300);
+    } catch (err) {
+      console.warn("Failed to restart scanner:", err);
+      setLoading(false);
+    }
+  }
+
   // إغلاق آمن
   async function handleClose() {
     await safeStop();
@@ -301,14 +386,49 @@ export default function Scanner({ onClose, onOpenPackage, agencies = [], onUpdat
         style={{ maxWidth: 480 }}
       >
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-          <div style={{ fontSize: 17, fontWeight: 500 }}>
-            📷 {t.scanTitle}
-          </div>
-          {scanned.length > 0 && (
-            <div style={{ fontSize: 13, color: "var(--primary)", fontWeight: 600 }}>
-              {scanned.length} {t.scanCount}
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <button 
+              onClick={handleClose} 
+              style={{ 
+                background: "none", 
+                border: "none", 
+                fontSize: 18, 
+                color: "var(--text)", 
+                cursor: "pointer", 
+                padding: "2px 6px",
+                display: "inline-flex",
+                alignItems: "center"
+              }}
+              title="Retour / رجوع"
+            >
+              {lang === "ar" ? "→" : "←"}
+            </button>
+            <div style={{ fontSize: 17, fontWeight: 600 }}>
+              📷 {t.scanTitle}
             </div>
-          )}
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            {scanned.length > 0 && (
+              <div style={{ fontSize: 13, color: "var(--primary)", fontWeight: 600 }}>
+                {scanned.length} {t.scanCount}
+              </div>
+            )}
+            <button 
+              onClick={handleClose} 
+              style={{ 
+                background: "none", 
+                border: "none", 
+                fontSize: 18, 
+                color: "var(--text-dim)", 
+                cursor: "pointer",
+                padding: "2px 6px",
+                display: "inline-flex",
+                alignItems: "center"
+              }}
+            >
+              ✕
+            </button>
+          </div>
         </div>
         <div style={{ fontSize: 12, color: "var(--text-dim)", marginBottom: 12 }}>
           {t.scanHint}
@@ -357,6 +477,7 @@ export default function Scanner({ onClose, onOpenPackage, agencies = [], onUpdat
               <div className="scanner-overlay">
                 <div className="scanner-viewfinder">
                   <div className="scanner-laser"></div>
+                  <div className="scanner-viewfinder-corners"></div>
                 </div>
               </div>
             )}
@@ -373,6 +494,67 @@ export default function Scanner({ onClose, onOpenPackage, agencies = [], onUpdat
               ⌛
             </div>
           )}
+        </div>
+
+        {/* Hidden File Input for Gallery Import */}
+        <input 
+          type="file" 
+          ref={fileInputRef} 
+          accept="image/*" 
+          style={{ display: "none" }} 
+          onChange={handleFileScan} 
+        />
+
+        {/* Telegram-style Control Bar */}
+        <div 
+          style={{ 
+            display: "flex", 
+            justifyContent: "center", 
+            gap: 16, 
+            marginTop: 14, 
+            marginBottom: 6 
+          }}
+        >
+          {torchSupported && (
+            <button
+              onClick={toggleTorch}
+              className="btn-secondary"
+              style={{
+                width: 48,
+                height: 48,
+                borderRadius: "50%",
+                padding: 0,
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: 18,
+                border: isTorchOn ? "2px solid var(--primary)" : "1px solid var(--border)",
+                background: isTorchOn ? "rgba(251, 191, 36, 0.15)" : "var(--surface-2)"
+              }}
+              title={lang === "ar" ? "الفلاش" : "Flashlight"}
+            >
+              🔦
+            </button>
+          )}
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            className="btn-secondary"
+            style={{
+              width: 48,
+              height: 48,
+              borderRadius: "50%",
+              padding: 0,
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: 18,
+              border: "1px solid var(--border)",
+              background: "var(--surface-2)"
+            }}
+            title={lang === "ar" ? "المعرض" : "Galerie"}
+          >
+            🖼️
+          </button>
         </div>
 
         {scanned.length > 0 && (
