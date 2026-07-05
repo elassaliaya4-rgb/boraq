@@ -179,7 +179,7 @@ export default function DriverPanel() {
                       <thead>
                         <tr>
                           <th>{t.trackingNumber}</th>
-                          <th>{t.senderName}</th>
+                          <th>{lang === "ar" ? "من (المنشأ)" : "De (Origine)"}</th>
                           <th>{t.receiverName}</th>
                           <th>{t.weight}</th>
                           <th>{t.status}</th>
@@ -190,7 +190,7 @@ export default function DriverPanel() {
                         {pkgs.map((p) => (
                           <tr key={p.id}>
                             <td><b>{p.tracking_number}</b></td>
-                            <td>{p.sender_name}</td>
+                            <td><span style={{ fontSize: 12, padding: "2px 6px", background: "var(--surface-2)", borderRadius: 6, fontWeight: 500 }}>{p.origin}</span></td>
                             <td>{p.receiver_name}</td>
                             <td>{p.weight} {t.kg}</td>
                             <td>
