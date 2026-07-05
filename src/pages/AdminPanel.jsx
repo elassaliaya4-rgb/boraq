@@ -485,6 +485,35 @@ export default function AdminPanel() {
           </div>
         </div>
       )}
+
+      {/* Mobile Bottom Navigation Bar (Telegram-style capsule tabs) */}
+      <div className="mobile-bottom-nav">
+        <button className={`mobile-nav-item ${tab === "dashboard" ? "active" : ""}`} onClick={() => setTab("dashboard")}>
+          <div className="mobile-nav-icon-wrap">📊</div>
+          <span>{t.dashboard}</span>
+        </button>
+        <button className={`mobile-nav-item ${tab === "packages" ? "active" : ""}`} onClick={() => setTab("packages")}>
+          <div className="mobile-nav-icon-wrap">📦</div>
+          <span>{t.packages}</span>
+        </button>
+        <button className={`mobile-nav-item ${tab === "agencies" ? "active" : ""}`} onClick={() => setTab("agencies")}>
+          <div className="mobile-nav-icon-wrap">🏢</div>
+          <span>{t.agencies}</span>
+        </button>
+        <button className={`mobile-nav-item ${tab === "drivers" ? "active" : ""}`} onClick={() => setTab("drivers")}>
+          <div className="mobile-nav-icon-wrap">🚚</div>
+          <span>{lang === "ar" ? "السائقين" : "Chauffeurs"}</span>
+        </button>
+        <button className={`mobile-nav-item ${tab === "notifs" ? "active" : ""}`} onClick={() => setTab("notifs")}>
+          <div className="mobile-nav-icon-wrap" style={{ position: "relative" }}>
+            🔔
+            {unread > 0 && (
+              <span className="badge" style={{ position: "absolute", top: -4, right: -4, transform: "scale(0.85)" }}>{unread}</span>
+            )}
+          </div>
+          <span>{t.notifications}</span>
+        </button>
+      </div>
     </div>
   );
 }

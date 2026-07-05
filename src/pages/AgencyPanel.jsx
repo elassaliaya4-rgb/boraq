@@ -311,6 +311,22 @@ export default function AgencyPanel() {
           onUpdated={loadData}
         />
       )}
+      {/* Mobile Bottom Navigation Bar (Telegram-style capsule tabs) */}
+      <div className="mobile-bottom-nav">
+        <button className={`mobile-nav-item ${tab === "packages" ? "active" : ""}`} onClick={() => setTab("packages")}>
+          <div className="mobile-nav-icon-wrap">📦</div>
+          <span>{t.myPackages}</span>
+        </button>
+        <button className={`mobile-nav-item ${tab === "notifs" ? "active" : ""}`} onClick={() => setTab("notifs")}>
+          <div className="mobile-nav-icon-wrap" style={{ position: "relative" }}>
+            🔔
+            {unread > 0 && (
+              <span className="badge" style={{ position: "absolute", top: -4, right: -4, transform: "scale(0.85)" }}>{unread}</span>
+            )}
+          </div>
+          <span>{t.notifications}</span>
+        </button>
+      </div>
     </div>
   );
 }
