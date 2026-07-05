@@ -6,7 +6,7 @@ import Scanner from "../components/Scanner";
 import PackageDetails from "../components/PackageDetails";
 
 export default function DriverPanel() {
-  const { t, lang, profile, signOut } = useApp();
+  const { t, lang, setLang, profile, signOut } = useApp();
   const [packages, setPackages] = useState([]);
   const [agencies, setAgencies] = useState([]);
   const [driverInfo, setDriverInfo] = useState(null);
@@ -93,31 +93,30 @@ export default function DriverPanel() {
     <div className="app">
       {/* Sidebar / Left Menu */}
       <aside className="sidebar">
-        <div className="logo">⚡ Boraq</div>
+        <div className="logo" style={{ fontSize: 22, marginBottom: 18 }}>⚡ {t.appName}</div>
         
         {driverInfo && (
           <div style={{
-            margin: "0 15px 20px 15px",
-            padding: "10px 12px",
-            background: "rgba(255,255,255,0.03)",
+            marginBottom: 18,
+            padding: "10px 14px",
+            background: "var(--surface-2)",
             border: "1px solid var(--border)",
-            borderRadius: 10
+            borderRadius: "10px"
           }}>
-            <div style={{ fontSize: 10, color: "#94a3b8" }}>🚚 {lang === "ar" ? "السائق الحالي" : "Chauffeur Actuel"}</div>
-            <div style={{ fontSize: 13, fontWeight: 600, color: "var(--primary)", marginTop: 2 }}>{driverInfo.name}</div>
-            <div style={{ fontSize: 10, color: "#94a3b8", marginTop: 2 }}>🔑 {driverInfo.code}</div>
+            <div style={{ fontSize: 10, color: "var(--text-dim)" }}>🚚 {lang === "ar" ? "الشوفور" : "Chauffeur"}</div>
+            <div style={{ fontSize: 14, fontWeight: 600, color: "var(--primary)", marginTop: 2 }}>{driverInfo.name}</div>
+            <div style={{ fontSize: 10, color: "var(--text-dim)", marginTop: 2 }}>🔑 {driverInfo.code}</div>
           </div>
         )}
 
-        <div className="sidebar-menu">
-          <button className="nav-item active">
-            📦 {lang === "ar" ? "مسارات الطرود" : "Routes des Colis"}
-          </button>
+        <div className="nav-grid">
+          <NavBtn
+            icon="📦"
+            label={lang === "ar" ? "ورقة الطريق" : "Feuille de Route"}
+            active={true}
+            onClick={() => {}}
+          />
         </div>
-
-        <button className="btn-danger btn-block" onClick={signOut} style={{ marginTop: "auto", marginInline: 15, width: "calc(100% - 30px)" }}>
-          🚪 {t.logout}
-        </button>
       </aside>
 
       {/* Main Content Area */}
@@ -125,17 +124,19 @@ export default function DriverPanel() {
         <header className="topbar">
           <div>
             <h1>🚚 {lang === "ar" ? "مهام التوصيل" : "Feuille de Route"}</h1>
-            <p style={{ color: "var(--text-dim)", fontSize: 13 }}>
+            <p style={{ color: "var(--text-dim)", fontSize: 13, marginTop: 4 }}>
               {lang === "ar" ? "الطرود مرتبة حسب وجهة كل مدينة" : "Colis groupés par agence destinataire"}
             </p>
           </div>
-          <button className="btn-primary" onClick={() => setShowScanner(true)}>
-            📷 {lang === "ar" ? "مسح الطرود (سكان)" : "Scanner Colis"}
-          </button>
+          <div className="topbar-actions">
+            <button className="btn-sm" onClick={() => setShowScanner(true)}>📷 {t.scan}</button>
+            <button className="btn-sm" onClick={() => setLang(lang === "ar" ? "fr" : "ar")}>🌐 {lang === "ar" ? "FR" : "ع"}</button>
+            <button className="btn-sm" onClick={signOut}>{t.logout}</button>
+          </div>
         </header>
 
         {packages.length === 0 ? (
-          <div className="empty">
+          <div className="notif" style={{ textAlign: "center", padding: 30 }}>
             🎉 {lang === "ar" ? "لا توجد طرود نشطة حالياً للتوصيل!" : "Aucun colis actif à livrer pour le moment !"}
           </div>
         ) : (
@@ -227,5 +228,14 @@ export default function DriverPanel() {
         />
       )}
     </div>
+  );
+}
+
+function NavBtn({ icon, label, active, onClick, badge }) {
+  return (
+    <button className={`nav-item ${active ? "active" : ""}`} onClick={onClick}>
+      {icon} {label}
+      {badge > 0 && <span className="badge">{badge}</span>}
+    </button>
   );
 }
