@@ -133,9 +133,18 @@ export default function DriverPanel() {
 
   if (loading) {
     return (
-      <div className="login-wrap">
-        <div className="logo">⚡ Boraq</div>
-        <div style={{ color: "var(--text-dim)", marginTop: 10 }}>⌛ ...</div>
+      <div className="splash-container">
+        <div className="splash-logo-wrap">
+          <div className="splash-logo-text">⚡ Boraq</div>
+          <div className="splash-sub">LOGISTICS & MERCHANDISE</div>
+        </div>
+        <div className="splash-animation-box">
+          <div className="splash-speed-lines"></div>
+          <div className="splash-truck">🚚💨</div>
+        </div>
+        <div className="splash-loader-bar">
+          <div className="splash-loader-fill"></div>
+        </div>
       </div>
     );
   }
