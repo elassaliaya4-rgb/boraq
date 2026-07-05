@@ -12,8 +12,10 @@ export default function AdminPanel() {
   const [packages, setPackages] = useState([]);
   const [agencies, setAgencies] = useState([]);
   const [notifs, setNotifs] = useState([]);
+  const [drivers, setDrivers] = useState([]);
   const [showPkgForm, setShowPkgForm] = useState(false);
   const [showAgForm, setShowAgForm] = useState(false);
+  const [showDrForm, setShowDrForm] = useState(false);
   const [detailPkg, setDetailPkg] = useState(null);
   const [showScanner, setShowScanner] = useState(false);
 
@@ -59,9 +61,14 @@ export default function AdminPanel() {
       .select("*")
       .eq("target", "admin")
       .order("created_at", { ascending: false });
+    const { data: drvs } = await supabase
+      .from("drivers")
+      .select("*")
+      .order("created_at", { ascending: false });
     setPackages(pkgs || []);
     setAgencies(ags || []);
     setNotifs(nts || []);
+    setDrivers(drvs || []);
   }
 
   async function openNotif(n) {
@@ -81,6 +88,13 @@ export default function AdminPanel() {
           (count > 0 ? `\n⚠️ ${count} colis seront aussi supprimés.` : "");
     if (!window.confirm(msg)) return;
     await supabase.from("agencies").delete().eq("id", a.id);
+    loadData();
+  }
+
+  async function deleteDriver(d) {
+    const msg = lang === "ar" ? `هل تريد مسح الشوفور "${d.name}"؟` : `Supprimer le chauffeur "${d.name}" ?`;
+    if (!window.confirm(msg)) return;
+    await supabase.from("drivers").delete().eq("id", d.id);
     loadData();
   }
 
@@ -118,6 +132,7 @@ export default function AdminPanel() {
           <NavBtn icon="📊" label={t.dashboard} active={tab === "dashboard"} onClick={() => setTab("dashboard")} />
           <NavBtn icon="📦" label={t.packages} active={tab === "packages"} onClick={() => setTab("packages")} />
           <NavBtn icon="🏢" label={t.agencies} active={tab === "agencies"} onClick={() => setTab("agencies")} />
+          <NavBtn icon="🚚" label={lang === "ar" ? "الشوفورات" : "Chauffeurs"} active={tab === "drivers"} onClick={() => setTab("drivers")} />
           <NavBtn icon="🔔" label={t.notifications} active={tab === "notifs"} onClick={() => setTab("notifs")} badge={unread} />
         </div>
       </aside>
@@ -192,6 +207,41 @@ export default function AdminPanel() {
             )}
           </div>
         )}
+
+        {tab === "drivers" && (
+          <>
+            <div className="row-head">
+              <h2>{lang === "ar" ? "الشوفورات" : "Chauffeurs"}</h2>
+              <button className="btn-accent btn-sm" onClick={() => setShowDrForm(true)}>
+                + {lang === "ar" ? "إضافة شوفور" : "Ajouter Chauffeur"}
+              </button>
+            </div>
+            <div className="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>{t.name}</th>
+                    <th>{t.code}</th>
+                    <th>{lang === "ar" ? "تاريخ الإضافة" : "Date d'ajout"}</th>
+                    <th>{t.actions}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {drivers.map((d) => (
+                    <tr key={d.id}>
+                      <td><b>{d.name}</b></td>
+                      <td>{d.code}</td>
+                      <td>{new Date(d.created_at).toLocaleDateString()}</td>
+                      <td>
+                        <button className="btn-danger btn-sm" onClick={() => deleteDriver(d)}>🗑️</button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
+        )}
       </main>
 
       {showPkgForm && (
@@ -210,6 +260,9 @@ export default function AdminPanel() {
           onClose={() => setShowScanner(false)}
           onUpdated={loadData}
         />
+      )}
+      {showDrForm && (
+        <ChauffeurForm onClose={() => setShowDrForm(false)} onSaved={() => { setShowDrForm(false); loadData(); }} />
       )}
     </div>
   );
@@ -330,6 +383,81 @@ function AgencyForm({ onClose, onSaved }) {
         <div className="field"><label>{t.name}</label><input value={form.name} onChange={(e) => set("name", e.target.value)} placeholder="Agence Mohammedia" /></div>
         <div className="field"><label>{t.city}</label><input value={form.city} onChange={(e) => set("city", e.target.value)} placeholder="Mohammedia" /></div>
         <div className="field"><label>{t.code}</label><input value={form.code} onChange={(e) => set("code", e.target.value)} placeholder="MHM" style={{ textTransform: "uppercase" }} /></div>
+        <div className="modal-actions">
+          <button className="btn-primary" onClick={save} disabled={busy}>{busy ? "..." : t.save}</button>
+          <button className="btn-sm" onClick={onClose}>{t.cancel}</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ChauffeurForm({ onClose, onSaved }) {
+  const { t, lang } = useApp();
+  const [form, setForm] = useState({ name: "", code: "" });
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState("");
+
+  function set(k, v) { setForm((f) => ({ ...f, [k]: v })); }
+
+  async function save() {
+    if (!form.name || !form.code) { setErr(t.fillAll); return; }
+    setBusy(true); setErr("");
+
+    const generatedEmail = `${form.code.toLowerCase().trim()}@boraq.com`;
+    const generatedPassword = `${form.code.toLowerCase().trim()}123`;
+
+    // Create a temp client just for auth signup so we don't hijack the admin's session
+    const tempClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth: {
+        persistSession: false,
+        autoRefreshToken: false,
+        detectSessionInUrl: false
+      }
+    });
+
+    const { data: authData, error: authErr } = await tempClient.auth.signUp({
+      email: generatedEmail, password: generatedPassword,
+    });
+    if (authErr) { setErr(authErr.message); setBusy(false); return; }
+
+    const { data: driver, error: drvErr } = await supabase
+      .from("drivers")
+      .insert({
+        name: form.name,
+        code: form.code.toUpperCase().trim(),
+        email: generatedEmail
+      })
+      .select().single();
+
+    if (drvErr) { setErr(drvErr.message); setBusy(false); return; }
+
+    if (authData.user) {
+      const { error: profErr } = await supabase
+        .from("profiles")
+        .insert({
+          id: authData.user.id,
+          role: "driver",
+          driver_id: driver.id
+        });
+      
+      if (profErr) {
+        setErr("Profile error: " + profErr.message);
+        setBusy(false);
+        return;
+      }
+    }
+    setBusy(false);
+    onSaved();
+  }
+
+  return (
+    <div className="modal-bg" onClick={onClose}>
+      <div className="modal" onClick={(e) => e.stopPropagation()}>
+        <h2>{lang === "ar" ? "إضافة شوفور جديد" : "Ajouter Chauffeur"}</h2>
+        {err && <div className="error">{err}</div>}
+        <div className="field"><label>{t.name}</label><input value={form.name} onChange={(e) => set("name", e.target.value)} placeholder="Yassine Chifoor" /></div>
+        <div className="field"><label>{t.code}</label><input value={form.code} onChange={(e) => set("code", e.target.value)} placeholder="DRV-001" style={{ textTransform: "uppercase" }} /></div>
         <div className="modal-actions">
           <button className="btn-primary" onClick={save} disabled={busy}>{busy ? "..." : t.save}</button>
           <button className="btn-sm" onClick={onClose}>{t.cancel}</button>

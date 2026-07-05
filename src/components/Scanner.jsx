@@ -83,7 +83,10 @@ export default function Scanner({ onClose, onOpenPackage, agencies = [], onUpdat
     }
 
     // Auto-update status based on user role
-    const targetStatus = profile?.role === "admin" ? "inTransit" : "arrived";
+    let targetStatus = profile?.role === "admin" ? "inTransit" : "arrived";
+    if (profile?.role === "driver") {
+      targetStatus = pkg.status === "pending" ? "inTransit" : "arrived";
+    }
     const { error: updateErr } = await supabase
       .from("packages")
       .update({ status: targetStatus })

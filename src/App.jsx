@@ -2,6 +2,7 @@ import { useApp } from "./lib/context";
 import Login from "./pages/Login";
 import AdminPanel from "./pages/AdminPanel";
 import AgencyPanel from "./pages/AgencyPanel";
+import DriverPanel from "./pages/DriverPanel";
 
 export default function App() {
   const { user, profile, loading, dir, lang, signOut, t } = useApp();
@@ -23,6 +24,7 @@ export default function App() {
   // التوجيه حسب الدور
   if (profile?.role === "admin") return <AdminPanel />;
   if (profile?.role === "agency") return <AgencyPanel />;
+  if (profile?.role === "driver") return <DriverPanel />;
 
   // المستخدم موجود ولكن بلا profile
   return (
