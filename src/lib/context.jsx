@@ -14,12 +14,16 @@ export function AppProvider({ children }) {
   const dir = lang === "ar" ? "rtl" : "ltr";
 
   useEffect(() => {
-    // التحقق من الجلسة الحالية
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-      if (session?.user) loadProfile(session.user.id);
-      else setLoading(false);
-    });
+    supabase.auth.getSession()
+      .then(({ data: { session } }) => {
+        setUser(session?.user ?? null);
+        if (session?.user) loadProfile(session.user.id);
+        else setLoading(false);
+      })
+      .catch((err) => {
+        console.error("getSession error:", err);
+        setLoading(false);
+      });
 
     const { data: listener } = supabase.auth.onAuthStateChange(
       (_event, session) => {
