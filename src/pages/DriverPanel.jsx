@@ -168,15 +168,53 @@ export default function DriverPanel() {
         
         {driverInfo && (
           <div style={{
-            marginBottom: 18,
-            padding: "10px 14px",
-            background: "var(--surface-2)",
-            border: "1px solid var(--border)",
-            borderRadius: "10px"
+            position: "relative",
+            background: "linear-gradient(135deg, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0.02) 100%)",
+            padding: "12px 14px",
+            borderRadius: "12px",
+            marginBottom: "20px",
+            border: "1px solid rgba(255, 255, 255, 0.1)",
+            borderInlineStart: "4px solid var(--primary)",
+            boxShadow: "0 8px 32px 0 rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1)",
+            display: "flex",
+            alignItems: "center",
+            gap: "12px"
           }}>
-            <div style={{ fontSize: 10, color: "var(--text-dim)" }}>🚚 {lang === "ar" ? "السائق" : "Chauffeur"}</div>
-            <div style={{ fontSize: 14, fontWeight: 600, color: "var(--primary)", marginTop: 2 }}>{driverInfo.name}</div>
-            <div style={{ fontSize: 10, color: "var(--text-dim)", marginTop: 2 }}>🔑 {driverInfo.code}</div>
+            {/* Avatar Initials Badge */}
+            <div style={{
+              width: "36px",
+              height: "36px",
+              borderRadius: "50%",
+              background: "linear-gradient(135deg, var(--primary) 0%, #d97706 100%)",
+              color: "#0f172a",
+              fontWeight: "700",
+              fontSize: "14px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              boxShadow: "0 0 12px rgba(251, 191, 36, 0.3)",
+              flexShrink: 0
+            }}>
+              {driverInfo.name.substring(0, 2).toUpperCase()}
+            </div>
+            
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: "9px", textTransform: "uppercase", letterSpacing: "0.05em", color: "var(--text-dim)", fontWeight: "600" }}>
+                {lang === "ar" ? "السائق المهني" : "Conducteur Pro"}
+              </div>
+              <div style={{ fontSize: "14px", fontWeight: "600", color: "#fff", marginTop: "2px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                {driverInfo.name}
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: "6px", marginTop: "4px", fontSize: "10px", color: "var(--text-dim)" }}>
+                <span style={{ display: "flex", alignItems: "center", gap: "2px" }}>
+                  🚚 {lang === "ar" ? "سائق" : "Saa'iq"}
+                </span>
+                <span style={{ color: "rgba(255, 255, 255, 0.15)" }}>•</span>
+                <span style={{ display: "flex", alignItems: "center", gap: "2px" }}>
+                  🔑 {driverInfo.code}
+                </span>
+              </div>
+            </div>
           </div>
         )}
 
