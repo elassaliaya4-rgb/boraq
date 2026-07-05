@@ -738,6 +738,7 @@ input, select, textarea {
   bottom: 4px;
   font-size: 28px;
   animation: splash-drive 3.4s infinite linear;
+  white-space: nowrap !important;
 }
 
 .splash-speed-lines {
