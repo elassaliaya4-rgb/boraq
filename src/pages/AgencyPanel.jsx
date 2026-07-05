@@ -158,6 +158,30 @@ export default function AgencyPanel() {
             {unread > 0 && <span className="badge">{unread}</span>}
           </button>
         </div>
+
+        {/* Logout at bottom of sidebar */}
+        <div style={{ marginTop: "auto", paddingTop: 20 }}>
+          <button 
+            className="nav-item" 
+            onClick={signOut}
+            style={{ 
+              width: "100%", 
+              color: "#ef4444", 
+              border: "1px solid rgba(239, 68, 68, 0.15)",
+              background: "rgba(239, 68, 68, 0.05)",
+              borderRadius: 10,
+              padding: "10px 14px",
+              display: "flex",
+              alignItems: "center",
+              gap: 10,
+              cursor: "pointer",
+              fontWeight: "600",
+              transition: "all 0.2s ease"
+            }}
+          >
+            🚪 {lang === "ar" ? "تسجيل الخروج" : "Déconnexion"}
+          </button>
+        </div>
       </aside>
 
       <main className="main">
@@ -183,9 +207,29 @@ export default function AgencyPanel() {
             <h1>{t.welcome} {agencyInfo?.name || "Agence"} 👋</h1>
           </div>
           <div className="topbar-actions">
-            <button className="btn-sm" onClick={() => setShowScanner(true)}>📷 {t.scan}</button>
-            <button className="btn-sm" onClick={() => setLang(lang === "ar" ? "fr" : "ar")}>🌐 {lang === "ar" ? "FR" : "ع"}</button>
-            <button className="btn-sm" onClick={signOut}>{t.logout}</button>
+            <button 
+              className="btn-accent" 
+              onClick={() => setShowScanner(true)}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "6px",
+                padding: "8px 14px",
+                fontSize: "13px",
+                fontWeight: "600",
+                borderRadius: "8px",
+                cursor: "pointer"
+              }}
+            >
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+                <path d="M3 7V5a2 2 0 0 1 2-2h2" />
+                <path d="M17 3h2a2 2 0 0 1 2 2v2" />
+                <path d="M21 17v2a2 2 0 0 1-2 2h-2" />
+                <path d="M3 17v2a2 2 0 0 0 2 2h2" />
+                <line x1="7" y1="12" x2="17" y2="12" />
+              </svg>
+              <span>{t.scan}</span>
+            </button>
           </div>
         </div>
 
