@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Html5Qrcode } from "html5-qrcode";
 import { useApp } from "../lib/context";
 import { supabase } from "../lib/supabase";
-import { statusColors, statusBg } from "../lib/helpers";
+import { statusColors, statusBg, buildWhatsAppLink } from "../lib/helpers";
 
 export default function Scanner({ onClose, onOpenPackage, agencies = [], onUpdated }) {
   const { t, lang } = useApp();
@@ -17,6 +17,7 @@ export default function Scanner({ onClose, onOpenPackage, agencies = [], onUpdat
   const [loading, setLoading] = useState(false);
   const [bulkStatus, setBulkStatus] = useState("");
   const [bulkUpdating, setBulkUpdating] = useState(false);
+  const [waQueue, setWaQueue] = useState([]);
 
   // إيقاف آمن — كنتأكد ما نوقفش مرتين
   async function safeStop() {
@@ -175,7 +176,7 @@ export default function Scanner({ onClose, onOpenPackage, agencies = [], onUpdat
     });
   }
 
-  async function handleBulkUpdate() {
+  async function handleBulkUpdate(shouldNotify = false) {
     if (!bulkStatus || scanned.length === 0) return;
     setBulkUpdating(true);
     setError("");
@@ -194,9 +195,25 @@ export default function Scanner({ onClose, onOpenPackage, agencies = [], onUpdat
             pkg: { ...item.pkg, status: bulkStatus },
           }))
         );
+
         if (onUpdated) onUpdated();
-        setError(lang === "ar" ? "تم تحديث الطرود بنجاح!" : "Colis mis à jour avec succès!");
-        setTimeout(() => setError(""), 3000);
+
+        if (shouldNotify) {
+          const queue = scanned.map((item) => {
+            const agencyName = agencies.find((a) => a.id === item.pkg.agency_id)?.name || "—";
+            const updatedPkg = { ...item.pkg, status: bulkStatus };
+            const waData = buildWhatsAppLink(updatedPkg, "receiver", agencyName, lang, t);
+            return {
+              pkg: updatedPkg,
+              wa: waData,
+              sent: false
+            };
+          });
+          setWaQueue(queue);
+        } else {
+          setError(lang === "ar" ? "تم تحديث الطرود بنجاح!" : "Colis mis à jour avec succès!");
+          setTimeout(() => setError(""), 3000);
+        }
       } else {
         setError(err.message);
       }
@@ -317,7 +334,7 @@ export default function Scanner({ onClose, onOpenPackage, agencies = [], onUpdat
                 <option value="delivered">{t.delivered}</option>
               </select>
               <button
-                onClick={handleBulkUpdate}
+                onClick={() => handleBulkUpdate(false)}
                 disabled={!bulkStatus || bulkUpdating}
                 className="btn-primary"
                 style={{
@@ -328,6 +345,22 @@ export default function Scanner({ onClose, onOpenPackage, agencies = [], onUpdat
                 }}
               >
                 {bulkUpdating ? "..." : (lang === "ar" ? "تطبيق" : "Appliquer")}
+              </button>
+              <button
+                onClick={() => handleBulkUpdate(true)}
+                disabled={!bulkStatus || bulkUpdating}
+                className="btn-accent"
+                style={{
+                  padding: "6px 12px",
+                  fontSize: 12,
+                  margin: 0,
+                  width: "auto",
+                  background: "#10b981",
+                  borderColor: "#10b981",
+                  color: "#fff"
+                }}
+              >
+                {bulkUpdating ? "..." : "🟢 " + (lang === "ar" ? "واتساب" : "WhatsApp")}
               </button>
             </div>
 
@@ -423,6 +456,74 @@ export default function Scanner({ onClose, onOpenPackage, agencies = [], onUpdat
           {t.cancel}
         </button>
       </div>
+
+      {/* WhatsApp Queue Modal */}
+      {waQueue.length > 0 && (
+        <div className="modal-bg" onClick={() => setWaQueue([])} style={{ zIndex: 400 }}>
+          <div className="modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 420 }}>
+            <div style={{ fontSize: 17, fontWeight: 600, marginBottom: 8 }}>
+              🟢 {lang === "ar" ? "إرسال إشعارات واتساب" : "Envoyer WhatsApp en masse"}
+            </div>
+            <div style={{ fontSize: 12, color: "var(--text-dim)", marginBottom: 14 }}>
+              {lang === "ar" 
+                ? `قم بإرسال الرسائل الجاهزة للزبناء (${waQueue.filter(q => q.sent).length}/${waQueue.length} تم إرساله)`
+                : `Envoyez les messages pré-remplis (${waQueue.filter(q => q.sent).length}/${waQueue.length} envoyés)`
+              }
+            </div>
+            
+            <div style={{ maxHeight: 280, overflowY: "auto", display: "flex", flexDirection: "column", gap: 10, marginBottom: 14 }}>
+              {waQueue.map((item, index) => (
+                <div key={item.pkg.id} style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  gap: 10,
+                  padding: 10,
+                  background: item.sent ? "rgba(16, 185, 129, 0.08)" : "var(--surface-2)",
+                  border: item.sent ? "1px solid rgba(16, 185, 129, 0.2)" : "1px solid var(--border)",
+                  borderRadius: 8
+                }}>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 12, fontWeight: 600, color: item.sent ? "#10b981" : "var(--text)" }}>
+                      {item.pkg.tracking_number} • {item.pkg.receiver_name}
+                    </div>
+                    <div style={{ fontSize: 11, color: "var(--text-dim)", marginTop: 2 }}>
+                      📱 {item.wa.phone}
+                    </div>
+                  </div>
+                  <a
+                    href={item.wa.link}
+                    target="_blank"
+                    rel="noreferrer"
+                    onClick={() => {
+                      // Mark this package as sent f the state
+                      setWaQueue(prev => prev.map((q, idx) => 
+                        idx === index ? { ...q, sent: true } : q
+                      ));
+                    }}
+                    style={{
+                      textDecoration: "none",
+                      fontSize: 11,
+                      fontWeight: 600,
+                      padding: "6px 12px",
+                      borderRadius: 6,
+                      background: item.sent ? "rgba(16, 185, 129, 0.15)" : "#10b981",
+                      color: item.sent ? "#10b981" : "#fff",
+                      border: item.sent ? "1px solid rgba(16, 185, 129, 0.3)" : "none"
+                    }}
+                  >
+                    {item.sent ? (lang === "ar" ? "تم ✓" : "Envoyé ✓") : (lang === "ar" ? "إرسال 🟢" : "Envoyer 🟢")}
+                  </a>
+                </div>
+              ))}
+            </div>
+            
+            <button className="btn-sm btn-block" onClick={() => setWaQueue([])} style={{ margin: 0 }}>
+              {lang === "ar" ? "إغلاق" : "Fermer"}
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
