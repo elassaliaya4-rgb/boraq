@@ -228,9 +228,9 @@ export default function AdminPanel() {
         {tab === "dashboard" && (
           <>
             <div className="stats">
-              <Stat val={packages?.length || 0} lbl={t.totalPackages} />
-              <Stat val={agencies?.length || 0} lbl={t.totalAgencies} />
-              <Stat val={packages?.filter((p) => p?.status === "arrived")?.length || 0} lbl={t.newArrivals} />
+              <Stat val={packages?.length || 0} lbl={t.totalPackages} onClick={() => setTab("packages")} />
+              <Stat val={agencies?.length || 0} lbl={t.totalAgencies} onClick={() => setTab("agencies")} />
+              <Stat val={packages?.filter((p) => p?.status === "arrived")?.length || 0} lbl={t.newArrivals} onClick={() => setTab("packages")} />
             </div>
             <PkgHeader t={t} onAdd={() => setShowPkgForm(true)} />
             <PackagesTable packages={packages} t={t} onManage={setDetailPkg} onDelete={deletePackage} />
@@ -421,8 +421,13 @@ function NavBtn({ icon, label, active, onClick, badge }) {
   );
 }
 
-function Stat({ val, lbl }) {
-  return <div className="stat-card"><div className="val">{val}</div><div className="lbl">{lbl}</div></div>;
+function Stat({ val, lbl, onClick }) {
+  return (
+    <div className={`stat-card ${onClick ? "clickable-stat" : ""}`} onClick={onClick}>
+      <div className="val">{val}</div>
+      <div className="lbl">{lbl}</div>
+    </div>
+  );
 }
 
 function PkgHeader({ t, onAdd }) {
