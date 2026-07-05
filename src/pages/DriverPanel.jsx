@@ -355,20 +355,41 @@ export default function DriverPanel() {
                         </tr>
                       </thead>
                       <tbody>
-                        {pkgs.map((p) => (
-                          <tr key={p.id}>
-                            <td><b>{p.tracking_number}</b></td>
-                            <td><span style={{ fontSize: 12, padding: "2px 6px", background: "var(--surface-2)", borderRadius: 6, fontWeight: 500 }}>{p.origin}</span></td>
-                            <td>{p.receiver_name}</td>
-                            <td>{p.weight} {t.kg}</td>
-                            <td>
-                              <span className={`status ${p.status}`}>{t[p.status]}</span>
-                            </td>
-                            <td>
-                              <button className="btn-manage" onClick={() => setDetailPkg(p)}>⚙️</button>
-                            </td>
-                          </tr>
-                        ))}
+                        {pkgs.map((p) => {
+                          const isLoaded = p.status === "inTransit";
+                          return (
+                            <tr 
+                              key={p.id}
+                              style={isLoaded ? { 
+                                backgroundColor: "rgba(16, 185, 129, 0.08)",
+                                borderInlineStart: "4px solid #10b981",
+                                transition: "all 0.3s ease"
+                              } : { transition: "all 0.3s ease" }}
+                            >
+                              <td><b>{p.tracking_number}</b></td>
+                              <td>
+                                <span style={{ 
+                                  fontSize: 12, 
+                                  padding: "2px 6px", 
+                                  background: isLoaded ? "rgba(16, 185, 129, 0.15)" : "var(--surface-2)", 
+                                  borderRadius: 6, 
+                                  fontWeight: 500,
+                                  color: isLoaded ? "#10b981" : "inherit"
+                                }}>
+                                  {p.origin}
+                                </span>
+                              </td>
+                              <td>{p.receiver_name}</td>
+                              <td>{p.weight} {t.kg}</td>
+                              <td>
+                                <span className={`status ${p.status}`}>{t[p.status]}</span>
+                              </td>
+                              <td>
+                                <button className="btn-manage" onClick={() => setDetailPkg(p)}>⚙️</button>
+                              </td>
+                            </tr>
+                          );
+                        })}
                       </tbody>
                     </table>
                   </div>
