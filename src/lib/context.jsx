@@ -9,9 +9,38 @@ export function AppProvider({ children }) {
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [toast, setToast] = useState(null);
 
   const t = translations[lang];
   const dir = lang === "ar" ? "rtl" : "ltr";
+
+  useEffect(() => {
+    if (window.Notification && Notification.permission === "default") {
+      Notification.requestPermission();
+    }
+  }, []);
+
+  function triggerToast(message) {
+    setToast(message);
+    setTimeout(() => {
+      setToast(null);
+    }, 4500);
+
+    if (window.Notification && Notification.permission === "granted") {
+      try {
+        new Notification("البراق — Boraq", {
+          body: message,
+          icon: "/icon-192.png"
+        });
+      } catch (e) {
+        console.warn("Web Notification error:", e);
+      }
+    }
+
+    if (navigator.vibrate) {
+      navigator.vibrate([100, 50, 100]);
+    }
+  }
 
   useEffect(() => {
     supabase.auth.getSession()
@@ -95,6 +124,8 @@ export function AppProvider({ children }) {
         loading,
         signIn,
         signOut,
+        toast,
+        triggerToast,
       }}
     >
       {children}

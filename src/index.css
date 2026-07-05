@@ -854,3 +854,64 @@ input, select, textarea {
 .stat-card.clickable-stat:active {
   transform: translateY(-1px);
 }
+
+/* ==========================================================================
+   Global Toast Notification (Floating Premium Glassmorphism Banner)
+   ========================================================================== */
+.global-toast {
+  position: fixed;
+  top: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 22px;
+  background: rgba(15, 23, 42, 0.88);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(251, 191, 36, 0.35);
+  border-radius: 14px;
+  box-shadow: 
+    0 10px 25px -5px rgba(0, 0, 0, 0.5), 
+    0 8px 16px -6px rgba(0, 0, 0, 0.5),
+    0 0 16px rgba(251, 191, 36, 0.15);
+  max-width: 90%;
+  width: 420px;
+  animation: toast-slide-down 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  pointer-events: auto;
+}
+
+.global-toast .toast-icon {
+  font-size: 20px;
+  animation: toast-bell-ring 1.5s infinite ease-in-out;
+}
+
+.global-toast .toast-body {
+  font-size: 13.5px;
+  font-weight: 500;
+  color: #f8fafc;
+  line-height: 1.4;
+  flex: 1;
+}
+
+@keyframes toast-slide-down {
+  0% {
+    top: -80px;
+    opacity: 0;
+  }
+  100% {
+    top: 24px;
+    opacity: 1;
+  }
+}
+
+@keyframes toast-bell-ring {
+  0%, 100% { transform: rotate(0); }
+  15% { transform: rotate(15deg); }
+  30% { transform: rotate(-12deg); }
+  45% { transform: rotate(10deg); }
+  60% { transform: rotate(-8deg); }
+  75% { transform: rotate(4deg); }
+}

@@ -5,7 +5,7 @@ import AgencyPanel from "./pages/AgencyPanel";
 import DriverPanel from "./pages/DriverPanel";
 
 export default function App() {
-  const { user, profile, loading, dir, lang, signOut, t } = useApp();
+  const { user, profile, loading, dir, lang, signOut, t, toast } = useApp();
 
   // ضبط اتجاه الصفحة حسب اللغة
   document.documentElement.dir = dir;
@@ -29,25 +29,31 @@ export default function App() {
     );
   }
 
-  if (!user) return <Login />;
-
-  // التوجيه حسب الدور
-  if (profile?.role === "admin") return <AdminPanel />;
-  if (profile?.role === "agency") return <AgencyPanel />;
-  if (profile?.role === "driver") return <DriverPanel />;
-
-  // المستخدم موجود ولكن بلا profile
   return (
-    <div className="login-wrap">
-      <div className="login-card" style={{ textAlign: "center" }}>
-        <div className="logo">⚡ Boraq</div>
-        <p style={{ color: "var(--text-dim)", marginTop: 14, marginBottom: 20 }}>
-          Compte sans rôle. Contactez l'administrateur.
-        </p>
-        <button className="btn-primary" onClick={signOut}>
-          Déconnexion / تسجيل الخروج
-        </button>
-      </div>
-    </div>
+    <>
+      {toast && (
+        <div className="global-toast">
+          <div className="toast-icon">🔔</div>
+          <div className="toast-body">{toast}</div>
+        </div>
+      )}
+      {!user && <Login />}
+      {user && profile?.role === "admin" && <AdminPanel />}
+      {user && profile?.role === "agency" && <AgencyPanel />}
+      {user && profile?.role === "driver" && <DriverPanel />}
+      {user && !profile && (
+        <div className="login-wrap">
+          <div className="login-card" style={{ textAlign: "center" }}>
+            <div className="logo">⚡ Boraq</div>
+            <p style={{ color: "var(--text-dim)", marginTop: 14, marginBottom: 20 }}>
+              Compte sans rôle. Contactez l'administrateur.
+            </p>
+            <button className="btn-primary" onClick={signOut}>
+              Déconnexion / تسجيل الخروج
+            </button>
+          </div>
+        </div>
+      )}
+    </>
   );
 }

@@ -6,7 +6,7 @@ import PackageDetails from "../components/PackageDetails";
 import Scanner from "../components/Scanner";
 
 export default function AgencyPanel() {
-  const { t, lang, setLang, signOut, profile } = useApp();
+  const { t, lang, setLang, signOut, profile, triggerToast } = useApp();
   const [tab, setTab] = useState("packages");
   const [packages, setPackages] = useState([]);
   const [agencies, setAgencies] = useState([]);
@@ -16,7 +16,7 @@ export default function AgencyPanel() {
   const [detailPkg, setDetailPkg] = useState(null);
   const [showScanner, setShowScanner] = useState(false);
 
-  const unread = notifs.filter((n) => !n.is_read).length;
+  const unread = notifs?.filter((n) => !n.is_read)?.length || 0;
 
   function handleScanResult(text) {
     setShowScanner(false);
@@ -49,7 +49,7 @@ export default function AgencyPanel() {
         },
         (payload) => {
           if (payload.new.target === "agency") {
-            if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+            triggerToast(payload.new.message);
             loadData();
           }
         }

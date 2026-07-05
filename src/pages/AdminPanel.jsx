@@ -7,7 +7,7 @@ import PackageDetails from "../components/PackageDetails";
 import Scanner from "../components/Scanner";
 
 export default function AdminPanel() {
-  const { t, lang, setLang, signOut } = useApp();
+  const { t, lang, setLang, signOut, triggerToast } = useApp();
   const [tab, setTab] = useState("dashboard");
   const [packages, setPackages] = useState([]);
   const [agencies, setAgencies] = useState([]);
@@ -36,7 +36,7 @@ export default function AdminPanel() {
           filter: "target=eq.admin",
         },
         (payload) => {
-          if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+          triggerToast(payload.new.message);
           loadData();
         }
       )
