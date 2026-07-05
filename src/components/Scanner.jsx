@@ -263,9 +263,18 @@ export default function Scanner({ onClose, onOpenPackage, agencies = [], onUpdat
             id="scanner-area"
             style={{
               width: "100%",
-              height: "100%"
+              height: "100%",
+              position: "relative"
             }}
-          />
+          >
+            {!error && !starting && (
+              <div className="scanner-overlay">
+                <div className="scanner-viewfinder">
+                  <div className="scanner-laser"></div>
+                </div>
+              </div>
+            )}
+          </div>
 
           {/* Sibling React overlays */}
           {starting && !error && (

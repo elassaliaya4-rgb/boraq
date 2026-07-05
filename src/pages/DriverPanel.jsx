@@ -63,10 +63,21 @@ export default function DriverPanel() {
           }
         }
 
-        const position = await Geolocation.getCurrentPosition({
-          enableHighAccuracy: true,
-          timeout: 10000
-        });
+        let position;
+        try {
+          position = await Geolocation.getCurrentPosition({
+            enableHighAccuracy: true,
+            timeout: 6000,
+            maximumAge: 30000
+          });
+        } catch (e) {
+          console.warn("High accuracy GPS failed, falling back to network coarse location...", e);
+          position = await Geolocation.getCurrentPosition({
+            enableHighAccuracy: false,
+            timeout: 5000,
+            maximumAge: 60000
+          });
+        }
 
         const { latitude, longitude } = position.coords;
         await supabase

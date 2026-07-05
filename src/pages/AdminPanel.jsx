@@ -382,10 +382,10 @@ export default function AdminPanel() {
         <ChauffeurForm onClose={() => setShowDrForm(false)} onSaved={() => { setShowDrForm(false); loadData(); }} />
       )}
       {mapDriver && (
-        <div className="modal-overlay" onClick={() => setMapDriver(null)}>
-          <div className="modal-card" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 600 }}>
+        <div className="modal-bg" onClick={() => setMapDriver(null)}>
+          <div className="modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 600 }}>
             <div className="modal-head">
-              <h3>📍 {lang === "ar" ? `موقع الشوفور: ${mapDriver.name}` : `Position de ${mapDriver.name}`}</h3>
+              <h2>📍 {lang === "ar" ? `موقع الشوفور: ${mapDriver.name}` : `Position de ${mapDriver.name}`}</h2>
               <button className="btn-close" onClick={() => setMapDriver(null)}>✕</button>
             </div>
             <div style={{ padding: "10px 0 0 0" }}>

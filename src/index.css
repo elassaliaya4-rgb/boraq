@@ -798,3 +798,43 @@ input, select, textarea {
   0%, 100% { transform: scale(1); }
   50% { transform: scale(1.15) translateY(-5px); }
 }
+
+/* ==========================================================================
+   Viewfinder Scan Overlay (Telegram Style QR Bounding Box)
+   ========================================================================== */
+.scanner-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.scanner-viewfinder {
+  width: 200px;
+  height: 200px;
+  border: 3px solid var(--primary);
+  border-radius: 20px;
+  box-shadow: 0 0 0 2000px rgba(15, 23, 41, 0.6); /* Dim outer viewfinder area */
+  position: relative;
+}
+
+.scanner-laser {
+  position: absolute;
+  left: 5%;
+  width: 90%;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, #ef4444, transparent);
+  box-shadow: 0 0 8px #ef4444;
+  animation: laser-bounce 2.2s infinite ease-in-out;
+}
+
+@keyframes laser-bounce {
+  0%, 100% { top: 15%; }
+  50% { top: 85%; }
+}
