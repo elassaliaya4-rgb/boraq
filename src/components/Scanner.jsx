@@ -11,6 +11,8 @@ export default function Scanner({ onClose, onOpenPackage, agencies = [], onUpdat
   const lastScanRef = useRef({ text: "", at: 0 });
   const isScanningRef = useRef(false);
   const startPromiseRef = useRef(null); // Tracks the camera start promise
+  const canvasRef = useRef(null);
+  const loopRef = useRef(null);
   const [error, setError] = useState("");
   const [starting, setStarting] = useState(true);
   const [scanned, setScanned] = useState([]);
@@ -171,6 +173,7 @@ export default function Scanner({ onClose, onOpenPackage, agencies = [], onUpdat
           qr.clear();
         } else {
           if (mounted) setStarting(false);
+          setTimeout(startTracking, 300);
         }
       } catch (err) {
         if (mounted) {
@@ -181,11 +184,74 @@ export default function Scanner({ onClose, onOpenPackage, agencies = [], onUpdat
         startPromiseRef.current = null;
       }
     };
+
+    function startTracking() {
+      if (stoppedRef.current) return;
+      const videoEl = document.querySelector("#scanner-area video");
+      if (!videoEl || !window.BarcodeDetector) return;
+
+      try {
+        const detector = new window.BarcodeDetector({ formats: ["qr_code"] });
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+        const ctx = canvas.getContext("2d");
+
+        const trackLoop = async () => {
+          if (stoppedRef.current || !videoEl || !canvasRef.current) return;
+
+          if (canvas.width !== videoEl.clientWidth || canvas.height !== videoEl.clientHeight) {
+            canvas.width = videoEl.clientWidth;
+            canvas.height = videoEl.clientHeight;
+          }
+
+          if (ctx) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+          }
+
+          try {
+            const barcodes = await detector.detect(videoEl);
+            if (barcodes.length > 0 && ctx && canvasRef.current && !stoppedRef.current) {
+              barcodes.forEach((barcode) => {
+                const { x, y, width, height } = barcode.boundingBox;
+                const scaleX = canvas.width / videoEl.videoWidth;
+                const scaleY = canvas.height / videoEl.videoHeight;
+                const rx = x * scaleX;
+                const ry = y * scaleY;
+                const rw = width * scaleX;
+                const rh = height * scaleY;
+
+                ctx.strokeStyle = "#10b981"; // emerald green
+                ctx.lineWidth = 3;
+                ctx.lineJoin = "round";
+                ctx.beginPath();
+                ctx.roundRect(rx, ry, rw, rh, 8);
+                ctx.stroke();
+
+                ctx.fillStyle = "rgba(16, 185, 129, 0.15)";
+                ctx.fill();
+              });
+            }
+          } catch (e) {}
+
+          if (!stoppedRef.current) {
+            loopRef.current = requestAnimationFrame(trackLoop);
+          }
+        };
+
+        loopRef.current = requestAnimationFrame(trackLoop);
+      } catch (e) {
+        console.warn("BarcodeDetector setup error:", e);
+      }
+    }
+
     const timer = setTimeout(startScanner, 250);
     return () => {
       mounted = false;
       clearTimeout(timer);
       safeStop();
+      if (loopRef.current) {
+        cancelAnimationFrame(loopRef.current);
+      }
     };
   }, []);
 
@@ -266,6 +332,18 @@ export default function Scanner({ onClose, onOpenPackage, agencies = [], onUpdat
               position: "relative"
             }}
           >
+            <canvas
+              ref={canvasRef}
+              style={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                width: "100%",
+                height: "100%",
+                zIndex: 11,
+                pointerEvents: "none"
+              }}
+            />
             {!error && !starting && (
               <div className="scanner-overlay">
                 <div className="scanner-viewfinder">

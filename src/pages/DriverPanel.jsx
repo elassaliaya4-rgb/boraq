@@ -34,7 +34,7 @@ export default function DriverPanel() {
           "postgres_changes",
           { event: "*", schema: "public", table: "packages" },
           () => {
-            loadData();
+            loadData(true);
           }
         )
         .subscribe();
@@ -94,9 +94,9 @@ export default function DriverPanel() {
     }
   }, [profile]);
 
-  async function loadData() {
+  async function loadData(silent = false) {
     if (!mountedRef.current) return;
-    setLoading(true);
+    if (!silent) setLoading(true);
     try {
       // 1. Fetch Driver info
       const { data: drv } = await supabase
@@ -295,7 +295,7 @@ export default function DriverPanel() {
         <Scanner
           agencies={agencies}
           onClose={() => setShowScanner(false)}
-          onUpdated={loadData}
+          onUpdated={() => loadData(true)}
         />
       )}
     </div>
