@@ -36,6 +36,35 @@ export default function DriverPanel() {
     }
   }, [profile]);
 
+  useEffect(() => {
+    if (!profile?.driver_id) return;
+
+    updateLocation();
+    const interval = setInterval(updateLocation, 30000);
+    return () => clearInterval(interval);
+
+    function updateLocation() {
+      if (!navigator.geolocation) return;
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const { latitude, longitude } = position.coords;
+          await supabase
+            .from("drivers")
+            .update({
+              latitude,
+              longitude,
+              last_active: new Date().toISOString()
+            })
+            .eq("id", profile.driver_id);
+        },
+        (error) => {
+          console.warn("Geolocation error:", error);
+        },
+        { enableHighAccuracy: true, timeout: 10000 }
+      );
+    }
+  }, [profile]);
+
   async function loadData() {
     setLoading(true);
     try {

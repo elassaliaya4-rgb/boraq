@@ -222,21 +222,63 @@ export default function AdminPanel() {
                   <tr>
                     <th>{t.name}</th>
                     <th>{t.code}</th>
-                    <th>{lang === "ar" ? "تاريخ الإضافة" : "Date d'ajout"}</th>
+                    <th>{lang === "ar" ? "الحالة" : "Statut"}</th>
+                    <th>{lang === "ar" ? "الموقع" : "Localisation"}</th>
                     <th>{t.actions}</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {drivers.map((d) => (
-                    <tr key={d.id}>
-                      <td><b>{d.name}</b></td>
-                      <td>{d.code}</td>
-                      <td>{new Date(d.created_at).toLocaleDateString()}</td>
-                      <td>
-                        <button className="btn-danger btn-sm" onClick={() => deleteDriver(d)}>🗑️</button>
-                      </td>
-                    </tr>
-                  ))}
+                  {drivers.map((d) => {
+                    const isOnline = d.last_active && (new Date() - new Date(d.last_active)) < 180000;
+                    return (
+                      <tr key={d.id}>
+                        <td><b>{d.name}</b></td>
+                        <td>{d.code}</td>
+                        <td>
+                          <span style={{
+                            padding: "4px 8px",
+                            borderRadius: 12,
+                            fontSize: 12,
+                            fontWeight: 600,
+                            background: isOnline ? "rgba(34, 197, 94, 0.15)" : "rgba(148, 163, 184, 0.15)",
+                            color: isOnline ? "#22c55e" : "#cbd5e1"
+                          }}>
+                            {isOnline 
+                              ? (lang === "ar" ? "🟢 متصل" : "🟢 En ligne") 
+                              : (lang === "ar" ? "🔴 غير متصل" : "🔴 Hors-ligne")
+                            }
+                          </span>
+                        </td>
+                        <td>
+                          {d.latitude && d.longitude ? (
+                            <a
+                              href={`https://www.google.com/maps/search/?api=1&query=${d.latitude},${d.longitude}`}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="btn-primary"
+                              style={{
+                                padding: "4px 10px",
+                                fontSize: 12,
+                                textDecoration: "none",
+                                borderRadius: 6,
+                                display: "inline-flex",
+                                alignItems: "center",
+                                gap: 4,
+                                width: "auto"
+                              }}
+                            >
+                              📍 {lang === "ar" ? "تحديد الموقع" : "Localiser"}
+                            </a>
+                          ) : (
+                            <span style={{ color: "var(--text-dim)", fontSize: 12 }}>—</span>
+                          )}
+                        </td>
+                        <td>
+                          <button className="btn-danger btn-sm" onClick={() => deleteDriver(d)}>🗑️</button>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
