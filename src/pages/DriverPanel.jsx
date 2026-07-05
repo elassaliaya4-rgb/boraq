@@ -17,6 +17,22 @@ export default function DriverPanel() {
   useEffect(() => {
     if (profile?.driver_id) {
       loadData();
+
+      // Real-time package update listener
+      const channel = supabase
+        .channel("driver-packages-realtime")
+        .on(
+          "postgres_changes",
+          { event: "*", schema: "public", table: "packages" },
+          () => {
+            loadData();
+          }
+        )
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(channel);
+      };
     }
   }, [profile]);
 
