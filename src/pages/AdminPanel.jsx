@@ -87,14 +87,38 @@ export default function AdminPanel() {
         : `Supprimer "${a.name}" ?` +
           (count > 0 ? `\n⚠️ ${count} colis seront aussi supprimés.` : "");
     if (!window.confirm(msg)) return;
-    await supabase.from("agencies").delete().eq("id", a.id);
+
+    const { data: prof } = await supabase
+      .from("profiles")
+      .select("id")
+      .eq("agency_id", a.id)
+      .maybeSingle();
+
+    const userId = prof?.id || null;
+
+    const { error } = await supabase.rpc("delete_agency", { age_id: a.id, usr_id: userId });
+    if (error) {
+      alert("Error: " + error.message);
+    }
     loadData();
   }
 
   async function deleteDriver(d) {
     const msg = lang === "ar" ? `هل تريد مسح الشوفور "${d.name}"؟` : `Supprimer le chauffeur "${d.name}" ?`;
     if (!window.confirm(msg)) return;
-    await supabase.from("drivers").delete().eq("id", d.id);
+
+    const { data: prof } = await supabase
+      .from("profiles")
+      .select("id")
+      .eq("driver_id", d.id)
+      .maybeSingle();
+
+    const userId = prof?.id || null;
+
+    const { error } = await supabase.rpc("delete_driver", { drv_id: d.id, usr_id: userId });
+    if (error) {
+      alert("Error: " + error.message);
+    }
     loadData();
   }
 

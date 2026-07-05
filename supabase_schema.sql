@@ -116,3 +116,34 @@ create policy "all insert notifs" on notifications for insert with check (auth.u
 --
 --  دابا تقدر تدخل كـ admin! 🎉
 -- ============================================
+
+-- ==========================================================================
+--  دوال لمسح المستخدمين من Auth وسجلاتهم من قاعدة البيانات دفعة واحدة (تمنع خطأ User Already Registered)
+-- ==========================================================================
+create or replace function public.delete_driver(drv_id uuid, usr_id uuid)
+returns void as $$
+begin
+  if exists (select 1 from public.profiles where id = auth.uid() and role = 'admin') then
+    delete from public.drivers where id = drv_id;
+    if usr_id is not null then
+      delete from auth.users where id = usr_id;
+    end if;
+  else
+    raise exception 'Unauthorized';
+  end if;
+end;
+$$ language plpgsql security definer;
+
+create or replace function public.delete_agency(age_id uuid, usr_id uuid)
+returns void as $$
+begin
+  if exists (select 1 from public.profiles where id = auth.uid() and role = 'admin') then
+    delete from public.agencies where id = age_id;
+    if usr_id is not null then
+      delete from auth.users where id = usr_id;
+    end if;
+  else
+    raise exception 'Unauthorized';
+  end if;
+end;
+$$ language plpgsql security definer;
