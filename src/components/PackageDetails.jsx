@@ -68,11 +68,46 @@ export default function PackageDetails({ pkg, agencies, onClose, onUpdated }) {
   return (
     <div className="modal-bg" onClick={onClose}>
       <div className="modal" onClick={(e) => e.stopPropagation()}>
-        <div className="d-head">
-          <span style={{ fontSize: 17, fontWeight: 500 }}>
-            📦 {t.details}
-          </span>
-          <span className={`status ${pkg.status}`}>{t[pkg.status]}</span>
+        <div className="d-head" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <button 
+              onClick={onClose} 
+              style={{ 
+                background: "none", 
+                border: "none", 
+                fontSize: 18, 
+                color: "var(--text)", 
+                cursor: "pointer", 
+                padding: "2px 6px",
+                display: "inline-flex",
+                alignItems: "center"
+              }}
+              title="Retour / رجوع"
+            >
+              {lang === "ar" ? "→" : "←"}
+            </button>
+            <span style={{ fontSize: 17, fontWeight: 600 }}>
+              📦 {t.details}
+            </span>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <span className={`status ${pkg.status}`}>{t[pkg.status]}</span>
+            <button 
+              onClick={onClose} 
+              style={{ 
+                background: "none", 
+                border: "none", 
+                fontSize: 18, 
+                color: "var(--text-dim)", 
+                cursor: "pointer",
+                padding: "2px 6px",
+                display: "inline-flex",
+                alignItems: "center"
+              }}
+            >
+              ✕
+            </button>
+          </div>
         </div>
 
         {/* مؤشر المراحل */}
