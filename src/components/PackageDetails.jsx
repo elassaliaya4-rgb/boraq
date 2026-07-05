@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useApp } from "../lib/context";
 import { supabase } from "../lib/supabase";
 import { FLOW } from "../lib/i18n";
@@ -10,6 +10,27 @@ export default function PackageDetails({ pkg, agencies, onClose, onUpdated }) {
   const [showTicket, setShowTicket] = useState(false);
   const [wa, setWa] = useState(null);
   const [busy, setBusy] = useState(false);
+  const [siblings, setSiblings] = useState([]);
+
+  useEffect(() => {
+    if (pkg) {
+      fetchSiblings();
+    }
+  }, [pkg]);
+
+  async function fetchSiblings() {
+    try {
+      const { data } = await supabase
+        .from("packages")
+        .select("id, tracking_number, status")
+        .eq("sender_phone", pkg.sender_phone)
+        .eq("receiver_phone", pkg.receiver_phone)
+        .neq("status", "delivered");
+      setSiblings(data || []);
+    } catch (e) {
+      console.error(e);
+    }
+  }
 
   if (!pkg) return null;
 
@@ -21,12 +42,14 @@ export default function PackageDetails({ pkg, agencies, onClose, onUpdated }) {
   async function advance() {
     if (!nextStatus) return;
     setBusy(true);
+    const targetIds = siblings.length > 0 ? siblings.map(s => s.id) : [pkg.id];
     await supabase
       .from("packages")
       .update({ status: nextStatus })
-      .eq("id", pkg.id);
+      .in("id", targetIds);
     setBusy(false);
     onUpdated && onUpdated();
+    onClose();
   }
 
   function openWhatsApp(who) {
@@ -93,8 +116,14 @@ export default function PackageDetails({ pkg, agencies, onClose, onUpdated }) {
         </div>
 
         {nextStatus ? (
-          <button className="btn-accent btn-block" onClick={advance} disabled={busy}>
-            ➡️ {t.advance}: {t[nextStatus]}
+          <button className="btn-accent btn-block" onClick={advance} disabled={busy} style={{ fontSize: 13, padding: "12px 10px" }}>
+            {siblings.length > 1 ? (
+              lang === "ar" 
+                ? `➡️ مشّي المجموعة كاملة (${siblings.length} طرود): ${t[nextStatus]}`
+                : `➡️ Avancer tout le groupe (${siblings.length} colis) : ${t[nextStatus]}`
+            ) : (
+              `➡️ ${t.advance}: ${t[nextStatus]}`
+            )}
           </button>
         ) : (
           <div className="done-msg">✅ {t.delivered}</div>
