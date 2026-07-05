@@ -54,7 +54,9 @@ export default function Scanner({ onClose, onOpenPackage, agencies = [] }) {
       return;
     lastScanRef.current = { text: decodedText, at: now };
 
-    if (navigator.vibrate) navigator.vibrate(80);
+    try {
+      if (navigator.vibrate) navigator.vibrate(80);
+    } catch (e) {}
 
     let tracking = decodedText;
     try {
@@ -190,25 +192,36 @@ export default function Scanner({ onClose, onOpenPackage, agencies = [] }) {
         )}
 
         <div
-          id="scanner-area"
           style={{
+            position: "relative",
             width: "100%",
             aspectRatio: "1 / 1",
             maxHeight: 320,
             background: "#000",
             borderRadius: 12,
             overflow: "hidden",
-            position: "relative",
             display: "flex",
             alignItems: "center",
-            justifyContent: "center",
+            justifyContent: "center"
           }}
         >
+          {/* Clean target container for html5-qrcode. React does not touch its subtree! */}
+          <div
+            id="scanner-area"
+            style={{
+              width: "100%",
+              height: "100%"
+            }}
+          />
+
+          {/* Sibling React overlays */}
           {starting && !error && (
-            <div style={{ color: "#fff", fontSize: 13 }}>📷 ...</div>
+            <div style={{ position: "absolute", color: "#fff", fontSize: 13, zIndex: 1 }}>
+              📷 ...
+            </div>
           )}
           {loading && (
-            <div style={{ position: "absolute", bottom: 10, insetInlineStart: 10, background: "rgba(0,0,0,0.6)", color: "#fff", padding: "4px 10px", borderRadius: 12, fontSize: 12 }}>
+            <div style={{ position: "absolute", bottom: 10, insetInlineStart: 10, background: "rgba(0,0,0,0.6)", color: "#fff", padding: "4px 10px", borderRadius: 12, fontSize: 12, zIndex: 2 }}>
               ⌛
             </div>
           )}
