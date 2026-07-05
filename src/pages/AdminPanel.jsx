@@ -225,14 +225,15 @@ export default function AdminPanel() {
               fontSize: "12px",
               cursor: "pointer",
               padding: "6px 12px",
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "6px",
-              opacity: 0.85,
-              fontWeight: "600"
+              opacity: 0.8,
+              fontWeight: "600",
+              letterSpacing: "0.5px",
+              transition: "opacity 0.2s ease"
             }}
+            onMouseEnter={(e) => e.target.style.opacity = "1"}
+            onMouseLeave={(e) => e.target.style.opacity = "0.8"}
           >
-            🚪 {lang === "ar" ? "تسجيل الخروج" : "Déconnexion"}
+            {lang === "ar" ? "تسجيل الخروج" : "Déconnexion"}
           </button>
         </div>
       </aside>
