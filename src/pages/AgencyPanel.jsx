@@ -15,6 +15,7 @@ export default function AgencyPanel() {
   const [showPkgForm, setShowPkgForm] = useState(false);
   const [detailPkg, setDetailPkg] = useState(null);
   const [showScanner, setShowScanner] = useState(false);
+  const [scannedSessionPkgs, setScannedSessionPkgs] = useState([]);
 
   const unread = notifs?.filter((n) => !n.is_read)?.length || 0;
 
@@ -259,6 +260,77 @@ export default function AgencyPanel() {
           </div>
         </div>
 
+        {/* Session Scanned Packages Tray */}
+        {scannedSessionPkgs.length > 0 && (
+          <div style={{
+            background: "linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(15, 23, 42, 0.6) 100%)",
+            border: "1px solid rgba(16, 185, 129, 0.25)",
+            borderRadius: 16,
+            padding: 16,
+            marginBottom: 20,
+            boxShadow: "0 4px 20px -5px rgba(0,0,0,0.3)"
+          }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <span className="pulse-green-dot" style={{ width: 8, height: 8, background: "#10b981", borderRadius: "50%", display: "inline-block", boxShadow: "0 0 10px #10b981" }}></span>
+                <h3 style={{ margin: 0, fontSize: 14, fontWeight: 600, color: "#10b981" }}>
+                  {lang === "ar" ? "الطرود الممسوحة حديثاً" : "Colis scannés récemment"}
+                </h3>
+                <span style={{ fontSize: 11, background: "rgba(16, 185, 129, 0.15)", color: "#10b981", padding: "2px 8px", borderRadius: 10, fontWeight: "600" }}>
+                  {scannedSessionPkgs.length}
+                </span>
+              </div>
+              <button 
+                onClick={() => setScannedSessionPkgs([])}
+                style={{ 
+                  background: "none", 
+                  border: "none", 
+                  color: "#f87171", 
+                  fontSize: 12, 
+                  cursor: "pointer", 
+                  fontWeight: "600",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 4
+                }}
+              >
+                🗑️ {lang === "ar" ? "مسح القائمة" : "Vider la liste"}
+              </button>
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              <div className="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>{t.trackingNumber}</th>
+                      <th>{lang === "ar" ? "من (المنشأ)" : "De (Origine)"}</th>
+                      <th>{t.receiverName}</th>
+                      <th>{t.weight}</th>
+                      <th>{t.status}</th>
+                      <th>{t.manage}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {scannedSessionPkgs.map((p) => (
+                      <tr key={p.id} style={{ backgroundColor: "rgba(16, 185, 129, 0.04)" }}>
+                        <td><b>{p.tracking_number}</b></td>
+                        <td><span style={{ fontSize: 11, padding: "2px 6px", background: "var(--surface-2)", borderRadius: 6 }}>{p.origin}</span></td>
+                        <td>{p.receiver_name}</td>
+                        <td>{p.weight} {t.kg}</td>
+                        <td><span className="status arrived" style={{ color: "#10b981", background: "rgba(16,185,129,0.12)" }}>{t[p.status] || p.status}</span></td>
+                        <td>
+                          <button className="btn-manage" onClick={() => setDetailPkg(p)}>⚙️ {t.manage}</button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+
         {tab === "packages" && (
           <>
             <div className="row-head">
@@ -318,7 +390,11 @@ export default function AgencyPanel() {
       {showScanner && (
         <Scanner
           agencies={agencies}
-          onOpenPackage={(pkg) => { setShowScanner(false); setDetailPkg(pkg); }}
+          onOpenPackage={(pkg) => { 
+            setShowScanner(false); 
+            const updatedPkg = { ...pkg, status: "arrived" };
+            setScannedSessionPkgs(prev => [updatedPkg, ...prev.filter(p => p.id !== pkg.id)]);
+          }}
           onClose={() => setShowScanner(false)}
           onUpdated={loadData}
         />

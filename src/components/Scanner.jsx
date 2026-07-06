@@ -235,29 +235,26 @@ export default function Scanner({ onClose, onOpenPackage, agencies = [], onUpdat
             ctx.clearRect(0, 0, canvas.width, canvas.height);
           }
 
+          let rx = (canvas.width - 240) / 2;
+          let ry = (canvas.height - 240) / 2;
+          let rw = 240;
+          let rh = 240;
+          let codeDetected = false;
+
           if (window.BarcodeDetector) {
             try {
               const detector = new window.BarcodeDetector({ formats: ["qr_code"] });
               const barcodes = await detector.detect(videoEl);
-              if (barcodes.length > 0 && ctx && canvasRef.current && !stoppedRef.current) {
+              if (barcodes.length > 0) {
                 const barcode = barcodes[0];
                 const { x, y, width, height } = barcode.boundingBox;
                 const scaleX = canvas.width / videoEl.videoWidth;
                 const scaleY = canvas.height / videoEl.videoHeight;
-                const rx = x * scaleX;
-                const ry = y * scaleY;
-                const rw = width * scaleX;
-                const rh = height * scaleY;
-
-                ctx.strokeStyle = "#ffffff"; // Telegram white borders
-                ctx.lineWidth = 4;
-                ctx.lineJoin = "round";
-                ctx.beginPath();
-                ctx.roundRect(rx, ry, rw, rh, 16);
-                ctx.stroke();
-
-                ctx.fillStyle = "rgba(255, 255, 255, 0.15)";
-                ctx.fill();
+                rx = x * scaleX;
+                ry = y * scaleY;
+                rw = width * scaleX;
+                rh = height * scaleY;
+                codeDetected = true;
               }
             } catch (e) {}
           } else {
@@ -274,27 +271,79 @@ export default function Scanner({ onClose, onOpenPackage, agencies = [], onUpdat
                   inversionAttempts: "dontInvert"
                 });
 
-                if (code && ctx && canvasRef.current && !stoppedRef.current) {
+                if (code) {
                   const loc = code.location;
                   const scaleX = canvas.width / videoEl.videoWidth;
                   const scaleY = canvas.height / videoEl.videoHeight;
 
-                  ctx.strokeStyle = "#ffffff"; // Telegram white borders
-                  ctx.lineWidth = 4;
-                  ctx.lineJoin = "round";
-                  ctx.beginPath();
-                  ctx.moveTo(loc.topLeftCorner.x * scaleX, loc.topLeftCorner.y * scaleY);
-                  ctx.lineTo(loc.topRightCorner.x * scaleX, loc.topRightCorner.y * scaleY);
-                  ctx.lineTo(loc.bottomRightCorner.x * scaleX, loc.bottomRightCorner.y * scaleY);
-                  ctx.lineTo(loc.bottomLeftCorner.x * scaleX, loc.bottomLeftCorner.y * scaleY);
-                  ctx.closePath();
-                  ctx.stroke();
-
-                  ctx.fillStyle = "rgba(255, 255, 255, 0.15)";
-                  ctx.fill();
+                  const xs = [loc.topLeftCorner.x, loc.topRightCorner.x, loc.bottomRightCorner.x, loc.bottomLeftCorner.x].map(x => x * scaleX);
+                  const ys = [loc.topLeftCorner.y, loc.topRightCorner.y, loc.bottomRightCorner.y, loc.bottomLeftCorner.y].map(y => y * scaleY);
+                  rx = Math.min(...xs);
+                  ry = Math.min(...ys);
+                  rw = Math.max(...xs) - rx;
+                  rh = Math.max(...ys) - ry;
+                  codeDetected = true;
                 }
               } catch (e) {}
             }
+          }
+
+          if (ctx) {
+            // 1. Draw moving dark translucent mask covering the screen except the active target cutout
+            ctx.fillStyle = "rgba(15, 23, 42, 0.7)"; // Translucent Slate 900 mask
+            // Top mask
+            ctx.fillRect(0, 0, canvas.width, ry);
+            // Bottom mask
+            ctx.fillRect(0, ry + rh, canvas.width, canvas.height - (ry + rh));
+            // Left mask
+            ctx.fillRect(0, ry, rx, rh);
+            // Right mask
+            ctx.fillRect(rx + rw, ry, canvas.width - (rx + rw), rh);
+
+            // 2. Draw Telegram-style corner brackets directly around the active box (rx, ry, rw, rh)
+            const len = Math.max(16, Math.min(28, rw * 0.25));
+            ctx.strokeStyle = codeDetected ? "#10b981" : "#ffffff"; // Green when locked, White when searching!
+            ctx.lineWidth = 5;
+            ctx.lineCap = "round";
+            ctx.lineJoin = "round";
+
+            // Top-Left
+            ctx.beginPath();
+            ctx.moveTo(rx + len, ry);
+            ctx.lineTo(rx, ry);
+            ctx.lineTo(rx, ry + len);
+            ctx.stroke();
+
+            // Top-Right
+            ctx.beginPath();
+            ctx.moveTo(rx + rw - len, ry);
+            ctx.lineTo(rx + rw, ry);
+            ctx.lineTo(rx + rw, ry + len);
+            ctx.stroke();
+
+            // Bottom-Left
+            ctx.beginPath();
+            ctx.moveTo(rx + len, ry + rh);
+            ctx.lineTo(rx, ry + rh);
+            ctx.lineTo(rx, ry + rh - len);
+            ctx.stroke();
+
+            // Bottom-Right
+            ctx.beginPath();
+            ctx.moveTo(rx + rw - len, ry + rh);
+            ctx.lineTo(rx + rw, ry + rh);
+            ctx.lineTo(rx + rw, ry + rh - len);
+            ctx.stroke();
+
+            // 3. Highlight fill inside the brackets
+            ctx.fillStyle = codeDetected ? "rgba(16, 185, 129, 0.12)" : "rgba(255, 255, 255, 0.02)";
+            ctx.beginPath();
+            if (ctx.roundRect) {
+              ctx.roundRect(rx, ry, rw, rh, 16);
+            } else {
+              ctx.rect(rx, ry, rw, rh);
+            }
+            ctx.fill();
           }
         }
 
@@ -469,14 +518,8 @@ export default function Scanner({ onClose, onOpenPackage, agencies = [], onUpdat
 
       {/* Viewfinder Target Layer (Mask overlay + corner borders) */}
       {!error && !starting && (
-        <div className="scanner-viewfinder-overlay">
-          <div className="scanner-telegram-box">
-            <div className="scanner-telegram-corners"></div>
-            {/* Pulsating red laser scanning line inside the box */}
-            <div className="scanner-laser" style={{ left: "5%", width: "90%" }}></div>
-          </div>
-          
-          <div style={{ marginTop: 24, fontSize: 13, color: "rgba(255, 255, 255, 0.75)", textShadow: "0 2px 4px rgba(0,0,0,0.8)", fontWeight: "500" }}>
+        <div className="scanner-viewfinder-overlay" style={{ pointerEvents: "none", justifyContent: "flex-end", paddingBottom: 130 }}>
+          <div style={{ fontSize: 13, color: "rgba(255, 255, 255, 0.8)", textShadow: "0 2px 4px rgba(0,0,0,0.8)", fontWeight: "600" }}>
             {t.scanHint}
           </div>
         </div>
