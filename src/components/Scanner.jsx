@@ -162,13 +162,7 @@ export default function Scanner({ onClose, onOpenPackage, agencies = [], onUpdat
         const p = qr.start(
           cameraId,
           { 
-            fps: 15,
-            videoConstraints: {
-              width: { min: 640, ideal: 1280, max: 1920 },
-              height: { min: 480, ideal: 720, max: 1080 },
-              facingMode: "environment",
-              focusMode: "continuous"
-            }
+            fps: 20
           },
           onDecoded,
           () => {}
@@ -505,21 +499,20 @@ export default function Scanner({ onClose, onOpenPackage, agencies = [], onUpdat
       </header>
 
       {/* Fullscreen camera container */}
-      <div className="scanner-camera-container">
-        <div id="scanner-area" style={{ width: "100%", height: "100%", position: "relative" }}>
-          <canvas
-            ref={canvasRef}
-            style={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              width: "100%",
-              height: "100%",
-              zIndex: 10002,
-              pointerEvents: "none"
-            }}
-          />
-        </div>
+      <div className="scanner-camera-container" style={{ position: "relative" }}>
+        <div id="scanner-area" style={{ width: "100%", height: "100%" }}></div>
+        <canvas
+          ref={canvasRef}
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            zIndex: 10002,
+            pointerEvents: "none"
+          }}
+        />
       </div>
 
       {/* Viewfinder Target Layer (Mask overlay + corner borders) */}
