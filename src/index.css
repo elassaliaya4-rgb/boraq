@@ -571,6 +571,10 @@ tr:last-child td {
 .d-row .k { color: var(--text-dim); }
 .d-row .v { font-weight: 500; }
 
+.card-meta-row {
+  color: var(--text) !important;
+}
+
 .done-msg {
   text-align: center;
   padding: 10px;

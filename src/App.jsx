@@ -7,9 +7,9 @@ import DriverPanel from "./pages/DriverPanel";
 import { Capacitor } from "@capacitor/core";
 
 export default function App() {
-  const { user, profile, loading, dir, lang, signOut, t, toast } = useApp();
+  const { user, profile, loading, dir, lang, signOut, t, toast, theme } = useApp();
 
-  // Request Location & Notification Permissions natively on mobile startup with sound channels
+  // Request Location & Notification Permissions natively on mobile startup with sound channels & fullscreen overlays
   useEffect(() => {
     if (Capacitor.isNativePlatform()) {
       // 1. Request native notifications permission & setup high-importance sound channel
@@ -17,7 +17,6 @@ export default function App() {
         LocalNotifications.requestPermissions().then((status) => {
           console.log("LocalNotifications permission status:", status);
           
-          // Create high importance audio channel to enable notification sounds on lock screen/background
           LocalNotifications.createChannel({
             id: "boraq-alerts",
             name: "Boraq Alerts",
@@ -38,8 +37,25 @@ export default function App() {
           console.log("Native Geolocation permission status:", status);
         }).catch(err => console.warn("Native Geolocation permission err:", err));
       }).catch(err => console.warn("Failed to load native Geolocation module:", err));
+
+      // 3. Make App Immersive & Fullscreen (Overlay status bar with transparent background)
+      import("@capacitor/status-bar").then(({ StatusBar }) => {
+        StatusBar.setOverlaysWebView({ overlay: true }).then(() => {
+          StatusBar.setBackgroundColor({ color: "#00000000" });
+        }).catch(e => console.warn("Failed to overlay status bar:", e));
+      }).catch(e => console.warn("Failed to load Status Bar module:", e));
     }
   }, []);
+
+  // Dynamically update status bar theme icons (dark/light clock and battery)
+  useEffect(() => {
+    if (Capacitor.isNativePlatform()) {
+      import("@capacitor/status-bar").then(({ StatusBar, Style }) => {
+        const style = theme === "dark" ? Style.Dark : Style.Light;
+        StatusBar.setStyle({ style }).catch(err => console.warn("Failed to set status bar style:", err));
+      }).catch(err => console.warn("Failed to load status bar style module:", err));
+    }
+  }, [theme]);
 
   // ضبط اتجاه الصفحة حسب اللغة
   document.documentElement.dir = dir;

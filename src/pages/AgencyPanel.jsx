@@ -566,7 +566,7 @@ export default function AgencyPanel() {
                                 {isValidated ? (lang === "ar" ? "مقبول" : "Valide") : (lang === "ar" ? "في الانتظار" : "En attente")}
                               </span>
                             </div>
-                            <div style={{ fontSize: 11, color: "var(--text)", marginTop: 3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                            <div className="card-meta-row" style={{ fontSize: 11, marginTop: 3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                               {p.sender_name} ({p.origin}) ➔ {p.receiver_name}
                             </div>
                           </div>
@@ -661,7 +661,7 @@ export default function AgencyPanel() {
                           {t[p.status] || p.status}
                         </span>
                       </div>
-                      <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, color: "var(--text)" }}>
+                      <div className="card-meta-row" style={{ display: "flex", justifyContent: "space-between", fontSize: 12 }}>
                         <span style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "50%" }}>👤 {p.receiver_name}</span>
                         <span style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "50%" }}>📍 {p.destination}</span>
                       </div>
