@@ -8,6 +8,13 @@ import Scanner from "../components/Scanner";
 export default function AgencyPanel() {
   const { t, lang, setLang, signOut, profile, triggerToast, theme, toggleTheme } = useApp();
   const [tab, setTab] = useState("packages");
+
+  function confirmSignOut() {
+    const msg = lang === "ar" ? "هل تريد تسجيل الخروج؟" : "Voulez-vous vous déconnecter ?";
+    if (window.confirm(msg)) {
+      signOut();
+    }
+  }
   const [packages, setPackages] = useState([]);
   const [agencies, setAgencies] = useState([]);
   const [notifs, setNotifs] = useState([]);
@@ -214,36 +221,41 @@ export default function AgencyPanel() {
         </div>
 
         {/* Discreet Logout Link at bottom of sidebar */}
-        <div style={{ marginTop: "auto", paddingTop: 14, textAlign: "center", paddingLeft: 12, paddingRight: 12 }}>
+        <div style={{ marginTop: "auto", paddingTop: 14, display: "flex", justifyContent: "center", width: "100%" }}>
           <button 
-            onClick={signOut}
+            onClick={confirmSignOut}
             style={{ 
-              background: "rgba(239, 68, 68, 0.03)",
-              border: "1px solid rgba(239, 68, 68, 0.3)",
-              borderRadius: "8px",
+              background: "rgba(239, 68, 68, 0.06)",
+              border: "1px solid rgba(239, 68, 68, 0.35)",
+              borderRadius: "12px",
               color: "#f87171", 
-              fontSize: "12px",
               cursor: "pointer",
-              padding: "8px 16px",
-              width: "100%",
+              padding: "10px",
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
               opacity: 0.85,
-              fontWeight: "600",
-              letterSpacing: "0.5px",
               transition: "all 0.2s ease",
-              textAlign: "center"
+              width: "42px",
+              height: "42px"
             }}
+            title={lang === "ar" ? "تسجيل الخروج" : "Déconnexion"}
             onMouseEnter={(e) => {
               e.currentTarget.style.opacity = "1";
-              e.currentTarget.style.background = "rgba(239, 68, 68, 0.08)";
+              e.currentTarget.style.background = "rgba(239, 68, 68, 0.15)";
               e.currentTarget.style.borderColor = "rgba(239, 68, 68, 0.6)";
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.opacity = "0.85";
-              e.currentTarget.style.background = "rgba(239, 68, 68, 0.03)";
-              e.currentTarget.style.borderColor = "rgba(239, 68, 68, 0.3)";
+              e.currentTarget.style.background = "rgba(239, 68, 68, 0.06)";
+              e.currentTarget.style.borderColor = "rgba(239, 68, 68, 0.35)";
             }}
           >
-            {lang === "ar" ? "تسجيل الخروج" : "Déconnexion"}
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+              <polyline points="16 17 21 12 16 7" />
+              <line x1="21" y1="12" x2="9" y2="12" />
+            </svg>
           </button>
         </div>
       </aside>
