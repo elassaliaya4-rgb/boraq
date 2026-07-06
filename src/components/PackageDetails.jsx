@@ -66,7 +66,7 @@ export default function PackageDetails({ pkg, agencies, onClose, onUpdated, onDe
     return (
       <div className="d-row">
         <span className="k">{k}</span>
-        <span className="v" style={highlight ? { color: "#ffffff", fontWeight: "700" } : {}}>{v}</span>
+        <span className="v" style={highlight ? { color: "var(--text)", fontWeight: "700" } : {}}>{v}</span>
       </div>
     );
   }

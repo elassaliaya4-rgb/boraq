@@ -557,7 +557,7 @@ tr:last-child td {
   text-align: center;
   font-size: 19px;
   font-weight: 700;
-  color: #ffffff; /* Crisp bright white code */
+  color: var(--text); /* Adapts to light/dark themes automatically */
   letter-spacing: 1px;
   margin-bottom: 12px;
 }
