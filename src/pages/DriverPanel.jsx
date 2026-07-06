@@ -423,6 +423,7 @@ export default function DriverPanel() {
       {showScanner && (
         <Scanner
           agencies={agencies}
+          onOpenPackage={(pkg) => setShowScanner(false)}
           onClose={() => setShowScanner(false)}
           onUpdated={() => loadData(true)}
         />

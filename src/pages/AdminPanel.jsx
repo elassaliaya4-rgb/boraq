@@ -20,6 +20,7 @@ export default function AdminPanel() {
   const [showScanner, setShowScanner] = useState(false);
   const [mapDriver, setMapDriver] = useState(null);
   const [scannedSessionPkgs, setScannedSessionPkgs] = useState([]);
+  const [scanFilterAgency, setScanFilterAgency] = useState("all");
 
   const unread = notifs?.filter((n) => !n.is_read)?.length || 0;
 
@@ -210,6 +211,7 @@ export default function AdminPanel() {
         <div className="nav-grid">
           <NavBtn icon="📊" label={t.dashboard} active={tab === "dashboard"} onClick={() => setTab("dashboard")} />
           <NavBtn icon="📦" label={t.packages} active={tab === "packages"} onClick={() => setTab("packages")} />
+          <NavBtn icon="✅" label={lang === "ar" ? "التحقق والمسح" : "Scan & Validation"} active={tab === "scan_session"} onClick={() => setTab("scan_session")} />
           <NavBtn icon="🏢" label={t.agencies} active={tab === "agencies"} onClick={() => setTab("agencies")} />
           <NavBtn icon="🚚" label={lang === "ar" ? "السائقين" : "Chauffeurs"} active={tab === "drivers"} onClick={() => setTab("drivers")} />
           <NavBtn icon="🔔" label={t.notifications} active={tab === "notifs"} onClick={() => setTab("notifs")} badge={unread} />
@@ -419,6 +421,187 @@ export default function AdminPanel() {
           </div>
         )}
 
+        {tab === "scan_session" && (
+          <>
+            <div className="row-head" style={{ marginBottom: 16 }}>
+              <h2>✅ {lang === "ar" ? "بوابة التحقق والمسح" : "Centre de Vérification"}</h2>
+              <button 
+                onClick={() => setShowScanner(true)} 
+                className="btn-accent"
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 8,
+                  padding: "10px 20px",
+                  fontSize: 14,
+                  fontWeight: "bold",
+                  borderRadius: 10,
+                  boxShadow: "0 0 15px rgba(251, 191, 36, 0.25)"
+                }}
+              >
+                📷 {lang === "ar" ? "ابدأ مسح طرد جديد" : "Démarrer le Scan"}
+              </button>
+            </div>
+
+            {/* Filter by Agency / Route */}
+            <div style={{
+              background: "var(--surface)",
+              border: "1px solid var(--border)",
+              borderRadius: 12,
+              padding: 16,
+              marginBottom: 20,
+              display: "flex",
+              flexWrap: "wrap",
+              gap: 16,
+              alignItems: "center",
+              justifyContent: "space-between"
+            }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <span style={{ fontSize: 13, color: "var(--text-dim)", fontWeight: "600" }}>
+                  {lang === "ar" ? "تصفية حسب الوكالة (المنشأ):" : "Filtrer par Agence d'origine:"}
+                </span>
+                <select 
+                  value={scanFilterAgency} 
+                  onChange={(e) => setScanFilterAgency(e.target.value)}
+                  style={{
+                    padding: "8px 12px",
+                    borderRadius: 8,
+                    background: "var(--surface-2)",
+                    border: "1px solid var(--border)",
+                    color: "var(--text)",
+                    fontSize: 13,
+                    fontWeight: "600"
+                  }}
+                >
+                  <option value="all">{lang === "ar" ? "كل الوكالات" : "Toutes les agences"}</option>
+                  {agencies.map(a => (
+                    <option key={a.id} value={a.name}>{a.name} ({a.city})</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Progress counter */}
+              {(() => {
+                const filteredPkgs = packages.filter(p => scanFilterAgency === "all" || p.origin === scanFilterAgency);
+                const totalCount = filteredPkgs.length;
+                const verifiedCount = filteredPkgs.filter(p => scannedSessionPkgs.some(s => s.id === p.id)).length;
+                const percent = totalCount > 0 ? Math.round((verifiedCount / totalCount) * 100) : 0;
+                
+                return (
+                  <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+                    <div style={{ textAlign: "right" }}>
+                      <div style={{ fontSize: 13, fontWeight: "700" }}>
+                        {lang === "ar" ? `التحقق: ${verifiedCount} / ${totalCount}` : `Validés: ${verifiedCount} / ${totalCount}`}
+                      </div>
+                      <div style={{ fontSize: 11, color: "var(--text-dim)", marginTop: 2 }}>
+                        {lang === "ar" ? `${percent}% من الإجمالي` : `${percent}% du total`}
+                      </div>
+                    </div>
+                    {/* Progress bar */}
+                    <div style={{ width: 100, height: 8, background: "rgba(255,255,255,0.08)", borderRadius: 4, overflow: "hidden" }}>
+                      <div style={{ width: `${percent}%`, height: "100%", background: "#10b981", borderRadius: 4, transition: "width 0.3s ease" }}></div>
+                    </div>
+                  </div>
+                );
+              })()}
+            </div>
+
+            {/* Validation Checklist Grid */}
+            {(() => {
+              const filteredPkgs = packages.filter(p => scanFilterAgency === "all" || p.origin === scanFilterAgency);
+              
+              if (filteredPkgs.length === 0) {
+                return (
+                  <div style={{ padding: 40, textAlign: "center", background: "var(--surface)", border: "1px dashed var(--border)", borderRadius: 16, color: "var(--text-dim)" }}>
+                    📭 {lang === "ar" ? "لا توجد طرود لهذه الوكالة حالياً" : "Aucun colis trouvé pour cette origine"}
+                  </div>
+                );
+              }
+
+              return (
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: 12 }}>
+                  {filteredPkgs.map((p) => {
+                    const isValidated = scannedSessionPkgs.some(s => s.id === p.id);
+                    return (
+                      <div 
+                        key={p.id} 
+                        style={{
+                          background: isValidated ? "rgba(16, 185, 129, 0.08)" : "var(--surface)",
+                          border: isValidated ? "1px solid rgba(16, 185, 129, 0.3)" : "1px solid var(--border)",
+                          borderInlineStart: isValidated ? "4px solid #10b981" : "4px solid var(--text-dim)",
+                          borderRadius: 12,
+                          padding: 14,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "space-between",
+                          gap: 12,
+                          boxShadow: isValidated ? "0 4px 15px rgba(16, 185, 129, 0.08)" : "none",
+                          transition: "all 0.25s ease"
+                        }}
+                      >
+                        <div style={{ display: "flex", alignItems: "center", gap: 12, minWidth: 0 }}>
+                          <div style={{
+                            width: 38,
+                            height: 38,
+                            borderRadius: "50%",
+                            background: isValidated ? "rgba(16, 185, 129, 0.15)" : "rgba(255,255,255,0.05)",
+                            color: isValidated ? "#10b981" : "var(--text-dim)",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            fontSize: 16,
+                            fontWeight: "bold",
+                            flexShrink: 0
+                          }}>
+                            {isValidated ? "✓" : "⏳"}
+                          </div>
+                          
+                          <div style={{ minWidth: 0 }}>
+                            <div style={{ fontSize: 13, fontWeight: 700, display: "flex", alignItems: "center", gap: 6, color: isValidated ? "#10b981" : "var(--text)" }}>
+                              <span>{p.tracking_number}</span>
+                              <span style={{ 
+                                fontSize: 9, 
+                                background: isValidated ? "rgba(16,185,129,0.15)" : "rgba(255,255,255,0.08)", 
+                                color: isValidated ? "#10b981" : "var(--text-dim)", 
+                                padding: "1px 6px", 
+                                borderRadius: 4 
+                              }}>
+                                {isValidated ? (lang === "ar" ? "مقبول" : "Valide") : (lang === "ar" ? "في الانتظار" : "En attente")}
+                              </span>
+                            </div>
+                            <div style={{ fontSize: 11, color: "var(--text-dim)", marginTop: 3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                              {p.sender_name} ({p.origin}) ➔ {p.receiver_name}
+                            </div>
+                          </div>
+                        </div>
+
+                        <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
+                          <button 
+                            className="btn-manage" 
+                            onClick={() => setDetailPkg(p)}
+                            style={{ 
+                              padding: "6px 10px", 
+                              fontSize: 11, 
+                              borderRadius: 8, 
+                              background: "rgba(255,255,255,0.05)", 
+                              border: "1px solid rgba(255,255,255,0.08)",
+                              color: "#fff",
+                              cursor: "pointer",
+                              fontWeight: "600"
+                            }}
+                          >
+                            ⚙️
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              );
+            })()}
+          </>
+        )}
+
         {tab === "dashboard" && (
           <>
             <div className="stats">
@@ -616,6 +799,10 @@ export default function AdminPanel() {
         <button className={`mobile-nav-item ${tab === "packages" ? "active" : ""}`} onClick={() => setTab("packages")}>
           <div className="mobile-nav-icon-wrap">📦</div>
           <span>{t.packages}</span>
+        </button>
+        <button className={`mobile-nav-item ${tab === "scan_session" ? "active" : ""}`} onClick={() => setTab("scan_session")}>
+          <div className="mobile-nav-icon-wrap">✅</div>
+          <span>{lang === "ar" ? "التحقق" : "Vérifier"}</span>
         </button>
         <button className={`mobile-nav-item ${tab === "agencies" ? "active" : ""}`} onClick={() => setTab("agencies")}>
           <div className="mobile-nav-icon-wrap">🏢</div>

@@ -578,55 +578,7 @@ export default function Scanner({ onClose, onOpenPackage, agencies = [], onUpdat
         </button>
       </div>
 
-      {/* Floating Scanned List Tray */}
-      {scanned.length > 0 && (
-        <div className="scanner-tray">
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8, paddingBottom: 6, borderBottom: "1px solid rgba(255,255,255,0.1)" }}>
-            <span style={{ fontSize: 13, fontWeight: "600" }}>📋 {t.scannedPackages}</span>
-            <button
-              onClick={() => setScanned([])}
-              style={{ fontSize: 11, padding: "3px 8px", background: "rgba(239,68,68,0.2)", border: "none", color: "#f87171", borderRadius: 4, cursor: "pointer" }}
-            >
-              🗑️
-            </button>
-          </div>
-          
-          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            {scanned.map((item) => (
-              <div key={item.pkg.id} style={{ display: "flex", flexDirection: "column", gap: 6, padding: "8px 10px", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 8 }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <span style={{ fontSize: 12, fontWeight: "600" }}>📦 {item.pkg.tracking_number}</span>
-                  <span style={{ fontSize: 11, color: "#10b981", background: "rgba(16,185,129,0.15)", padding: "2px 6px", borderRadius: 8 }}>
-                    {t[item.pkg.status]}
-                  </span>
-                </div>
-                
-                {/* Whatsapp notifications options */}
-                <div style={{ display: "flex", gap: 6, marginTop: 4 }}>
-                  <button 
-                    onClick={() => {
-                      const waData = buildWhatsAppLink(item.pkg, "receiver", getAgencyName(item.pkg.agency_id), lang, t);
-                      window.open(waData.link, "_blank");
-                    }} 
-                    style={{ flex: 1, padding: "5px", fontSize: 10, background: "#10b981", border: "none", color: "#fff", borderRadius: 4, cursor: "pointer" }}
-                  >
-                    🟢 {t.waReceiver}
-                  </button>
-                  <button 
-                    onClick={() => {
-                      const waData = buildWhatsAppLink(item.pkg, "sender", getAgencyName(item.pkg.agency_id), lang, t);
-                      window.open(waData.link, "_blank");
-                    }} 
-                    style={{ flex: 1, padding: "5px", fontSize: 10, background: "#10b981", border: "none", color: "#fff", borderRadius: 4, cursor: "pointer" }}
-                  >
-                    🟢 {t.waSender}
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+
 
       {/* WhatsApp Queue Modal */}
       {waQueue.length > 0 && (
