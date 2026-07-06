@@ -862,8 +862,9 @@ function PkgHeader({ t, onAdd }) {
 function PackagesTable({ packages, t, onManage }) {
   if (!packages || !packages.length) return <div className="empty">{t.noPackages}</div>;
   return (
-    <div className="table-wrap">
-      <table>
+    <div className="table-wrap" style={{ background: "none", border: "none" }}>
+      {/* Desktop Table View */}
+      <table className="desktop-only-table" style={{ width: "100%" }}>
         <thead>
           <tr>
             <th>{t.trackingNumber}</th>
@@ -888,6 +889,39 @@ function PackagesTable({ packages, t, onManage }) {
           ))}
         </tbody>
       </table>
+
+      {/* Mobile Card List View (no horizontal scroll) */}
+      <div className="mobile-only-list" style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+        {packages?.map((p) => (
+          <div 
+            key={p.id} 
+            onClick={() => onManage(p)}
+            className="clickable-row"
+            style={{ 
+              background: "var(--surface)", 
+              border: "1px solid var(--border)", 
+              borderRadius: 12, 
+              padding: 14, 
+              cursor: "pointer",
+              display: "flex",
+              flexDirection: "column",
+              gap: 8,
+              boxShadow: "0 2px 8px rgba(0,0,0,0.15)"
+            }}
+          >
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <span style={{ fontSize: 13, fontWeight: "700", color: "var(--primary)" }}>{p.tracking_number}</span>
+              <span className={`status ${p.status}`} style={{ fontSize: 10, padding: "2px 8px" }}>
+                {t[p.status] || p.status}
+              </span>
+            </div>
+            <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, color: "var(--text-dim)" }}>
+              <span style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "50%" }}>👤 {p.receiver_name}</span>
+              <span style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "50%" }}>📍 {p.destination}</span>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

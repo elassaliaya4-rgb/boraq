@@ -1270,3 +1270,20 @@ input, select, textarea {
 .clickable-row:hover {
   background-color: rgba(251, 191, 36, 0.06) !important;
 }
+
+/* Responsive Table & List Display Swapper */
+.desktop-only-table {
+  display: table !important;
+}
+.mobile-only-list {
+  display: none !important;
+}
+
+@media (max-width: 768px) {
+  .desktop-only-table {
+    display: none !important;
+  }
+  .mobile-only-list {
+    display: flex !important;
+  }
+}
