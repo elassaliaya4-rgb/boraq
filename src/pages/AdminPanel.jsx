@@ -318,20 +318,22 @@ export default function AdminPanel() {
         {/* Session Scanned Packages Tray */}
         {scannedSessionPkgs.length > 0 && (
           <div style={{
-            background: "linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(15, 23, 42, 0.6) 100%)",
+            background: "rgba(15, 23, 42, 0.4)",
+            backdropFilter: "blur(12px)",
+            WebkitBackdropFilter: "blur(12px)",
             border: "1px solid rgba(16, 185, 129, 0.25)",
             borderRadius: 16,
             padding: 16,
             marginBottom: 20,
-            boxShadow: "0 4px 20px -5px rgba(0,0,0,0.3)"
+            boxShadow: "0 8px 32px 0 rgba(0, 0, 0, 0.3)"
           }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <span className="pulse-green-dot" style={{ width: 8, height: 8, background: "#10b981", borderRadius: "50%", display: "inline-block", boxShadow: "0 0 10px #10b981" }}></span>
-                <h3 style={{ margin: 0, fontSize: 14, fontWeight: 600, color: "#10b981" }}>
-                  {lang === "ar" ? "الطرود الممسوحة حديثاً" : "Colis scannés récemment"}
+                <h3 style={{ margin: 0, fontSize: 13, fontWeight: 700, color: "#10b981", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                  {lang === "ar" ? "الطرود الممسوحة حديثاً" : "Scannés Récemment"}
                 </h3>
-                <span style={{ fontSize: 11, background: "rgba(16, 185, 129, 0.15)", color: "#10b981", padding: "2px 8px", borderRadius: 10, fontWeight: "600" }}>
+                <span style={{ fontSize: 10, background: "rgba(16, 185, 129, 0.15)", color: "#10b981", padding: "2px 6px", borderRadius: 8, fontWeight: "700" }}>
                   {scannedSessionPkgs.length}
                 </span>
               </div>
@@ -340,48 +342,79 @@ export default function AdminPanel() {
                 style={{ 
                   background: "none", 
                   border: "none", 
-                  color: "#f87171", 
-                  fontSize: 12, 
+                  color: "#ef4444", 
+                  fontSize: 11, 
                   cursor: "pointer", 
-                  fontWeight: "600",
+                  fontWeight: "700",
                   display: "inline-flex",
                   alignItems: "center",
                   gap: 4
                 }}
               >
-                🗑️ {lang === "ar" ? "مسح القائمة" : "Vider la liste"}
+                🗑️ {lang === "ar" ? "مسح" : "Vider"}
               </button>
             </div>
 
-            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-              <div className="table-wrap">
-                <table>
-                  <thead>
-                    <tr>
-                      <th>{t.trackingNumber}</th>
-                      <th>{lang === "ar" ? "من (المنشأ)" : "De (Origine)"}</th>
-                      <th>{t.receiverName}</th>
-                      <th>{t.weight}</th>
-                      <th>{t.status}</th>
-                      <th>{t.manage}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {scannedSessionPkgs.map((p) => (
-                      <tr key={p.id} style={{ backgroundColor: "rgba(16, 185, 129, 0.04)" }}>
-                        <td><b>{p.tracking_number}</b></td>
-                        <td><span style={{ fontSize: 11, padding: "2px 6px", background: "var(--surface-2)", borderRadius: 6 }}>{p.origin}</span></td>
-                        <td>{p.receiver_name}</td>
-                        <td>{p.weight} {t.kg}</td>
-                        <td><span className="status inTransit" style={{ color: "#10b981", background: "rgba(16,185,129,0.12)" }}>{t[p.status] || p.status}</span></td>
-                        <td>
-                          <button className="btn-manage" onClick={() => setDetailPkg(p)}>⚙️ {t.manage}</button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 10 }}>
+              {scannedSessionPkgs.map((p) => (
+                <div key={p.id} style={{
+                  background: "rgba(30, 41, 59, 0.45)",
+                  border: "1px solid rgba(255, 255, 255, 0.05)",
+                  borderRadius: 12,
+                  padding: 12,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  gap: 12,
+                  boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)"
+                }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0 }}>
+                    <div style={{ 
+                      width: 32, 
+                      height: 32, 
+                      borderRadius: "50%", 
+                      background: "rgba(16, 185, 129, 0.12)", 
+                      color: "#10b981", 
+                      display: "flex", 
+                      alignItems: "center", 
+                      justifyContent: "center",
+                      fontSize: 14,
+                      fontWeight: "bold",
+                      flexShrink: 0
+                    }}>
+                      ✓
+                    </div>
+                    <div style={{ minWidth: 0 }}>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", display: "flex", alignItems: "center", gap: 6 }}>
+                        <span>{p.tracking_number}</span>
+                        <span style={{ fontSize: 9, background: "rgba(16,185,129,0.12)", color: "#10b981", padding: "1px 6px", borderRadius: 4 }}>
+                          {t[p.status] || p.status}
+                        </span>
+                      </div>
+                      <div style={{ fontSize: 11, color: "var(--text-dim)", marginTop: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                        {p.sender_name} → {p.destination || p.receiver_name}
+                      </div>
+                    </div>
+                  </div>
+                  <button 
+                    className="btn-manage" 
+                    onClick={() => setDetailPkg(p)}
+                    style={{ 
+                      padding: "6px 10px", 
+                      fontSize: 11, 
+                      borderRadius: 8, 
+                      background: "rgba(255,255,255,0.05)", 
+                      border: "1px solid rgba(255,255,255,0.08)",
+                      color: "#fff",
+                      cursor: "pointer",
+                      fontWeight: "600",
+                      flexShrink: 0
+                    }}
+                  >
+                    ⚙️
+                  </button>
+                </div>
+              ))}
             </div>
           </div>
         )}
