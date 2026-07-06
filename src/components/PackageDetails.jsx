@@ -62,11 +62,11 @@ export default function PackageDetails({ pkg, agencies, onClose, onUpdated, onDe
     setWa(buildWhatsAppLink(pkg, who, agencyName, lang, t));
   }
 
-  function Row({ k, v }) {
+  function Row({ k, v, highlight }) {
     return (
       <div className="d-row">
         <span className="k">{k}</span>
-        <span className="v">{v}</span>
+        <span className="v" style={highlight ? { color: "#ffffff", fontWeight: "700" } : {}}>{v}</span>
       </div>
     );
   }
@@ -145,12 +145,12 @@ export default function PackageDetails({ pkg, agencies, onClose, onUpdated, onDe
 
         <div className="d-card">
           <div className="d-track">{pkg.tracking_number}</div>
-          <Row k={t.senderName} v={pkg.sender_name} />
+          <Row k={t.senderName} v={pkg.sender_name} highlight={true} />
           <Row k={"📱 " + t.senderPhone} v={pkg.sender_phone || "—"} />
-          <Row k={t.receiverName} v={pkg.receiver_name} />
+          <Row k={t.receiverName} v={pkg.receiver_name} highlight={true} />
           <Row k={"📱 " + t.receiverPhone} v={pkg.receiver_phone || "—"} />
-          <Row k={t.origin} v={pkg.origin} />
-          <Row k={t.destination} v={pkg.destination} />
+          <Row k={t.origin} v={pkg.origin} highlight={true} />
+          <Row k={t.destination} v={pkg.destination} highlight={true} />
           <Row k={t.destAgency} v={agencyName} />
           <Row k={"⚖️ " + t.weight} v={pkg.weight + " " + t.kg} />
           <Row k={"📅 " + t.dateSent} v={pkg.date_sent} />

@@ -11,9 +11,24 @@ export function AppProvider({ children }) {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState(null);
+  const [theme, setTheme] = useState(() => localStorage.getItem("theme") || "dark");
 
   const t = translations[lang];
   const dir = lang === "ar" ? "rtl" : "ltr";
+
+  const toggleTheme = () => {
+    const next = theme === "dark" ? "light" : "dark";
+    setTheme(next);
+    localStorage.setItem("theme", next);
+  };
+
+  useEffect(() => {
+    if (theme === "light") {
+      document.body.classList.add("light-theme");
+    } else {
+      document.body.classList.remove("light-theme");
+    }
+  }, [theme]);
 
   useEffect(() => {
     if (window.Notification && Notification.permission === "default") {
@@ -159,6 +174,8 @@ export function AppProvider({ children }) {
         signOut,
         toast,
         triggerToast,
+        theme,
+        toggleTheme
       }}
     >
       {children}

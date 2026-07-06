@@ -14,6 +14,21 @@
   --radius: 14px;
 }
 
+body.light-theme {
+  --bg: #f8fafc;
+  --surface: #ffffff;
+  --surface-2: #f1f5f9;
+  --border: #e2e8f0;
+  --primary: #2563eb;
+  --primary-dark: #1d4ed8;
+  --accent: #d97706;
+  --text: #0f172a;
+  --text-dim: #64748b;
+  --green: #16a34a;
+  --orange: #ea580c;
+  --red: #dc2626;
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -310,7 +325,7 @@ tr:last-child td {
   align-items: flex-start;
   justify-content: center;
   padding: 20px;
-  z-index: 100;
+  z-index: 10010; /* Render above mobile bottom navigation (999) */
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
 }
@@ -322,7 +337,7 @@ tr:last-child td {
   padding: 28px;
   width: 100%;
   max-width: 480px;
-  margin: auto;
+  margin: 40px auto 80px auto; /* Ensure scroll space at the bottom */
 }
 
 .modal h2 {
@@ -514,11 +529,11 @@ tr:last-child td {
 }
 .d-track {
   text-align: center;
-  font-size: 17px;
-  font-weight: 600;
-  color: var(--primary);
+  font-size: 19px;
+  font-weight: 700;
+  color: #ffffff; /* Crisp bright white code */
   letter-spacing: 1px;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 .d-row {
   display: flex;
@@ -1023,16 +1038,23 @@ input, select, textarea {
     left: 16px;
     right: 16px;
     height: 64px;
-    background: rgba(15, 23, 42, 0.85); /* slate-900 transparent */
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 20px;
-    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    background: rgba(15, 23, 42, 0.82);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 30px; /* Super rounded like Telegram */
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
     z-index: 999;
     align-items: center;
     justify-content: space-around;
-    padding: 0 6px;
+    padding: 0 12px;
+    transition: background 0.3s, border 0.3s;
+  }
+
+  body.light-theme .mobile-bottom-nav {
+    background: rgba(255, 255, 255, 0.82) !important;
+    border: 1px solid rgba(15, 23, 42, 0.06) !important;
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.6) !important;
   }
   
   .mobile-nav-item {
@@ -1058,11 +1080,12 @@ input, select, textarea {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 48px;
-    height: 28px;
-    border-radius: 14px;
+    width: 54px; /* Slightly wider capsule for premium Telegram layout */
+    height: 30px;
+    border-radius: 15px;
     transition: all 0.2s ease;
-    font-size: 16px;
+    font-size: 18px;
+    color: var(--text-dim);
   }
   
   .mobile-nav-item.active {
@@ -1070,8 +1093,12 @@ input, select, textarea {
   }
   
   .mobile-nav-item.active .mobile-nav-icon-wrap {
-    background: rgba(251, 191, 36, 0.15) !important; /* gold capsule overlay */
+    background: rgba(59, 130, 246, 0.14) !important; /* Premium light blue oval highlight like Telegram/FB */
     color: var(--primary) !important;
+  }
+
+  body.light-theme .mobile-nav-item.active .mobile-nav-icon-wrap {
+    background: rgba(37, 99, 235, 0.12) !important;
   }
   
   /* Add bottom spacing to prevent elements from being hidden behind the navigation */

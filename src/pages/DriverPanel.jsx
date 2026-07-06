@@ -7,7 +7,7 @@ import Scanner from "../components/Scanner";
 import PackageDetails from "../components/PackageDetails";
 
 export default function DriverPanel() {
-  const { t, lang, setLang, profile, signOut } = useApp();
+  const { t, lang, setLang, profile, signOut, theme, toggleTheme } = useApp();
   const [packages, setPackages] = useState([]);
   const [agencies, setAgencies] = useState([]);
   const [driverInfo, setDriverInfo] = useState(null);
@@ -370,6 +370,26 @@ export default function DriverPanel() {
               }}
             >
               🌐 {lang === "ar" ? "FR" : "عربي"}
+            </button>
+            <button 
+              className="btn-sm" 
+              onClick={toggleTheme}
+              style={{
+                padding: "8px 12px",
+                fontSize: "13px",
+                fontWeight: "600",
+                borderRadius: "8px",
+                cursor: "pointer",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "5px",
+                background: "rgba(255,255,255,0.06)",
+                border: "1px solid var(--border)",
+                color: "var(--text)"
+              }}
+              title={lang === "ar" ? "تغيير المظهر" : "Changer le thème"}
+            >
+              {theme === "dark" ? "☀️" : "🌙"}
             </button>
           </div>
         </header>

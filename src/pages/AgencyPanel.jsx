@@ -6,7 +6,7 @@ import PackageDetails from "../components/PackageDetails";
 import Scanner from "../components/Scanner";
 
 export default function AgencyPanel() {
-  const { t, lang, setLang, signOut, profile, triggerToast } = useApp();
+  const { t, lang, setLang, signOut, profile, triggerToast, theme, toggleTheme } = useApp();
   const [tab, setTab] = useState("packages");
   const [packages, setPackages] = useState([]);
   const [agencies, setAgencies] = useState([]);
@@ -309,6 +309,26 @@ export default function AgencyPanel() {
               }}
             >
               🌐 {lang === "ar" ? "FR" : "عربي"}
+            </button>
+            <button 
+              className="btn-sm" 
+              onClick={toggleTheme}
+              style={{
+                padding: "8px 12px",
+                fontSize: "13px",
+                fontWeight: "600",
+                borderRadius: "8px",
+                cursor: "pointer",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "5px",
+                background: "rgba(255,255,255,0.06)",
+                border: "1px solid var(--border)",
+                color: "var(--text)"
+              }}
+              title={lang === "ar" ? "تغيير المظهر" : "Changer le thème"}
+            >
+              {theme === "dark" ? "☀️" : "🌙"}
             </button>
           </div>
         </div>
