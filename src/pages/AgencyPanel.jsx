@@ -160,23 +160,34 @@ export default function AgencyPanel() {
         </div>
 
         {/* Discreet Logout Link at bottom of sidebar */}
-        <div style={{ marginTop: "auto", paddingTop: 14, textAlign: "center" }}>
+        <div style={{ marginTop: "auto", paddingTop: 14, textAlign: "center", paddingLeft: 12, paddingRight: 12 }}>
           <button 
             onClick={signOut}
             style={{ 
-              background: "none",
-              border: "none",
+              background: "rgba(239, 68, 68, 0.03)",
+              border: "1px solid rgba(239, 68, 68, 0.3)",
+              borderRadius: "8px",
               color: "#f87171", 
               fontSize: "12px",
               cursor: "pointer",
-              padding: "6px 12px",
-              opacity: 0.8,
+              padding: "8px 16px",
+              width: "100%",
+              opacity: 0.85,
               fontWeight: "600",
               letterSpacing: "0.5px",
-              transition: "opacity 0.2s ease"
+              transition: "all 0.2s ease",
+              textAlign: "center"
             }}
-            onMouseEnter={(e) => e.target.style.opacity = "1"}
-            onMouseLeave={(e) => e.target.style.opacity = "0.8"}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.opacity = "1";
+              e.currentTarget.style.background = "rgba(239, 68, 68, 0.08)";
+              e.currentTarget.style.borderColor = "rgba(239, 68, 68, 0.6)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.opacity = "0.85";
+              e.currentTarget.style.background = "rgba(239, 68, 68, 0.03)";
+              e.currentTarget.style.borderColor = "rgba(239, 68, 68, 0.3)";
+            }}
           >
             {lang === "ar" ? "تسجيل الخروج" : "Déconnexion"}
           </button>
