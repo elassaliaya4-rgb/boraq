@@ -9,24 +9,35 @@ import { Capacitor } from "@capacitor/core";
 export default function App() {
   const { user, profile, loading, dir, lang, signOut, t, toast } = useApp();
 
-  // Request Location & Notification Permissions natively f mobile view on startup
+  // Request Location & Notification Permissions natively on mobile startup with sound channels
   useEffect(() => {
     if (Capacitor.isNativePlatform()) {
-      // 1. Request native notification permission (Android 13+ support)
+      // 1. Request native notifications permission & setup high-importance sound channel
       import("@capacitor/local-notifications").then(({ LocalNotifications }) => {
         LocalNotifications.requestPermissions().then((status) => {
           console.log("LocalNotifications permission status:", status);
+          
+          // Create high importance audio channel to enable notification sounds on lock screen/background
+          LocalNotifications.createChannel({
+            id: "boraq-alerts",
+            name: "Boraq Alerts",
+            description: "Alert sound notifications for Boraq Logistics",
+            importance: 5, // High importance -> pops banner and rings sound
+            sound: "beep.wav",
+            visibility: 1, // Visible on lock screen
+            vibration: true
+          }).then(() => {
+            console.log("High-priority audio channel 'boraq-alerts' created.");
+          }).catch(err => console.warn("Failed to create audio channel:", err));
         }).catch(err => console.warn("LocalNotifications permission err:", err));
       }).catch(err => console.warn("Failed to load native notifications module:", err));
 
-      // 2. Request native location permission dialog on startup
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          () => console.log("Location permission granted on startup"),
-          (err) => console.warn("Location permission startup err:", err),
-          { enableHighAccuracy: false, timeout: 5000, maximumAge: Infinity }
-        );
-      }
+      // 2. Request native geolocation permission via official Capacitor plugin
+      import("@capacitor/geolocation").then(({ Geolocation }) => {
+        Geolocation.requestPermissions().then((status) => {
+          console.log("Native Geolocation permission status:", status);
+        }).catch(err => console.warn("Native Geolocation permission err:", err));
+      }).catch(err => console.warn("Failed to load native Geolocation module:", err));
     }
   }, []);
 

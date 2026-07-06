@@ -38,6 +38,7 @@ export function AppProvider({ children }) {
               id: Math.floor(Math.random() * 100000),
               schedule: { at: new Date(Date.now() + 100) },
               sound: "beep.wav",
+              channelId: "boraq-alerts", // Target the custom high-importance audio channel
               actionTypeId: "",
               extra: null
             }
