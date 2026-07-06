@@ -634,7 +634,7 @@ export default function AdminPanel() {
                                 {isValidated ? (lang === "ar" ? "مقبول" : "Valide") : (lang === "ar" ? "في الانتظار" : "En attente")}
                               </span>
                             </div>
-                            <div style={{ fontSize: 11, color: "var(--text-dim)", marginTop: 3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                            <div style={{ fontSize: 11, color: "var(--text)", marginTop: 3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                               {p.sender_name} ({p.origin}) ➔ {p.receiver_name}
                             </div>
                           </div>
@@ -980,7 +980,7 @@ function PackagesTable({ packages, t, onManage }) {
                 {t[p.status] || p.status}
               </span>
             </div>
-            <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, color: "var(--text-dim)" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, color: "var(--text)" }}>
               <span style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "50%" }}>👤 {p.receiver_name}</span>
               <span style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "50%" }}>📍 {p.destination}</span>
             </div>

@@ -533,7 +533,7 @@ export default function DriverPanel() {
                                 {t[p.status] || p.status}
                               </span>
                             </div>
-                            <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, color: "var(--text-dim)" }}>
+                            <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, color: "var(--text)" }}>
                               <span style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "50%" }}>👤 {p.receiver_name}</span>
                               <span style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "50%" }}>📍 De: {p.origin}</span>
                             </div>
