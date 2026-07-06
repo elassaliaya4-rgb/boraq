@@ -20,7 +20,7 @@ export default function AdminPanel() {
   const [showScanner, setShowScanner] = useState(false);
   const [mapDriver, setMapDriver] = useState(null);
   const [scannedSessionPkgs, setScannedSessionPkgs] = useState([]);
-  const [scanFilterAgency, setScanFilterAgency] = useState("all");
+  const [scanFilterAgency, setScanFilterAgency] = useState("");
 
   const unread = notifs?.filter((n) => !n.is_read)?.length || 0;
 
@@ -125,6 +125,10 @@ export default function AdminPanel() {
     setAgencies(ags || []);
     setNotifs(nts || []);
     setDrivers(drvs || []);
+
+    if (ags && ags.length > 0 && !scanFilterAgency) {
+      setScanFilterAgency(ags[0].name);
+    }
   }
 
   async function openNotif(n) {
@@ -473,7 +477,6 @@ export default function AdminPanel() {
                     fontWeight: "600"
                   }}
                 >
-                  <option value="all">{lang === "ar" ? "كل الوكالات" : "Toutes les agences"}</option>
                   {agencies.map(a => (
                     <option key={a.id} value={a.name}>{a.name} ({a.city})</option>
                   ))}
@@ -482,7 +485,7 @@ export default function AdminPanel() {
 
               {/* Progress counter */}
               {(() => {
-                const filteredPkgs = packages.filter(p => scanFilterAgency === "all" || p.origin === scanFilterAgency);
+                const filteredPkgs = packages.filter(p => p.origin === scanFilterAgency);
                 const totalCount = filteredPkgs.length;
                 const verifiedCount = filteredPkgs.filter(p => scannedSessionPkgs.some(s => s.id === p.id)).length;
                 const percent = totalCount > 0 ? Math.round((verifiedCount / totalCount) * 100) : 0;
@@ -508,7 +511,7 @@ export default function AdminPanel() {
 
             {/* Validation Checklist Grid */}
             {(() => {
-              const filteredPkgs = packages.filter(p => scanFilterAgency === "all" || p.origin === scanFilterAgency);
+              const filteredPkgs = packages.filter(p => p.origin === scanFilterAgency);
               
               if (filteredPkgs.length === 0) {
                 return (

@@ -16,7 +16,7 @@ export default function AgencyPanel() {
   const [detailPkg, setDetailPkg] = useState(null);
   const [showScanner, setShowScanner] = useState(false);
   const [scannedSessionPkgs, setScannedSessionPkgs] = useState([]);
-  const [scanFilterAgency, setScanFilterAgency] = useState("all");
+  // Removed scanFilterAgency state
 
   const unread = notifs?.filter((n) => !n.is_read)?.length || 0;
 
@@ -397,7 +397,7 @@ export default function AgencyPanel() {
               </button>
             </div>
 
-            {/* Filter by Agency / Route */}
+            {/* Progress counter & current agency display */}
             <div style={{
               background: "var(--surface)",
               border: "1px solid var(--border)",
@@ -412,33 +412,14 @@ export default function AgencyPanel() {
             }}>
               <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                 <span style={{ fontSize: 13, color: "var(--text-dim)", fontWeight: "600" }}>
-                  {lang === "ar" ? "تصفية حسب الوكالة (المنشأ):" : "Filtrer par Agence d'origine:"}
+                  🏢 {lang === "ar" ? "وكالتك الحالية:" : "Votre agence :"} <b style={{ color: "#fbbf24" }}>{agencyInfo?.name}</b>
                 </span>
-                <select 
-                  value={scanFilterAgency} 
-                  onChange={(e) => setScanFilterAgency(e.target.value)}
-                  style={{
-                    padding: "8px 12px",
-                    borderRadius: 8,
-                    background: "var(--surface-2)",
-                    border: "1px solid var(--border)",
-                    color: "var(--text)",
-                    fontSize: 13,
-                    fontWeight: "600"
-                  }}
-                >
-                  <option value="all">{lang === "ar" ? "كل الوكالات" : "Toutes les agences"}</option>
-                  {agencies.map(a => (
-                    <option key={a.id} value={a.name}>{a.name} ({a.city})</option>
-                  ))}
-                </select>
               </div>
 
               {/* Progress counter */}
               {(() => {
-                const filteredPkgs = packages.filter(p => scanFilterAgency === "all" || p.origin === scanFilterAgency);
-                const totalCount = filteredPkgs.length;
-                const verifiedCount = filteredPkgs.filter(p => scannedSessionPkgs.some(s => s.id === p.id)).length;
+                const totalCount = packages.length;
+                const verifiedCount = packages.filter(p => scannedSessionPkgs.some(s => s.id === p.id)).length;
                 const percent = totalCount > 0 ? Math.round((verifiedCount / totalCount) * 100) : 0;
                 
                 return (
@@ -462,7 +443,7 @@ export default function AgencyPanel() {
 
             {/* Validation Checklist Grid */}
             {(() => {
-              const filteredPkgs = packages.filter(p => scanFilterAgency === "all" || p.origin === scanFilterAgency);
+              const filteredPkgs = packages;
               
               if (filteredPkgs.length === 0) {
                 return (

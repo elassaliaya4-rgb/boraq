@@ -91,6 +91,21 @@ export default function Scanner({ onClose, onOpenPackage, agencies = [], onUpdat
       return;
     }
 
+    // Security check: Agencies can only scan packages belonging to their agency!
+    if (profile?.role === "agency" && pkg.agency_id !== profile.agency_id) {
+      if (stoppedRef.current) return;
+      setLoading(false);
+      setError(
+        lang === "ar"
+          ? "هذا الطرد لا ينتمي لوكالتك! لا يمكنك مسحه."
+          : "Ce colis n'appartient pas à votre agence ! Vous ne pouvez pas le scanner."
+      );
+      setTimeout(() => {
+        if (!stoppedRef.current) setError("");
+      }, 3500);
+      return;
+    }
+
     // Auto-update status based on user role
     let targetStatus = profile?.role === "admin" ? "inTransit" : "arrived";
     if (profile?.role === "driver") {
