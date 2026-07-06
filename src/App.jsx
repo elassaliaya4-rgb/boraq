@@ -1,11 +1,34 @@
+import { useEffect } from "react";
 import { useApp } from "./lib/context";
 import Login from "./pages/Login";
 import AdminPanel from "./pages/AdminPanel";
 import AgencyPanel from "./pages/AgencyPanel";
 import DriverPanel from "./pages/DriverPanel";
+import { Capacitor } from "@capacitor/core";
 
 export default function App() {
   const { user, profile, loading, dir, lang, signOut, t, toast } = useApp();
+
+  // Request Location & Notification Permissions natively f mobile view on startup
+  useEffect(() => {
+    if (Capacitor.isNativePlatform()) {
+      // 1. Request native notification permission (Android 13+ support)
+      import("@capacitor/local-notifications").then(({ LocalNotifications }) => {
+        LocalNotifications.requestPermissions().then((status) => {
+          console.log("LocalNotifications permission status:", status);
+        }).catch(err => console.warn("LocalNotifications permission err:", err));
+      }).catch(err => console.warn("Failed to load native notifications module:", err));
+
+      // 2. Request native location permission dialog on startup
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          () => console.log("Location permission granted on startup"),
+          (err) => console.warn("Location permission startup err:", err),
+          { enableHighAccuracy: false, timeout: 5000, maximumAge: Infinity }
+        );
+      }
+    }
+  }, []);
 
   // ضبط اتجاه الصفحة حسب اللغة
   document.documentElement.dir = dir;

@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import { supabase } from "./supabase";
 import { translations } from "./i18n";
+import { Capacitor } from "@capacitor/core";
 
 const AppContext = createContext();
 
@@ -26,14 +27,45 @@ export function AppProvider({ children }) {
       setToast(null);
     }, 4500);
 
-    if (window.Notification && Notification.permission === "granted") {
-      try {
-        new Notification("البراق — Boraq", {
-          body: message,
-          icon: "/icon-192.png"
+    // Native mobile notifications (SMS / WhatsApp style popup) - Loaded Dynamically to prevent PC/web crashes
+    if (Capacitor.isNativePlatform()) {
+      import("@capacitor/local-notifications").then(({ LocalNotifications }) => {
+        LocalNotifications.schedule({
+          notifications: [
+            {
+              title: "البراق — Boraq Logistics",
+              body: message,
+              id: Math.floor(Math.random() * 100000),
+              schedule: { at: new Date(Date.now() + 100) },
+              sound: "beep.wav",
+              actionTypeId: "",
+              extra: null
+            }
+          ]
+        }).catch(err => console.warn("Capacitor local notification failed:", err));
+      }).catch(err => console.warn("Failed to load native notifications module:", err));
+    }
+
+    if (window.Notification) {
+      const showWebNotif = (txt) => {
+        try {
+          new Notification("البراق — Boraq Logistics", {
+            body: txt,
+            icon: "icon-192.png"
+          });
+        } catch (e) {
+          console.warn("Web Notification error:", e);
+        }
+      };
+
+      if (Notification.permission === "granted") {
+        showWebNotif(message);
+      } else if (Notification.permission !== "denied") {
+        Notification.requestPermission().then((permission) => {
+          if (permission === "granted") {
+            showWebNotif(message);
+          }
         });
-      } catch (e) {
-        console.warn("Web Notification error:", e);
       }
     }
 
