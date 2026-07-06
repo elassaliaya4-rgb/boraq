@@ -23,10 +23,36 @@ body.light-theme {
   --primary-dark: #1d4ed8;
   --accent: #d97706;
   --text: #0f172a;
-  --text-dim: #64748b;
+  --text-dim: #475569; /* Darker gray for superior readability in light mode */
   --green: #16a34a;
   --orange: #ea580c;
   --red: #dc2626;
+}
+
+/* High contrast overrides for table headers and status tags in Light Mode */
+body.light-theme th {
+  color: #334155 !important;
+  font-weight: 700 !important;
+}
+
+body.light-theme .status.pending {
+  background: rgba(100, 116, 139, 0.12) !important;
+  color: #475569 !important;
+}
+
+body.light-theme .status.inTransit {
+  background: rgba(37, 99, 235, 0.12) !important;
+  color: #1d4ed8 !important;
+}
+
+body.light-theme .status.arrived {
+  background: rgba(217, 119, 6, 0.12) !important;
+  color: #b45309 !important;
+}
+
+body.light-theme .status.delivered {
+  background: rgba(22, 163, 74, 0.12) !important;
+  color: #15803d !important;
 }
 
 * {
