@@ -150,6 +150,13 @@ export default function Scanner({ onClose, onOpenPackage, agencies = [], onUpdat
       if (prev.find((s) => s.pkg.id === pkg.id)) return prev;
       return [{ pkg, siblings, at: now }, ...prev];
     });
+
+    // Auto-close scanner modal and register in parent's validation checklist session
+    if (onOpenPackage) {
+      setTimeout(() => {
+        onOpenPackage(pkg);
+      }, 400); // Small delay to allow the haptic buzz to finish playing
+    }
   }
 
   useEffect(() => {

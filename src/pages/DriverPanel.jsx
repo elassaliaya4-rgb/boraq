@@ -371,26 +371,6 @@ export default function DriverPanel() {
             >
               🌐 {lang === "ar" ? "FR" : "عربي"}
             </button>
-            <button 
-              className="btn-sm" 
-              onClick={() => window.location.reload()}
-              style={{
-                padding: "8px 12px",
-                fontSize: "13px",
-                fontWeight: "600",
-                borderRadius: "8px",
-                cursor: "pointer",
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "5px",
-                background: "rgba(255,255,255,0.06)",
-                border: "1px solid var(--border)",
-                color: "var(--text)"
-              }}
-              title={lang === "ar" ? "تحديث التطبيق" : "Actualiser l'application"}
-            >
-              🔄
-            </button>
           </div>
         </header>
 
@@ -528,7 +508,7 @@ export default function DriverPanel() {
                             }}
                           >
                             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                              <span style={{ fontSize: 13, fontWeight: "700", color: "var(--primary)" }}>{p.tracking_number}</span>
+                              <span style={{ fontSize: 13, fontWeight: "700", color: "var(--accent)" }}>{p.tracking_number}</span>
                               <span className={`status ${p.status}`} style={{ fontSize: 10, padding: "2px 8px" }}>
                                 {t[p.status] || p.status}
                               </span>
