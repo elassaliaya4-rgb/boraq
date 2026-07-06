@@ -528,7 +528,7 @@ export default function DriverPanel() {
                             }}
                           >
                             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                              <span style={{ fontSize: 13, fontWeight: "700", color: "var(--accent)" }}>{p.tracking_number}</span>
+                              <span style={{ fontSize: 13, fontWeight: "700", color: "var(--text)" }}>{p.tracking_number}</span>
                               <span className={`status ${p.status}`} style={{ fontSize: 10, padding: "2px 8px" }}>
                                 {t[p.status] || p.status}
                               </span>
