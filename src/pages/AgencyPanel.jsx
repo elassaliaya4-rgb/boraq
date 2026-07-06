@@ -96,6 +96,13 @@ export default function AgencyPanel() {
     loadData();
   }
 
+  async function deletePackage(pkg) {
+    if (!window.confirm(lang === "ar" ? "هل أنت متأكد من حذف هذا الطرد؟" : "Supprimer ce colis ?")) return;
+    const { error } = await supabase.from("packages").delete().eq("id", pkg.id);
+    if (error) alert(error.message);
+    else loadData();
+  }
+
   return (
     <div className="app">
       <aside className="sidebar">
@@ -613,7 +620,13 @@ export default function AgencyPanel() {
         <PackageForm agencies={agencies} onClose={() => setShowPkgForm(false)} onSaved={() => { setShowPkgForm(false); loadData(); }} />
       )}
       {detailPkg && (
-        <PackageDetails pkg={detailPkg} agencies={agencies} onClose={() => setDetailPkg(null)} onUpdated={() => { loadData(); setDetailPkg(null); }} />
+        <PackageDetails 
+          pkg={detailPkg} 
+          agencies={agencies} 
+          onClose={() => setDetailPkg(null)} 
+          onUpdated={() => { loadData(); setDetailPkg(null); }} 
+          onDelete={deletePackage}
+        />
       )}
       {showScanner && (
         <Scanner
