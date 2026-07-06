@@ -255,6 +255,9 @@ export default function Scanner({ onClose, onOpenPackage, agencies = [], onUpdat
                 rw = width * scaleX;
                 rh = height * scaleY;
                 codeDetected = true;
+                if (barcode.rawValue && !stoppedRef.current) {
+                  onDecoded(barcode.rawValue);
+                }
               }
             } catch (e) {}
           } else {
@@ -283,6 +286,9 @@ export default function Scanner({ onClose, onOpenPackage, agencies = [], onUpdat
                   rw = Math.max(...xs) - rx;
                   rh = Math.max(...ys) - ry;
                   codeDetected = true;
+                  if (code.data && !stoppedRef.current) {
+                    onDecoded(code.data);
+                  }
                 }
               } catch (e) {}
             }
