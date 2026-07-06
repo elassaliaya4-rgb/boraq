@@ -560,16 +560,26 @@ export default function AgencyPanel() {
             ) : (
               <div className="table-wrap">
                 <table>
-                  <thead><tr><th>{t.trackingNumber}</th><th>{t.senderName}</th><th>{t.origin}</th><th>{t.weight}</th><th>{t.status}</th><th>{t.manage}</th></tr></thead>
+                  <thead>
+                    <tr>
+                      <th>{t.trackingNumber}</th>
+                      <th>{t.receiverName}</th>
+                      <th>{t.destination}</th>
+                      <th>{t.status}</th>
+                    </tr>
+                  </thead>
                   <tbody>
                     {packages.map((p) => (
-                      <tr key={p.id}>
+                      <tr 
+                        key={p.id}
+                        onClick={() => setDetailPkg(p)}
+                        className="clickable-row"
+                        style={{ cursor: "pointer", transition: "all 0.2s ease" }}
+                      >
                         <td><b>{p.tracking_number}</b></td>
-                        <td>{p.sender_name}</td>
-                        <td>{p.origin}</td>
-                        <td>{p.weight} {t.kg}</td>
-                        <td><span className={`status ${p.status}`}>{t[p.status]}</span></td>
-                        <td><button className="btn-manage" onClick={() => setDetailPkg(p)}>⚙️ {t.manage}</button></td>
+                        <td>{p.receiver_name}</td>
+                        <td>{p.destination}</td>
+                        <td><span className={`status ${p.status}`}>{t[p.status] || p.status}</span></td>
                       </tr>
                     ))}
                   </tbody>

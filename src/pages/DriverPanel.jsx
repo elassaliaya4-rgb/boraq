@@ -360,9 +360,7 @@ export default function DriverPanel() {
                           <th>{t.trackingNumber}</th>
                           <th>{lang === "ar" ? "من (المنشأ)" : "De (Origine)"}</th>
                           <th>{t.receiverName}</th>
-                          <th>{t.weight}</th>
                           <th>{t.status}</th>
-                          <th>{t.manage}</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -371,11 +369,14 @@ export default function DriverPanel() {
                           return (
                             <tr 
                               key={p.id}
+                              onClick={() => setDetailPkg(p)}
+                              className="clickable-row"
                               style={isLoaded ? { 
                                 backgroundColor: "rgba(16, 185, 129, 0.08)",
                                 borderInlineStart: "4px solid #10b981",
-                                transition: "all 0.3s ease"
-                              } : { transition: "all 0.3s ease" }}
+                                transition: "all 0.3s ease",
+                                cursor: "pointer"
+                              } : { transition: "all 0.3s ease", cursor: "pointer" }}
                             >
                               <td><b>{p.tracking_number}</b></td>
                               <td>
@@ -391,12 +392,8 @@ export default function DriverPanel() {
                                 </span>
                               </td>
                               <td>{p.receiver_name}</td>
-                              <td>{p.weight} {t.kg}</td>
                               <td>
-                                <span className={`status ${p.status}`}>{t[p.status]}</span>
-                              </td>
-                              <td>
-                                <button className="btn-manage" onClick={() => setDetailPkg(p)}>⚙️</button>
+                                <span className={`status ${p.status}`}>{t[p.status] || p.status}</span>
                               </td>
                             </tr>
                           );
