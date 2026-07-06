@@ -14,6 +14,7 @@ export default function DriverPanel() {
   const [showScanner, setShowScanner] = useState(false);
   const [detailPkg, setDetailPkg] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [scanFilterAgency, setScanFilterAgency] = useState("");
   const mountedRef = useRef(true);
 
   useEffect(() => {
@@ -288,7 +289,10 @@ export default function DriverPanel() {
           <div className="topbar-actions">
             <button 
               className="btn-accent" 
-              onClick={() => setShowScanner(true)}
+              onClick={() => {
+                setScanFilterAgency(""); // Clear filter f manual scan
+                setShowScanner(true);
+              }}
               style={{
                 display: "inline-flex",
                 alignItems: "center",
@@ -325,6 +329,26 @@ export default function DriverPanel() {
             >
               🌐 {lang === "ar" ? "FR" : "عربي"}
             </button>
+            <button 
+              className="btn-sm" 
+              onClick={() => window.location.reload()}
+              style={{
+                padding: "8px 12px",
+                fontSize: "13px",
+                fontWeight: "600",
+                borderRadius: "8px",
+                cursor: "pointer",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "5px",
+                background: "rgba(255,255,255,0.06)",
+                border: "1px solid var(--border)",
+                color: "var(--text)"
+              }}
+              title={lang === "ar" ? "تحديث التطبيق" : "Actualiser l'application"}
+            >
+              🔄
+            </button>
           </div>
         </header>
 
@@ -355,16 +379,39 @@ export default function DriverPanel() {
                     <h3 style={{ margin: 0, fontSize: 15, fontWeight: 600, display: "flex", alignItems: "center", gap: 6 }}>
                       🏢 {agency.name} {agency.city && `(${agency.city})`}
                     </h3>
-                    <span style={{
-                      fontSize: 12,
-                      padding: "2px 8px",
-                      borderRadius: 12,
-                      background: "rgba(59,130,246,0.1)",
-                      color: "var(--primary)",
-                      fontWeight: 600
-                    }}>
-                      {pkgs.length} {lang === "ar" ? "طرود" : "colis"}
-                    </span>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      <button
+                        onClick={() => {
+                          setScanFilterAgency(agency.name);
+                          setShowScanner(true);
+                        }}
+                        className="btn-accent"
+                        style={{
+                          padding: "4px 10px",
+                          fontSize: 12,
+                          fontWeight: "bold",
+                          borderRadius: 6,
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: 4,
+                          cursor: "pointer",
+                          border: "none",
+                          boxShadow: "0 0 8px rgba(251, 191, 36, 0.2)"
+                        }}
+                      >
+                        📷 {lang === "ar" ? "مسح" : "Scanner"}
+                      </button>
+                      <span style={{
+                        fontSize: 12,
+                        padding: "4px 8px",
+                        borderRadius: 12,
+                        background: "rgba(59,130,246,0.1)",
+                        color: "var(--primary)",
+                        fontWeight: 600
+                      }}>
+                        {pkgs.length} {lang === "ar" ? "طرود" : "colis"}
+                      </span>
+                    </div>
                   </div>
 
                   <div className="table-wrap" style={{ background: "none", border: "none" }}>
@@ -475,6 +522,7 @@ export default function DriverPanel() {
           onOpenPackage={(pkg) => setShowScanner(false)}
           onClose={() => setShowScanner(false)}
           onUpdated={() => loadData(true)}
+          expectedAgency={scanFilterAgency}
         />
       )}
     </div>

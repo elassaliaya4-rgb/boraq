@@ -5,7 +5,7 @@ import { supabase } from "../lib/supabase";
 import { statusColors, statusBg, buildWhatsAppLink } from "../lib/helpers";
 import jsQR from "jsqr";
 
-export default function Scanner({ onClose, onOpenPackage, agencies = [], onUpdated }) {
+export default function Scanner({ onClose, onOpenPackage, agencies = [], onUpdated, expectedAgency }) {
   const { t, lang, profile } = useApp();
   const qrRef = useRef(null);
   const stoppedRef = useRef(false);
@@ -14,6 +14,7 @@ export default function Scanner({ onClose, onOpenPackage, agencies = [], onUpdat
   const startPromiseRef = useRef(null); // Tracks the camera start promise
   const canvasRef = useRef(null);
   const loopRef = useRef(null);
+  const smoothRectRef = useRef({ x: 0, y: 0, w: 0, h: 0, initialized: false });
   const fileInputRef = useRef(null);
   const [isTorchOn, setIsTorchOn] = useState(false);
   const [torchSupported, setTorchSupported] = useState(false);
@@ -247,10 +248,38 @@ export default function Scanner({ onClose, onOpenPackage, agencies = [], onUpdat
             ctx.clearRect(0, 0, canvas.width, canvas.height);
           }
 
-          let rx = (canvas.width - 240) / 2;
-          let ry = (canvas.height - 240) / 2;
-          let rw = 240;
-          let rh = 240;
+          // Calculate dimensions and offsets mapping to video cover viewport (object-fit: cover)
+          const videoWidth = videoEl.videoWidth;
+          const videoHeight = videoEl.videoHeight;
+          const canvasWidth = canvas.width;
+          const canvasHeight = canvas.height;
+
+          let scale = 1;
+          let offsetX = 0;
+          let offsetY = 0;
+
+          if (videoWidth > 0 && videoHeight > 0) {
+            const videoRatio = videoWidth / videoHeight;
+            const canvasRatio = canvasWidth / canvasHeight;
+
+            if (canvasRatio > videoRatio) {
+              scale = canvasWidth / videoWidth;
+              offsetY = (canvasHeight - videoHeight * scale) / 2;
+            } else {
+              scale = canvasHeight / videoHeight;
+              offsetX = (canvasWidth - videoWidth * scale) / 2;
+            }
+          }
+
+          const mapX = (vx) => vx * scale + offsetX;
+          const mapY = (vy) => vy * scale + offsetY;
+          const mapW = (vw) => vw * scale;
+          const mapH = (vh) => vh * scale;
+
+          let targetX = (canvas.width - 240) / 2;
+          let targetY = (canvas.height - 240) / 2;
+          let targetW = 240;
+          let targetH = 240;
           let codeDetected = false;
 
           if (window.BarcodeDetector) {
@@ -260,12 +289,10 @@ export default function Scanner({ onClose, onOpenPackage, agencies = [], onUpdat
               if (barcodes.length > 0) {
                 const barcode = barcodes[0];
                 const { x, y, width, height } = barcode.boundingBox;
-                const scaleX = canvas.width / videoEl.videoWidth;
-                const scaleY = canvas.height / videoEl.videoHeight;
-                rx = x * scaleX;
-                ry = y * scaleY;
-                rw = width * scaleX;
-                rh = height * scaleY;
+                targetX = mapX(x);
+                targetY = mapY(y);
+                targetW = mapW(width);
+                targetH = mapH(height);
                 codeDetected = true;
                 if (barcode.rawValue && !stoppedRef.current) {
                   onDecoded(barcode.rawValue);
@@ -288,15 +315,12 @@ export default function Scanner({ onClose, onOpenPackage, agencies = [], onUpdat
 
                 if (code) {
                   const loc = code.location;
-                  const scaleX = canvas.width / videoEl.videoWidth;
-                  const scaleY = canvas.height / videoEl.videoHeight;
-
-                  const xs = [loc.topLeftCorner.x, loc.topRightCorner.x, loc.bottomRightCorner.x, loc.bottomLeftCorner.x].map(x => x * scaleX);
-                  const ys = [loc.topLeftCorner.y, loc.topRightCorner.y, loc.bottomRightCorner.y, loc.bottomLeftCorner.y].map(y => y * scaleY);
-                  rx = Math.min(...xs);
-                  ry = Math.min(...ys);
-                  rw = Math.max(...xs) - rx;
-                  rh = Math.max(...ys) - ry;
+                  const xs = [loc.topLeftCorner.x, loc.topRightCorner.x, loc.bottomRightCorner.x, loc.bottomLeftCorner.x].map(mapX);
+                  const ys = [loc.topLeftCorner.y, loc.topRightCorner.y, loc.bottomRightCorner.y, loc.bottomLeftCorner.y].map(mapY);
+                  targetX = Math.min(...xs);
+                  targetY = Math.min(...ys);
+                  targetW = Math.max(...xs) - targetX;
+                  targetH = Math.max(...ys) - targetY;
                   codeDetected = true;
                   if (code.data && !stoppedRef.current) {
                     onDecoded(code.data);
@@ -305,6 +329,21 @@ export default function Scanner({ onClose, onOpenPackage, agencies = [], onUpdat
               } catch (e) {}
             }
           }
+
+          // Smooth target rect coordinates with low-pass interpolation to prevent jitter and slide smoothly
+          if (!smoothRectRef.current.initialized) {
+            smoothRectRef.current = { x: targetX, y: targetY, w: targetW, h: targetH, initialized: true };
+          } else {
+            smoothRectRef.current.x += (targetX - smoothRectRef.current.x) * 0.35;
+            smoothRectRef.current.y += (targetY - smoothRectRef.current.y) * 0.35;
+            smoothRectRef.current.w += (targetW - smoothRectRef.current.w) * 0.35;
+            smoothRectRef.current.h += (targetH - smoothRectRef.current.h) * 0.35;
+          }
+
+          const rx = smoothRectRef.current.x;
+          const ry = smoothRectRef.current.y;
+          const rw = smoothRectRef.current.w;
+          const rh = smoothRectRef.current.h;
 
           if (ctx) {
             // 1. Draw moving dark translucent mask covering the screen except the active target cutout
@@ -515,6 +554,24 @@ export default function Scanner({ onClose, onOpenPackage, agencies = [], onUpdat
           </span>
         )}
       </header>
+
+      {expectedAgency && (
+        <div style={{
+          background: "rgba(251, 191, 36, 0.18)",
+          backdropFilter: "blur(12px)",
+          WebkitBackdropFilter: "blur(12px)",
+          borderBottom: "1px solid rgba(251, 191, 36, 0.3)",
+          padding: "8px 16px",
+          textAlign: "center",
+          fontSize: "13px",
+          fontWeight: "600",
+          color: "#fbbf24",
+          zIndex: 10005,
+          position: "relative"
+        }}>
+          🎯 {lang === "ar" ? `مسح وكالة: ${expectedAgency}` : `Scan pour l'agence : ${expectedAgency}`}
+        </div>
+      )}
 
       {/* Fullscreen camera container */}
       <div className="scanner-camera-container" style={{ position: "relative" }}>

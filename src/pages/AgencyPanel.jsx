@@ -268,6 +268,26 @@ export default function AgencyPanel() {
             >
               🌐 {lang === "ar" ? "FR" : "عربي"}
             </button>
+            <button 
+              className="btn-sm" 
+              onClick={() => window.location.reload()}
+              style={{
+                padding: "8px 12px",
+                fontSize: "13px",
+                fontWeight: "600",
+                borderRadius: "8px",
+                cursor: "pointer",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "5px",
+                background: "rgba(255,255,255,0.06)",
+                border: "1px solid var(--border)",
+                color: "var(--text)"
+              }}
+              title={lang === "ar" ? "تحديث التطبيق" : "Actualiser l'application"}
+            >
+              🔄
+            </button>
           </div>
         </div>
 
