@@ -31,8 +31,29 @@ export default function Login() {
     setBusy(true);
     setError("");
     const err = await signIn(loginEmail, loginPassword);
-    if (err) setError(t.loginError);
-    setBusy(false);
+    if (err) {
+      setError(t.loginError);
+      setBusy(false);
+    } else {
+      // Validate that the logged-in user actually has a valid profile in the database
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: prof } = await supabase
+          .from("profiles")
+          .select("role")
+          .eq("id", user.id)
+          .maybeSingle();
+
+        if (!prof) {
+          // No profile found! Meaning they were deleted by the admin.
+          await supabase.auth.signOut();
+          setError(lang === "ar" ? "الكود غير صالح أو تم حذفه" : "Code invalide ou supprimé");
+          setBusy(false);
+          return;
+        }
+      }
+      setBusy(false);
+    }
   }
 
   return (

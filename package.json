@@ -3,10 +3,13 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
+  "main": "electron-main.cjs",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "electron:start": "electron .",
+    "electron:build": "electron-packager . Boraq --platform=win32 --arch=x64 --out=dist-desktop --overwrite --icon=public/icon-512.ico"
   },
   "dependencies": {
     "@capacitor/android": "^8.4.1",
@@ -14,6 +17,7 @@
     "@capacitor/core": "^8.4.1",
     "@capacitor/geolocation": "^8.2.0",
     "@capacitor/ios": "^8.4.1",
+    "@capacitor/local-notifications": "^8.2.0",
     "@supabase/supabase-js": "^2.45.0",
     "html5-qrcode": "^2.3.8",
     "jsqr": "^1.4.0",
@@ -24,6 +28,8 @@
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.3.1",
+    "electron": "^43.0.0",
+    "electron-packager": "^17.1.2",
     "vite": "^5.4.0"
   }
 }
