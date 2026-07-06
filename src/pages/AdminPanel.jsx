@@ -745,7 +745,13 @@ export default function AdminPanel() {
         <AgencyForm onClose={() => setShowAgForm(false)} onSaved={() => { setShowAgForm(false); loadData(); }} />
       )}
       {detailPkg && (
-        <PackageDetails pkg={detailPkg} agencies={agencies} onClose={() => setDetailPkg(null)} onUpdated={() => { loadData(); setDetailPkg(null); }} />
+        <PackageDetails 
+          pkg={detailPkg} 
+          agencies={agencies} 
+          onClose={() => setDetailPkg(null)} 
+          onUpdated={() => { loadData(); setDetailPkg(null); }} 
+          onDelete={deletePackage}
+        />
       )}
       {showScanner && (
         <Scanner

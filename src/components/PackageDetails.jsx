@@ -5,12 +5,18 @@ import { FLOW } from "../lib/i18n";
 import { statusColors, statusBg, buildWhatsAppLink } from "../lib/helpers";
 import Ticket from "./Ticket";
 
-export default function PackageDetails({ pkg, agencies, onClose, onUpdated }) {
+export default function PackageDetails({ pkg, agencies, onClose, onUpdated, onDelete }) {
   const { t, lang } = useApp();
   const [showTicket, setShowTicket] = useState(false);
   const [wa, setWa] = useState(null);
   const [busy, setBusy] = useState(false);
   const [siblings, setSiblings] = useState([]);
+
+  function handleDelete() {
+    if (onDelete) {
+      onDelete(pkg);
+    }
+  }
 
   useEffect(() => {
     if (pkg) {
@@ -173,11 +179,37 @@ export default function PackageDetails({ pkg, agencies, onClose, onUpdated }) {
           </button>
         </div>
 
-        <div className="modal-actions">
-          <button className="btn-primary" onClick={() => setShowTicket(true)}>
+        <div className="modal-actions" style={{ display: "flex", gap: 8, marginTop: 16 }}>
+          <button className="btn-primary" onClick={() => setShowTicket(true)} style={{ flex: 1 }}>
             🎫 {t.ticket}
           </button>
-          <button className="btn-sm" onClick={onClose}>
+          {onDelete && (
+            <button 
+              onClick={handleDelete}
+              style={{ 
+                flex: 1, 
+                background: "rgba(239, 68, 68, 0.15)", 
+                border: "1px solid rgba(239, 68, 68, 0.4)",
+                color: "#f87171",
+                padding: "10px",
+                borderRadius: 8,
+                fontWeight: "600",
+                cursor: "pointer",
+                transition: "all 0.2s"
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = "rgba(239, 68, 68, 0.3)";
+                e.currentTarget.style.borderColor = "rgba(239, 68, 68, 0.8)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "rgba(239, 68, 68, 0.15)";
+                e.currentTarget.style.borderColor = "rgba(239, 68, 68, 0.4)";
+              }}
+            >
+              🗑️ {lang === "ar" ? "حذف" : "Supprimer"}
+            </button>
+          )}
+          <button className="btn-sm" onClick={onClose} style={{ flex: 1 }}>
             ⬅️ {lang === "ar" ? "رجوع" : "Retour"}
           </button>
         </div>
