@@ -1058,6 +1058,7 @@ input, select, textarea {
   .sidebar [style*="margin-top: auto"] {
     margin-top: 0 !important;
     padding-top: 0 !important;
+    width: auto !important;
   }
   
   /* Show custom floating bottom navigation */
