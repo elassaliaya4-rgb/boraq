@@ -54,42 +54,56 @@ export default function DriverPanel() {
 
     async function updateLocation() {
       try {
-        const perm = await Geolocation.checkPermissions();
-        if (perm.location !== "granted") {
-          const req = await Geolocation.requestPermissions();
-          if (req.location !== "granted") {
-            console.warn("Location permission denied.");
-            return;
+        let lat = null;
+        let lng = null;
+
+        // 1. Try native Capacitor Geolocation
+        try {
+          const perm = await Geolocation.checkPermissions();
+          if (perm.location !== "granted") {
+            const req = await Geolocation.requestPermissions();
+            if (req.location !== "granted") {
+              throw new Error("Capacitor location permission denied.");
+            }
+          }
+          const position = await Geolocation.getCurrentPosition({
+            enableHighAccuracy: false,
+            timeout: 8000,
+            maximumAge: 30000
+          });
+          lat = position.coords.latitude;
+          lng = position.coords.longitude;
+        } catch (capErr) {
+          console.warn("Capacitor geolocation failed, trying HTML5 Web Geolocation fallback:", capErr);
+          
+          // 2. Try standard browser Web Geolocation fallback (100% reliable inside webviews / browsers)
+          if (navigator.geolocation) {
+            const webPos = await new Promise((resolve, reject) => {
+              navigator.geolocation.getCurrentPosition(resolve, reject, {
+                enableHighAccuracy: false,
+                timeout: 8000,
+                maximumAge: 30000
+              });
+            });
+            lat = webPos.coords.latitude;
+            lng = webPos.coords.longitude;
+          } else {
+            throw new Error("No browser geolocation support.");
           }
         }
 
-        let position;
-        try {
-          position = await Geolocation.getCurrentPosition({
-            enableHighAccuracy: true,
-            timeout: 6000,
-            maximumAge: 30000
-          });
-        } catch (e) {
-          console.warn("High accuracy GPS failed, falling back to network coarse location...", e);
-          position = await Geolocation.getCurrentPosition({
-            enableHighAccuracy: false,
-            timeout: 5000,
-            maximumAge: 60000
-          });
+        if (lat && lng) {
+          await supabase
+            .from("drivers")
+            .update({
+              latitude: lat,
+              longitude: lng,
+              last_active: new Date().toISOString()
+            })
+            .eq("id", profile.driver_id);
         }
-
-        const { latitude, longitude } = position.coords;
-        await supabase
-          .from("drivers")
-          .update({
-            latitude,
-            longitude,
-            last_active: new Date().toISOString()
-          })
-          .eq("id", profile.driver_id);
       } catch (error) {
-        console.warn("Geolocation error:", error);
+        console.warn("Geolocation tracking error:", error);
       }
     }
   }, [profile]);

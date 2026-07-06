@@ -3,7 +3,7 @@ import { Html5Qrcode } from "html5-qrcode";
 import { useApp } from "../lib/context";
 import { supabase } from "../lib/supabase";
 import { statusColors, statusBg, buildWhatsAppLink } from "../lib/helpers";
-// Removed unused jsQR import
+import jsQR from "jsqr";
 
 export default function Scanner({ onClose, onOpenPackage, agencies = [], onUpdated }) {
   const { t, lang, profile } = useApp();
@@ -64,7 +64,10 @@ export default function Scanner({ onClose, onOpenPackage, agencies = [], onUpdat
     lastScanRef.current = { text: decodedText, at: now };
 
     try {
-      if (navigator.vibrate) navigator.vibrate(80);
+      if (navigator.vibrate) {
+        // Strong double haptic buzz feedback on scan success
+        navigator.vibrate([120, 80, 120]);
+      }
     } catch (e) {}
 
     let tracking = decodedText;
@@ -107,9 +110,9 @@ export default function Scanner({ onClose, onOpenPackage, agencies = [], onUpdat
     }
 
     // Auto-update status based on user role
-    let targetStatus = profile?.role === "admin" ? "inTransit" : "arrived";
-    if (profile?.role === "driver") {
-      targetStatus = pkg.status === "pending" ? "inTransit" : "arrived";
+    let targetStatus = "arrived";
+    if (profile?.role === "admin" || profile?.role === "driver") {
+      targetStatus = "inTransit"; // Always mark as "inTransit" (shipped/loaded/tch7ann) for drivers & admin scans
     }
     const { error: updateErr } = await supabase
       .from("packages")
@@ -201,6 +204,7 @@ export default function Scanner({ onClose, onOpenPackage, agencies = [], onUpdat
           qr.clear();
         } else {
           if (mounted) setStarting(false);
+          setTimeout(startTracking, 300);
         }
       } catch (err) {
         if (mounted) {
@@ -212,11 +216,171 @@ export default function Scanner({ onClose, onOpenPackage, agencies = [], onUpdat
       }
     };
 
+    function startTracking() {
+      if (stoppedRef.current) return;
+      const videoEl = document.querySelector("#scanner-area video");
+      if (!videoEl) return;
+
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+      const ctx = canvas.getContext("2d");
+
+      // Offscreen canvas for jsQR fallback frame capture
+      const offscreen = document.createElement("canvas");
+      const offscreenCtx = offscreen.getContext("2d");
+
+      let lastScanTime = 0;
+
+      const trackLoop = async () => {
+        if (stoppedRef.current || !videoEl || !canvasRef.current) return;
+
+        if (canvas.width !== videoEl.clientWidth || canvas.height !== videoEl.clientHeight) {
+          canvas.width = videoEl.clientWidth;
+          canvas.height = videoEl.clientHeight;
+        }
+
+        const now = Date.now();
+        if (now - lastScanTime > 150) { // Throttle: 6 times per second max (silky smooth camera, zero lag)
+          lastScanTime = now;
+
+          if (ctx) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+          }
+
+          let rx = (canvas.width - 240) / 2;
+          let ry = (canvas.height - 240) / 2;
+          let rw = 240;
+          let rh = 240;
+          let codeDetected = false;
+
+          if (window.BarcodeDetector) {
+            try {
+              const detector = new window.BarcodeDetector({ formats: ["qr_code"] });
+              const barcodes = await detector.detect(videoEl);
+              if (barcodes.length > 0) {
+                const barcode = barcodes[0];
+                const { x, y, width, height } = barcode.boundingBox;
+                const scaleX = canvas.width / videoEl.videoWidth;
+                const scaleY = canvas.height / videoEl.videoHeight;
+                rx = x * scaleX;
+                ry = y * scaleY;
+                rw = width * scaleX;
+                rh = height * scaleY;
+                codeDetected = true;
+                if (barcode.rawValue && !stoppedRef.current) {
+                  onDecoded(barcode.rawValue);
+                }
+              }
+            } catch (e) {}
+          } else {
+            // CPU Fallback with jsQR
+            if (videoEl.videoWidth > 0 && videoEl.videoHeight > 0) {
+              offscreen.width = videoEl.videoWidth;
+              offscreen.height = videoEl.videoHeight;
+
+              try {
+                offscreenCtx.drawImage(videoEl, 0, 0, offscreen.width, offscreen.height);
+                const imgData = offscreenCtx.getImageData(0, 0, offscreen.width, offscreen.height);
+                
+                const code = jsQR(imgData.data, imgData.width, imgData.height, {
+                  inversionAttempts: "dontInvert"
+                });
+
+                if (code) {
+                  const loc = code.location;
+                  const scaleX = canvas.width / videoEl.videoWidth;
+                  const scaleY = canvas.height / videoEl.videoHeight;
+
+                  const xs = [loc.topLeftCorner.x, loc.topRightCorner.x, loc.bottomRightCorner.x, loc.bottomLeftCorner.x].map(x => x * scaleX);
+                  const ys = [loc.topLeftCorner.y, loc.topRightCorner.y, loc.bottomRightCorner.y, loc.bottomLeftCorner.y].map(y => y * scaleY);
+                  rx = Math.min(...xs);
+                  ry = Math.min(...ys);
+                  rw = Math.max(...xs) - rx;
+                  rh = Math.max(...ys) - ry;
+                  codeDetected = true;
+                  if (code.data && !stoppedRef.current) {
+                    onDecoded(code.data);
+                  }
+                }
+              } catch (e) {}
+            }
+          }
+
+          if (ctx) {
+            // 1. Draw moving dark translucent mask covering the screen except the active target cutout
+            ctx.fillStyle = "rgba(15, 23, 42, 0.7)"; // Translucent Slate 900 mask
+            // Top mask
+            ctx.fillRect(0, 0, canvas.width, ry);
+            // Bottom mask
+            ctx.fillRect(0, ry + rh, canvas.width, canvas.height - (ry + rh));
+            // Left mask
+            ctx.fillRect(0, ry, rx, rh);
+            // Right mask
+            ctx.fillRect(rx + rw, ry, canvas.width - (rx + rw), rh);
+
+            // 2. Draw Telegram-style corner brackets directly around the active box (rx, ry, rw, rh)
+            const len = Math.max(16, Math.min(28, rw * 0.25));
+            ctx.strokeStyle = codeDetected ? "#10b981" : "#ffffff"; // Green when locked, White when searching!
+            ctx.lineWidth = 5;
+            ctx.lineCap = "round";
+            ctx.lineJoin = "round";
+
+            // Top-Left
+            ctx.beginPath();
+            ctx.moveTo(rx + len, ry);
+            ctx.lineTo(rx, ry);
+            ctx.lineTo(rx, ry + len);
+            ctx.stroke();
+
+            // Top-Right
+            ctx.beginPath();
+            ctx.moveTo(rx + rw - len, ry);
+            ctx.lineTo(rx + rw, ry);
+            ctx.lineTo(rx + rw, ry + len);
+            ctx.stroke();
+
+            // Bottom-Left
+            ctx.beginPath();
+            ctx.moveTo(rx + len, ry + rh);
+            ctx.lineTo(rx, ry + rh);
+            ctx.lineTo(rx, ry + rh - len);
+            ctx.stroke();
+
+            // Bottom-Right
+            ctx.beginPath();
+            ctx.moveTo(rx + rw - len, ry + rh);
+            ctx.lineTo(rx + rw, ry + rh);
+            ctx.lineTo(rx + rw, ry + rh - len);
+            ctx.stroke();
+
+            // 3. Highlight fill inside the brackets
+            ctx.fillStyle = codeDetected ? "rgba(16, 185, 129, 0.12)" : "rgba(255, 255, 255, 0.02)";
+            ctx.beginPath();
+            if (ctx.roundRect) {
+              ctx.roundRect(rx, ry, rw, rh, 16);
+            } else {
+              ctx.rect(rx, ry, rw, rh);
+            }
+            ctx.fill();
+          }
+        }
+
+        if (!stoppedRef.current) {
+          loopRef.current = requestAnimationFrame(trackLoop);
+        }
+      };
+
+      loopRef.current = requestAnimationFrame(trackLoop);
+    }
+
     const timer = setTimeout(startScanner, 250);
     return () => {
       mounted = false;
       clearTimeout(timer);
       safeStop();
+      if (loopRef.current) {
+        cancelAnimationFrame(loopRef.current);
+      }
     };
   }, []);
 
@@ -353,20 +517,26 @@ export default function Scanner({ onClose, onOpenPackage, agencies = [], onUpdat
       </header>
 
       {/* Fullscreen camera container */}
-      <div className="scanner-camera-container">
+      <div className="scanner-camera-container" style={{ position: "relative" }}>
         <div id="scanner-area" style={{ width: "100%", height: "100%" }}></div>
+        <canvas
+          ref={canvasRef}
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            zIndex: 10002,
+            pointerEvents: "none"
+          }}
+        />
       </div>
 
-      {/* Viewfinder Target Layer (Static translucent mask + white corners + red scanning laser line) */}
+      {/* Viewfinder Target Layer (Static scan hint) */}
       {!error && !starting && (
-        <div className="scanner-viewfinder-overlay" style={{ pointerEvents: "none" }}>
-          <div className="scanner-telegram-box">
-            <div className="scanner-telegram-corners"></div>
-            {/* Pulsating red laser scanning line inside the box */}
-            <div className="scanner-laser" style={{ left: "5%", width: "90%" }}></div>
-          </div>
-          
-          <div style={{ marginTop: 24, fontSize: 13, color: "rgba(255, 255, 255, 0.75)", textShadow: "0 2px 4px rgba(0,0,0,0.8)", fontWeight: "600" }}>
+        <div className="scanner-viewfinder-overlay" style={{ pointerEvents: "none", justifyContent: "flex-end", paddingBottom: 130 }}>
+          <div style={{ fontSize: 13, color: "rgba(255, 255, 255, 0.8)", textShadow: "0 2px 4px rgba(0,0,0,0.8)", fontWeight: "600" }}>
             {t.scanHint}
           </div>
         </div>
