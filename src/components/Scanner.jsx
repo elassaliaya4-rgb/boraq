@@ -359,7 +359,7 @@ export default function Scanner({ onClose, onOpenPackage, agencies = [], onUpdat
 
             // 2. Draw Telegram-style corner brackets directly around the active box (rx, ry, rw, rh)
             const len = Math.max(16, Math.min(28, rw * 0.25));
-            ctx.strokeStyle = codeDetected ? "#10b981" : "#ffffff"; // Green when locked, White when searching!
+            ctx.strokeStyle = "#ffffff"; // Always crisp white corners to prevent color flicker
             ctx.lineWidth = 5;
             ctx.lineCap = "round";
             ctx.lineJoin = "round";
@@ -393,7 +393,7 @@ export default function Scanner({ onClose, onOpenPackage, agencies = [], onUpdat
             ctx.stroke();
 
             // 3. Highlight fill inside the brackets
-            ctx.fillStyle = codeDetected ? "rgba(16, 185, 129, 0.12)" : "rgba(255, 255, 255, 0.02)";
+            ctx.fillStyle = "rgba(255, 255, 255, 0.02)"; // Constant transparent fill to prevent flicker
             ctx.beginPath();
             if (ctx.roundRect) {
               ctx.roundRect(rx, ry, rw, rh, 16);
@@ -540,38 +540,55 @@ export default function Scanner({ onClose, onOpenPackage, agencies = [], onUpdat
 
   return (
     <div className="scanner-fullscreen-modal">
-      {/* Telegram-style Top Header */}
-      <header className="scanner-header">
-        <button className="scanner-header-back" onClick={handleClose}>
-          {lang === "ar" ? "→" : "←"}
-        </button>
-        <span className="scanner-header-title">
-          {t.scanTitle}
-        </span>
-        {scanned.length > 0 && (
-          <span style={{ fontSize: 13, color: "var(--primary)", fontWeight: "600", background: "rgba(251, 191, 36, 0.15)", padding: "4px 10px", borderRadius: 12 }}>
-            {scanned.length} {t.scanCount}
-          </span>
+      {/* Telegram-style Top Header with semi-translucent backdrop and inline targeted agency info */}
+      <header className="scanner-header" style={{
+        position: "absolute",
+        top: 0,
+        left: 0,
+        right: 0,
+        height: "auto",
+        minHeight: 64,
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "stretch",
+        padding: "14px 16px",
+        zIndex: 10006,
+        background: "rgba(15, 23, 42, 0.8)",
+        backdropFilter: "blur(12px)",
+        WebkitBackdropFilter: "blur(12px)",
+        borderBottom: "1px solid rgba(255,255,255,0.06)",
+        gap: 6
+      }}>
+        <div style={{ display: "flex", alignItems: "center", width: "100%", justifyContent: "space-between" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <button className="scanner-header-back" onClick={handleClose} style={{ position: "static", background: "none", border: "none", color: "#fff", cursor: "pointer" }}>
+              {lang === "ar" ? "→" : "←"}
+            </button>
+            <span className="scanner-header-title" style={{ fontSize: 18, fontWeight: 600 }}>
+              {t.scanTitle}
+            </span>
+          </div>
+          {scanned.length > 0 && (
+            <span style={{ fontSize: 12, color: "var(--primary)", fontWeight: "600", background: "rgba(251, 191, 36, 0.15)", padding: "4px 10px", borderRadius: 12 }}>
+              {scanned.length} {t.scanCount}
+            </span>
+          )}
+        </div>
+        {expectedAgency && (
+          <div style={{
+            fontSize: 12,
+            fontWeight: "600",
+            color: "#fbbf24",
+            display: "flex",
+            alignItems: "center",
+            gap: 6,
+            paddingLeft: 28,
+            paddingRight: 28
+          }}>
+            🎯 {lang === "ar" ? `الوكالة المستهدفة: ${expectedAgency}` : `Agence cible : ${expectedAgency}`}
+          </div>
         )}
       </header>
-
-      {expectedAgency && (
-        <div style={{
-          background: "rgba(251, 191, 36, 0.18)",
-          backdropFilter: "blur(12px)",
-          WebkitBackdropFilter: "blur(12px)",
-          borderBottom: "1px solid rgba(251, 191, 36, 0.3)",
-          padding: "8px 16px",
-          textAlign: "center",
-          fontSize: "13px",
-          fontWeight: "600",
-          color: "#fbbf24",
-          zIndex: 10005,
-          position: "relative"
-        }}>
-          🎯 {lang === "ar" ? `مسح وكالة: ${expectedAgency}` : `Scan pour l'agence : ${expectedAgency}`}
-        </div>
-      )}
 
       {/* Fullscreen camera container */}
       <div className="scanner-camera-container" style={{ position: "relative" }}>
