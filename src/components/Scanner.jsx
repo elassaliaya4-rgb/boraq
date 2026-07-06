@@ -346,16 +346,6 @@ export default function Scanner({ onClose, onOpenPackage, agencies = [], onUpdat
           const rh = smoothRectRef.current.h;
 
           if (ctx) {
-            // 1. Draw moving dark translucent mask covering the screen except the active target cutout
-            ctx.fillStyle = "rgba(15, 23, 42, 0.7)"; // Translucent Slate 900 mask
-            // Top mask
-            ctx.fillRect(0, 0, canvas.width, ry);
-            // Bottom mask
-            ctx.fillRect(0, ry + rh, canvas.width, canvas.height - (ry + rh));
-            // Left mask
-            ctx.fillRect(0, ry, rx, rh);
-            // Right mask
-            ctx.fillRect(rx + rw, ry, canvas.width - (rx + rw), rh);
 
             // 2. Draw Telegram-style corner brackets directly around the active box (rx, ry, rw, rh)
             const len = Math.max(16, Math.min(28, rw * 0.25));

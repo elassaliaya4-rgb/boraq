@@ -49,6 +49,48 @@ export default function AdminPanel() {
     };
   }, []);
 
+  // pull-to-refresh reload handler for mobile viewports
+  useEffect(() => {
+    let startY = 0;
+    let pullDelta = 0;
+
+    const handleTouchStart = (e) => {
+      if (window.scrollY === 0) {
+        startY = e.touches[0].clientY;
+      } else {
+        startY = 0;
+      }
+      pullDelta = 0;
+    };
+
+    const handleTouchMove = (e) => {
+      if (startY <= 0) return;
+      const currentY = e.touches[0].clientY;
+      pullDelta = currentY - startY;
+    };
+
+    const handleTouchEnd = () => {
+      if (startY > 0 && pullDelta > 120 && window.scrollY === 0) {
+        try {
+          if (navigator.vibrate) navigator.vibrate(60);
+        } catch (e) {}
+        window.location.reload();
+      }
+      startY = 0;
+      pullDelta = 0;
+    };
+
+    window.addEventListener("touchstart", handleTouchStart, { passive: true });
+    window.addEventListener("touchmove", handleTouchMove, { passive: true });
+    window.addEventListener("touchend", handleTouchEnd, { passive: true });
+
+    return () => {
+      window.removeEventListener("touchstart", handleTouchStart);
+      window.removeEventListener("touchmove", handleTouchMove);
+      window.removeEventListener("touchend", handleTouchEnd);
+    };
+  }, []);
+
   useEffect(() => {
     let mapInstance = null;
 
