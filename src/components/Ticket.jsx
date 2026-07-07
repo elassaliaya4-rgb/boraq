@@ -41,9 +41,7 @@ export default function Ticket({ pkg, onClose }) {
           <div className="t-qr"><canvas ref={canvasRef}></canvas></div>
         </div>
         <div className="modal-actions" style={{ gap: 8 }}>
-          {!(typeof window !== "undefined" && (window.Capacitor?.isNativePlatform?.() || navigator.userAgent.includes("Electron"))) && (
-            <button className="btn-primary" onClick={() => window.print()} style={{ flex: 1 }}>🖨️ {t.print}</button>
-          )}
+          <button className="btn-primary" onClick={() => window.print()} style={{ flex: 1 }}>🖨️ {t.print}</button>
           <button className="btn-sm" onClick={onClose} style={{ flex: 1 }}>⬅️ {lang === "ar" ? "رجوع" : "Retour"}</button>
         </div>
       </div>

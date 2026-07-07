@@ -71,28 +71,32 @@ export default function PackageDetails({ pkg, agencies, onClose, onUpdated, onDe
     );
   }
 
-  // State to track swipe gestures (swipe-to-back like iOS)
-  const [touchStart, setTouchStart] = useState(null);
-  const [touchEnd, setTouchEnd] = useState(null);
-
-  // Minimum distance in pixels required to trigger swipe back action
-  const minSwipeDistance = 50;
+  // State to track swipe gestures (swipe-to-back f both directions)
+  const [touchStartX, setTouchStartX] = useState(0);
+  const [touchStartY, setTouchStartY] = useState(0);
+  const [touchEndX, setTouchEndX] = useState(0);
+  const [touchEndY, setTouchEndY] = useState(0);
 
   function handleTouchStart(e) {
-    setTouchEnd(null);
-    setTouchStart(e.targetTouches[0].clientX);
+    setTouchStartX(e.targetTouches[0].clientX);
+    setTouchStartY(e.targetTouches[0].clientY);
+    setTouchEndX(0);
+    setTouchEndY(0);
   }
 
   function handleTouchMove(e) {
-    setTouchEnd(e.targetTouches[0].clientX);
+    setTouchEndX(e.targetTouches[0].clientX);
+    setTouchEndY(e.targetTouches[0].clientY);
   }
 
   function handleTouchEnd() {
-    if (!touchStart || !touchEnd) return;
-    const distance = touchStart - touchEnd;
-    const isLeftToRightSwipe = distance < -minSwipeDistance; // Positive distance is right-to-left, negative is left-to-right swipe (Back gesture)
-    if (isLeftToRightSwipe) {
-      onClose(); // Trigger native back close
+    if (!touchStartX || !touchEndX) return;
+    const diffX = touchStartX - touchEndX;
+    const diffY = touchStartY - touchEndY;
+    
+    // Swipe in either direction with minimal vertical scrolling
+    if (Math.abs(diffX) > 60 && Math.abs(diffY) < 60) {
+      onClose();
     }
   }
 
