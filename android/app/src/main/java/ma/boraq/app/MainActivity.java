@@ -59,5 +59,29 @@ public class MainActivity extends BridgeActivity {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        // 5. Register native printing bridge interface to handle window.print() inside webview
+        try {
+            this.bridge.getWebView().addJavascriptInterface(new Object() {
+                @android.webkit.JavascriptInterface
+                public void print() {
+                    MainActivity.this.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                                android.print.PrintManager printManager = (android.print.PrintManager) MainActivity.this.getSystemService(android.content.Context.PRINT_SERVICE);
+                                android.print.PrintDocumentAdapter printAdapter = MainActivity.this.bridge.getWebView().createPrintDocumentAdapter("Boraq Ticket");
+                                String jobName = "Boraq Cargo Ticket";
+                                if (printManager != null) {
+                                    printManager.print(jobName, printAdapter, new android.print.PrintAttributes.Builder().build());
+                                }
+                            }
+                        }
+                    });
+                }
+            }, "AndroidPrint");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

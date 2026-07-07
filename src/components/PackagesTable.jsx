@@ -200,8 +200,10 @@ export default function PackagesTable({ packages, onManage, onRefresh }) {
               key={p.id} 
               onClick={() => handleRowClick(p)}
               onTouchStart={() => handleStart(p.id)}
+              onTouchMove={handleEnd}
               onTouchEnd={handleEnd}
               onMouseDown={() => handleStart(p.id)}
+              onMouseMove={handleEnd}
               onMouseUp={handleEnd}
               className={`clickable-row ${isSelected ? "selected-card" : ""}`}
               style={{ 

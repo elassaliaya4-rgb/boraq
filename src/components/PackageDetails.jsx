@@ -71,31 +71,49 @@ export default function PackageDetails({ pkg, agencies, onClose, onUpdated, onDe
     );
   }
 
-  // State to track swipe gestures (swipe-to-back f both directions)
+  // State to track swipe gestures (swipe-to-back from screen edges)
   const [touchStartX, setTouchStartX] = useState(0);
   const [touchStartY, setTouchStartY] = useState(0);
   const [touchEndX, setTouchEndX] = useState(0);
   const [touchEndY, setTouchEndY] = useState(0);
 
   function handleTouchStart(e) {
-    setTouchStartX(e.targetTouches[0].clientX);
-    setTouchStartY(e.targetTouches[0].clientY);
+    const x = e.targetTouches[0].clientX;
+    const y = e.targetTouches[0].clientY;
+    
+    // Only track touches that start near the left/right edges (within 45px) to prevent scroll conflicts
+    const isNearEdge = x < 45 || x > window.innerWidth - 45;
+    
+    if (isNearEdge) {
+      setTouchStartX(x);
+      setTouchStartY(y);
+    } else {
+      setTouchStartX(0); // Ignore this gesture
+    }
     setTouchEndX(0);
     setTouchEndY(0);
   }
 
   function handleTouchMove(e) {
+    if (touchStartX === 0) return;
     setTouchEndX(e.targetTouches[0].clientX);
     setTouchEndY(e.targetTouches[0].clientY);
   }
 
   function handleTouchEnd() {
-    if (!touchStartX || !touchEndX) return;
+    if (touchStartX === 0 || !touchEndX) return;
     const diffX = touchStartX - touchEndX;
     const diffY = touchStartY - touchEndY;
     
-    // Swipe in either direction with minimal vertical scrolling
-    if (Math.abs(diffX) > 60 && Math.abs(diffY) < 60) {
+    // Swipe in either direction with minimal vertical scroll displacement
+    if (Math.abs(diffX) > 70 && Math.abs(diffY) < 50) {
+      onClose();
+    }
+  }
+
+  function handleBgClick() {
+    // Only close on outside click for desktop screens (>768px) to prevent accidental exits on mobile bezels
+    if (window.innerWidth > 768) {
       onClose();
     }
   }
@@ -103,7 +121,7 @@ export default function PackageDetails({ pkg, agencies, onClose, onUpdated, onDe
   return (
     <div 
       className="modal-bg" 
-      onClick={onClose}
+      onClick={handleBgClick}
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
