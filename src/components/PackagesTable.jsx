@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { supabase } from "../lib/supabase";
 import { useApp } from "../lib/context";
 
@@ -8,15 +8,18 @@ export default function PackagesTable({ packages, onManage, onRefresh }) {
   const [selectedIds, setSelectedIds] = useState([]);
   const [busy, setBusy] = useState(false);
 
-  // Long press timer tracking
-  const [pressTimer, setPressTimer] = useState(null);
+  // Long press timer tracking using useRef for synchronous access
+  const pressTimerRef = useRef(null);
 
   if (!packages || !packages.length) {
-    return <div className="empty">{t.noPackages}</div>;
+    return <div className="empty">{t?.noPackages || "No Packages"}</div>;
   }
 
   function handleStart(pId) {
     if (selectionMode) return;
+    if (pressTimerRef.current) {
+      clearTimeout(pressTimerRef.current);
+    }
     const timer = setTimeout(() => {
       setSelectionMode(true);
       setSelectedIds([pId]);
@@ -24,13 +27,13 @@ export default function PackagesTable({ packages, onManage, onRefresh }) {
         try { navigator.vibrate(60); } catch (e) {}
       }
     }, 600); // 600ms hold
-    setPressTimer(timer);
+    pressTimerRef.current = timer;
   }
 
   function handleEnd() {
-    if (pressTimer) {
-      clearTimeout(pressTimer);
-      setPressTimer(null);
+    if (pressTimerRef.current) {
+      clearTimeout(pressTimerRef.current);
+      pressTimerRef.current = null;
     }
   }
 
@@ -150,10 +153,10 @@ export default function PackagesTable({ packages, onManage, onRefresh }) {
         <thead>
           <tr>
             {selectionMode && <th style={{ width: "40px" }}></th>}
-            <th>{t.trackingNumber}</th>
-            <th>{t.receiverName}</th>
-            <th>{t.destination}</th>
-            <th>{t.status}</th>
+            <th>{t?.trackingNumber}</th>
+            <th>{t?.receiverName}</th>
+            <th>{t?.destination}</th>
+            <th>{t?.status}</th>
           </tr>
         </thead>
         <tbody>
@@ -184,7 +187,7 @@ export default function PackagesTable({ packages, onManage, onRefresh }) {
                 <td><b>{p.tracking_number}</b></td>
                 <td>{p.receiver_name}</td>
                 <td>{p.destination}</td>
-                <td><span className={`status ${p.status}`}>{t[p.status] || p.status}</span></td>
+                <td><span className={`status ${p.status}`}>{t?.[p.status] || p.status}</span></td>
               </tr>
             );
           })}
@@ -232,7 +235,7 @@ export default function PackagesTable({ packages, onManage, onRefresh }) {
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                   <span style={{ fontSize: 13, fontWeight: "700", color: "var(--text)" }}>{p.tracking_number}</span>
                   <span className={`status ${p.status}`} style={{ fontSize: 10, padding: "2px 8px" }}>
-                    {t[p.status] || p.status}
+                    {t?.[p.status] || p.status}
                   </span>
                 </div>
                 <div className="card-meta-row" style={{ display: "flex", justifyContent: "space-between", fontSize: 12 }}>
