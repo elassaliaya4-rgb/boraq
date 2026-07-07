@@ -688,14 +688,14 @@ export default function AdminPanel() {
               <Stat val={packages?.filter((p) => p?.status === "arrived")?.length || 0} lbl={t.newArrivals} onClick={() => setTab("packages")} />
             </div>
             <PkgHeader t={t} onAdd={() => setShowPkgForm(true)} />
-            <PackagesTable packages={packages} onManage={setDetailPkg} onRefresh={fetchData} />
+            <PackagesTable packages={packages} onManage={setDetailPkg} onRefresh={loadData} />
           </>
         )}
 
         {tab === "packages" && (
           <>
             <PkgHeader t={t} onAdd={() => setShowPkgForm(true)} />
-            <PackagesTable packages={packages} onManage={setDetailPkg} onRefresh={fetchData} />
+            <PackagesTable packages={packages} onManage={setDetailPkg} onRefresh={loadData} />
           </>
         )}
 

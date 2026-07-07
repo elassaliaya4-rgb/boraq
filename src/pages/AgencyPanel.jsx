@@ -618,7 +618,7 @@ export default function AgencyPanel() {
               <h2>{t.myPackages}</h2>
               <button className="btn-accent btn-sm" onClick={() => setShowPkgForm(true)}>{t.addPackage}</button>
             </div>
-            <PackagesTable packages={packages} onManage={setDetailPkg} onRefresh={fetchData} />
+            <PackagesTable packages={packages} onManage={setDetailPkg} onRefresh={loadData} />
           </>
         )}
 
