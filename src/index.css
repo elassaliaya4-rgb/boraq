@@ -1348,3 +1348,15 @@ input, select, textarea {
     display: flex !important;
   }
 }
+
+/* Native APK layout overrides */
+.native-apk .sidebar {
+  display: none !important;
+}
+.native-apk .topbar {
+  display: none !important;
+}
+.native-apk .mobile-bottom-nav {
+  display: flex !important;
+}
+

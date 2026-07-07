@@ -175,7 +175,7 @@ export default function AgencyPanel() {
   }
 
   return (
-    <div className="app" style={isMobileAPK ? { flexDirection: "column" } : {}}>
+    <div className={`app ${isMobileAPK ? "native-apk" : ""}`} style={isMobileAPK ? { flexDirection: "column" } : {}}>
       {isMobileAPK && (
         <MobileHeader 
           profileName={profile?.name || user?.email}
@@ -184,7 +184,7 @@ export default function AgencyPanel() {
         />
       )}
       <div style={isMobileAPK ? { display: "flex", flex: 1, width: "100%", overflow: "hidden" } : { display: "contents" }}>
-        <aside className="sidebar" style={isMobileAPK ? { display: "none" } : {}}>
+        <aside className="sidebar">
           <div className="logo" style={{ fontSize: 22, marginBottom: 12 }}>⚡ {t.appName}</div>
         {agencyInfo && (
           <div style={{
