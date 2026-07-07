@@ -11,7 +11,13 @@ export function AppProvider({ children }) {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState(null);
-  const [theme, setTheme] = useState(() => localStorage.getItem("theme") || "dark");
+  const [theme, setTheme] = useState(() => {
+    try {
+      return localStorage.getItem("theme") || "dark";
+    } catch (e) {
+      return "dark";
+    }
+  });
 
   const t = translations[lang];
   const dir = lang === "ar" ? "rtl" : "ltr";
@@ -19,7 +25,11 @@ export function AppProvider({ children }) {
   const toggleTheme = () => {
     const next = theme === "dark" ? "light" : "dark";
     setTheme(next);
-    localStorage.setItem("theme", next);
+    try {
+      localStorage.setItem("theme", next);
+    } catch (e) {
+      console.warn("localStorage access is restricted:", e);
+    }
   };
 
   useEffect(() => {
