@@ -31,6 +31,19 @@ export default function DriverPanel() {
     };
   }, []);
 
+  // Handle native Android back button to dismiss modals/subtabs
+  useEffect(() => {
+    const handleBack = () => {
+      if (detailPkg) {
+        setDetailPkg(null);
+      } else if (showScanner) {
+        setShowScanner(false);
+      }
+    };
+    window.addEventListener("appBackClick", handleBack);
+    return () => window.removeEventListener("appBackClick", handleBack);
+  }, [detailPkg, showScanner]);
+
   useEffect(() => {
     if (profile?.driver_id) {
       loadData();

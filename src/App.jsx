@@ -47,6 +47,27 @@ export default function App() {
     }
   }, []);
 
+  // Intercept Android hardware back button/swipe-to-back gesture
+  useEffect(() => {
+    if (Capacitor.isNativePlatform()) {
+      import("@capacitor/app").then(({ App: CapApp }) => {
+        const listener = CapApp.addListener("backButton", () => {
+          const hasModal = document.querySelector(".modal-bg");
+          const hasSubtab = document.querySelector(".btn-accent");
+          
+          if (hasModal || hasSubtab) {
+            window.dispatchEvent(new Event("appBackClick"));
+          } else {
+            CapApp.exitApp();
+          }
+        });
+        return () => {
+          listener.then(l => l.remove());
+        };
+      }).catch(err => console.warn("Failed to load native App plugin:", err));
+    }
+  }, []);
+
   // Dynamically update status bar theme icons (dark/light clock and battery)
   useEffect(() => {
     if (Capacitor.isNativePlatform()) {

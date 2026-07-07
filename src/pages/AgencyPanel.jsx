@@ -42,6 +42,23 @@ export default function AgencyPanel() {
     else alert(t.notFound + ": " + tracking);
   }
 
+  // Handle native Android back button to dismiss modals/subtabs
+  useEffect(() => {
+    const handleBack = () => {
+      if (detailPkg) {
+        setDetailPkg(null);
+      } else if (showPkgForm) {
+        setShowPkgForm(false);
+      } else if (showScanner) {
+        setShowScanner(false);
+      } else if (tab !== "packages") {
+        setTab("packages");
+      }
+    };
+    window.addEventListener("appBackClick", handleBack);
+    return () => window.removeEventListener("appBackClick", handleBack);
+  }, [detailPkg, showPkgForm, showScanner, tab]);
+
   useEffect(() => {
     if (!profile?.agency_id) return;
     loadData();

@@ -32,6 +32,29 @@ export default function AdminPanel() {
 
   const unread = notifs?.filter((n) => !n.is_read)?.length || 0;
 
+  // Handle native Android back button to dismiss modals/subtabs
+  useEffect(() => {
+    const handleBack = () => {
+      if (detailPkg) {
+        setDetailPkg(null);
+      } else if (showPkgForm) {
+        setShowPkgForm(false);
+      } else if (showAgForm) {
+        setShowAgForm(false);
+      } else if (showDrForm) {
+        setShowDrForm(false);
+      } else if (showScanner) {
+        setShowScanner(false);
+      } else if (mapDriver) {
+        setMapDriver(null);
+      } else if (tab !== "dashboard") {
+        setTab("dashboard");
+      }
+    };
+    window.addEventListener("appBackClick", handleBack);
+    return () => window.removeEventListener("appBackClick", handleBack);
+  }, [detailPkg, showPkgForm, showAgForm, showDrForm, showScanner, mapDriver, tab]);
+
   useEffect(() => {
     loadData();
 
