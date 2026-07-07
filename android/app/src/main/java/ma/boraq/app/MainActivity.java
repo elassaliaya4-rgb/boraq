@@ -4,7 +4,7 @@ import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.Window;
-import androidx.core.view.WindowCompat;
+import android.view.WindowManager;
 import com.getcapacitor.BridgeActivity;
 
 public class MainActivity extends BridgeActivity {
@@ -14,19 +14,19 @@ public class MainActivity extends BridgeActivity {
         
         Window window = getWindow();
         
-        // 1. Force the layout to extend edge-to-edge behind status and navigation bars
-        WindowCompat.setDecorFitsSystemWindows(window, false);
-        
-        // 2. Set status bar and navigation bar to transparent
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            window.setStatusBarColor(Color.TRANSPARENT);
-            window.setNavigationBarColor(Color.TRANSPARENT);
+        // 1. Force the layout to go 100% fullscreen edge-to-edge past all screen limits
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            window.setFlags(
+                WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
+                WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
+            );
         }
         
-        // 3. For Android 10 (API 29) and above, disable default system bar scrim/contrast
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            window.setStatusBarContrastEnforced(false);
-            window.setNavigationBarContrastEnforced(false);
+        // 2. Set WebView background color to match dark theme to prevent white startup flashes
+        try {
+            this.bridge.getWebView().setBackgroundColor(Color.parseColor("#0f1729"));
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }
