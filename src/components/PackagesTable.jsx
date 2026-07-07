@@ -26,7 +26,7 @@ export default function PackagesTable({ packages, onManage, onRefresh }) {
       if (navigator.vibrate) {
         try { navigator.vibrate(60); } catch (e) {}
       }
-    }, 600); // 600ms hold
+    }, 1000); // 1-second hold
     pressTimerRef.current = timer;
   }
 
@@ -135,19 +135,6 @@ export default function PackagesTable({ packages, onManage, onRefresh }) {
         </div>
       )}
 
-      {/* Toggle select mode manual trigger (optional convenience button) */}
-      {!selectionMode && (
-        <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "8px" }}>
-          <button 
-            className="btn-sm" 
-            onClick={() => setSelectionMode(true)}
-            style={{ fontSize: "12px", padding: "6px 12px", background: "rgba(255,255,255,0.05)" }}
-          >
-            ✏️ {lang === "ar" ? "تحديد متعدد" : "Sélection multiple"}
-          </button>
-        </div>
-      )}
-
       {/* Desktop Table View */}
       <table className="desktop-only-table" style={{ width: "100%" }}>
         <thead>
@@ -166,11 +153,18 @@ export default function PackagesTable({ packages, onManage, onRefresh }) {
               <tr 
                 key={p.id} 
                 onClick={() => handleRowClick(p)}
+                onMouseDown={() => handleStart(p.id)}
+                onMouseMove={handleEnd}
+                onMouseUp={handleEnd}
+                onTouchStart={() => handleStart(p.id)}
+                onTouchMove={handleEnd}
+                onTouchEnd={handleEnd}
                 className={`clickable-row ${isSelected ? "selected-row" : ""}`}
                 style={{ 
                   cursor: "pointer", 
                   transition: "all 0.2s ease",
-                  background: isSelected ? "rgba(59, 130, 246, 0.08)" : "" 
+                  background: isSelected ? "rgba(59, 130, 246, 0.08)" : "",
+                  userSelect: "none"
                 }}
               >
                 {selectionMode && (
