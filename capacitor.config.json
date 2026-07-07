@@ -1,0 +1,13 @@
+{
+  "appId": "ma.boraq.app",
+  "appName": "Boraq",
+  "webDir": "dist",
+  "server": {
+    "androidScheme": "https"
+  },
+  "plugins": {
+    "StatusBar": {
+      "overlaysWebView": true
+    }
+  }
+}
