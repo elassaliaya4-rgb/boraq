@@ -4,6 +4,7 @@ import { supabase } from "../lib/supabase";
 import PackageForm from "../components/PackageForm";
 import PackageDetails from "../components/PackageDetails";
 import Scanner from "../components/Scanner";
+import PackagesTable from "../components/PackagesTable";
 
 export default function AgencyPanel() {
   const { t, lang, setLang, signOut, profile, triggerToast, theme, toggleTheme } = useApp();
@@ -617,71 +618,7 @@ export default function AgencyPanel() {
               <h2>{t.myPackages}</h2>
               <button className="btn-accent btn-sm" onClick={() => setShowPkgForm(true)}>{t.addPackage}</button>
             </div>
-            {packages.length === 0 ? (
-              <div className="empty">{t.noPackages}</div>
-            ) : (
-              <div className="table-wrap" style={{ background: "none", border: "none" }}>
-                {/* Desktop Table View */}
-                <table className="desktop-only-table" style={{ width: "100%" }}>
-                  <thead>
-                    <tr>
-                      <th>{t.trackingNumber}</th>
-                      <th>{t.receiverName}</th>
-                      <th>{t.destination}</th>
-                      <th>{t.status}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {packages.map((p) => (
-                      <tr 
-                        key={p.id}
-                        onClick={() => setDetailPkg(p)}
-                        className="clickable-row"
-                        style={{ cursor: "pointer", transition: "all 0.2s ease" }}
-                      >
-                        <td><b>{p.tracking_number}</b></td>
-                        <td>{p.receiver_name}</td>
-                        <td>{p.destination}</td>
-                        <td><span className={`status ${p.status}`}>{t[p.status] || p.status}</span></td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-
-                {/* Mobile Card List View (no horizontal scroll) */}
-                <div className="mobile-only-list" style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                  {packages.map((p) => (
-                    <div 
-                      key={p.id} 
-                      onClick={() => setDetailPkg(p)}
-                      className="clickable-row"
-                      style={{ 
-                        background: "var(--surface)", 
-                        border: "1px solid var(--border)", 
-                        borderRadius: 12, 
-                        padding: 14, 
-                        cursor: "pointer",
-                        display: "flex",
-                        flexDirection: "column",
-                        gap: 8,
-                        boxShadow: "0 2px 8px rgba(0,0,0,0.15)"
-                      }}
-                    >
-                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                        <span style={{ fontSize: 13, fontWeight: "700", color: "var(--text)" }}>{p.tracking_number}</span>
-                        <span className={`status ${p.status}`} style={{ fontSize: 10, padding: "2px 8px" }}>
-                          {t[p.status] || p.status}
-                        </span>
-                      </div>
-                      <div className="card-meta-row" style={{ display: "flex", justifyContent: "space-between", fontSize: 12 }}>
-                        <span style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "50%" }}>👤 {p.receiver_name}</span>
-                        <span style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "50%" }}>📍 {p.destination}</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
+            <PackagesTable packages={packages} onManage={setDetailPkg} onRefresh={fetchData} />
           </>
         )}
 
