@@ -5,9 +5,13 @@ import { statusColors, statusBg } from "../lib/helpers";
 import { Geolocation } from "@capacitor/geolocation";
 import Scanner from "../components/Scanner";
 import PackageDetails from "../components/PackageDetails";
+import MobileHeader from "../components/MobileHeader";
+import MobileBottomNav from "../components/MobileBottomNav";
+import { Capacitor } from "@capacitor/core";
 
 export default function DriverPanel() {
-  const { t, lang, setLang, profile, signOut, theme, toggleTheme } = useApp();
+  const { t, lang, setLang, profile, user, signOut, theme, toggleTheme } = useApp();
+  const isMobileAPK = Capacitor.getPlatform() === "android" || Capacitor.getPlatform() === "ios";
   const [packages, setPackages] = useState([]);
 
   function confirmSignOut() {
@@ -238,10 +242,17 @@ export default function DriverPanel() {
   }
 
   return (
-    <div className="app">
-      {/* Sidebar / Left Menu */}
-      <aside className="sidebar">
-        <div className="logo" style={{ fontSize: 22, marginBottom: 18 }}>⚡ {t.appName}</div>
+    <div className="app" style={isMobileAPK ? { flexDirection: "column" } : {}}>
+      {isMobileAPK && (
+        <MobileHeader 
+          profileName={profile?.name || user?.email}
+          onScanClick={() => setShowScanner(true)}
+          onLogout={confirmSignOut}
+        />
+      )}
+      <div style={isMobileAPK ? { display: "flex", flex: 1, width: "100%", overflow: "hidden" } : { display: "contents" }}>
+        <aside className="sidebar" style={isMobileAPK ? { display: "none" } : {}}>
+          <div className="logo" style={{ fontSize: 22, marginBottom: 18 }}>⚡ {t.appName}</div>
         
         {driverInfo && (
           <div style={{
@@ -345,8 +356,8 @@ export default function DriverPanel() {
       </aside>
 
       {/* Main Content Area */}
-      <main className="main">
-        <header className="topbar">
+      <main className="main" style={isMobileAPK ? { paddingTop: "10px", paddingBottom: "96px", width: "100%", overflowY: "auto" } : {}}>
+        <header className="topbar" style={isMobileAPK ? { display: "none" } : {}}>
           <div>
             <h1>🚚 {lang === "ar" ? "مهام التوصيل" : "Feuille de Route"}</h1>
             <p style={{ color: "var(--text-dim)", fontSize: 13, marginTop: 4 }}>
@@ -590,6 +601,40 @@ export default function DriverPanel() {
           onClose={() => setShowScanner(false)}
           onUpdated={() => loadData(true)}
           expectedAgency={scanFilterAgency}
+        />
+      )}
+      </div>
+      {isMobileAPK && (
+        <MobileBottomNav 
+          activeTab="feuille_de_route"
+          onChange={(newTab) => {
+            if (newTab === "scanner") {
+              setShowScanner(true);
+            }
+          }}
+          tabs={[
+            {
+              id: "feuille_de_route",
+              label: lang === "ar" ? "ورقة الطريق" : "Feuille de Route",
+              icon: (
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ width: "100%", height: "100%" }}>
+                  <polyline points="21 8 21 21 3 21 3 8" />
+                  <rect x="1" y="3" width="22" height="5" />
+                  <line x1="10" y1="12" x2="14" y2="12" />
+                </svg>
+              )
+            },
+            {
+              id: "scanner",
+              label: lang === "ar" ? "مسح الرمز" : "Scanner",
+              icon: (
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ width: "100%", height: "100%" }}>
+                  <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                  <circle cx="12" cy="13" r="4" />
+                </svg>
+              )
+            }
+          ]}
         />
       )}
     </div>

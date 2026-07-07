@@ -6,9 +6,13 @@ import PackageForm from "../components/PackageForm";
 import PackageDetails from "../components/PackageDetails";
 import Scanner from "../components/Scanner";
 import PackagesTable from "../components/PackagesTable";
+import MobileHeader from "../components/MobileHeader";
+import MobileBottomNav from "../components/MobileBottomNav";
+import { Capacitor } from "@capacitor/core";
 
 export default function AdminPanel() {
-  const { t, lang, setLang, signOut, triggerToast, theme, toggleTheme } = useApp();
+  const { t, lang, setLang, signOut, profile, user, triggerToast, theme, toggleTheme } = useApp();
+  const isMobileAPK = Capacitor.getPlatform() === "android" || Capacitor.getPlatform() === "ios";
   const [tab, setTab] = useState("dashboard");
 
   function confirmSignOut() {
@@ -282,9 +286,17 @@ export default function AdminPanel() {
   }
 
   return (
-    <div className="app">
-      <aside className="sidebar">
-        <div className="logo" style={{ fontSize: 22, marginBottom: 18 }}>⚡ {t.appName}</div>
+    <div className="app" style={isMobileAPK ? { flexDirection: "column" } : {}}>
+      {isMobileAPK && (
+        <MobileHeader 
+          profileName={profile?.name || user?.email}
+          onScanClick={() => setShowScanner(true)}
+          onLogout={confirmSignOut}
+        />
+      )}
+      <div style={isMobileAPK ? { display: "flex", flex: 1, width: "100%", overflow: "hidden" } : { display: "contents" }}>
+        <aside className="sidebar" style={isMobileAPK ? { display: "none" } : {}}>
+          <div className="logo" style={{ fontSize: 22, marginBottom: 18 }}>⚡ {t.appName}</div>
         <div className="nav-grid">
           <NavBtn icon="📊" label={t.dashboard} active={tab === "dashboard"} onClick={() => setTab("dashboard")} />
           <NavBtn icon="📦" label={t.packages} active={tab === "packages"} onClick={() => setTab("packages")} />
@@ -334,8 +346,8 @@ export default function AdminPanel() {
         </div>
       </aside>
 
-      <main className="main">
-        <div className="topbar">
+      <main className="main" style={isMobileAPK ? { paddingTop: "10px", paddingBottom: "96px", width: "100%", overflowY: "auto" } : {}}>
+        <div className="topbar" style={isMobileAPK ? { display: "none" } : {}}>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
             {tab !== "dashboard" && (
               <button 
@@ -897,38 +909,85 @@ export default function AdminPanel() {
         </div>
       )}
 
-      {/* Mobile Bottom Navigation Bar (Telegram-style capsule tabs) */}
-      <div className="mobile-bottom-nav">
-        <button className={`mobile-nav-item ${tab === "dashboard" ? "active" : ""}`} onClick={() => setTab("dashboard")}>
-          <div className="mobile-nav-icon-wrap">📊</div>
-          <span>{t.dashboard}</span>
-        </button>
-        <button className={`mobile-nav-item ${tab === "packages" ? "active" : ""}`} onClick={() => setTab("packages")}>
-          <div className="mobile-nav-icon-wrap">📦</div>
-          <span>{t.packages}</span>
-        </button>
-        <button className={`mobile-nav-item ${tab === "scan_session" ? "active" : ""}`} onClick={() => setTab("scan_session")}>
-          <div className="mobile-nav-icon-wrap">✅</div>
-          <span>{lang === "ar" ? "التحقق" : "Vérifier"}</span>
-        </button>
-        <button className={`mobile-nav-item ${tab === "agencies" ? "active" : ""}`} onClick={() => setTab("agencies")}>
-          <div className="mobile-nav-icon-wrap">🏢</div>
-          <span>{t.agencies}</span>
-        </button>
-        <button className={`mobile-nav-item ${tab === "drivers" ? "active" : ""}`} onClick={() => setTab("drivers")}>
-          <div className="mobile-nav-icon-wrap">🚚</div>
-          <span>{lang === "ar" ? "السائقين" : "Chauffeurs"}</span>
-        </button>
-        <button className={`mobile-nav-item ${tab === "notifs" ? "active" : ""}`} onClick={() => setTab("notifs")}>
-          <div className="mobile-nav-icon-wrap" style={{ position: "relative" }}>
-            🔔
-            {unread > 0 && (
-              <span className="badge" style={{ position: "absolute", top: -4, right: -4, transform: "scale(0.85)" }}>{unread}</span>
-            )}
-          </div>
-          <span>{t.notifications}</span>
-        </button>
       </div>
+      {isMobileAPK && (
+        <MobileBottomNav 
+          activeTab={tab}
+          onChange={setTab}
+          tabs={[
+            {
+              id: "dashboard",
+              label: t.dashboard,
+              icon: (
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ width: "100%", height: "100%" }}>
+                  <rect x="3" y="3" width="7" height="9" />
+                  <rect x="14" y="3" width="7" height="5" />
+                  <rect x="14" y="12" width="7" height="9" />
+                  <rect x="3" y="16" width="7" height="5" />
+                </svg>
+              )
+            },
+            {
+              id: "packages",
+              label: t.packages,
+              icon: (
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ width: "100%", height: "100%" }}>
+                  <polyline points="21 8 21 21 3 21 3 8" />
+                  <rect x="1" y="3" width="22" height="5" />
+                  <line x1="10" y1="12" x2="14" y2="12" />
+                </svg>
+              )
+            },
+            {
+              id: "scan_session",
+              label: lang === "ar" ? "التحقق" : "Vérifier",
+              icon: (
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ width: "100%", height: "100%" }}>
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                  <polyline points="9 11 11 13 15 9" />
+                </svg>
+              )
+            },
+            {
+              id: "agencies",
+              label: t.agencies,
+              icon: (
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ width: "100%", height: "100%" }}>
+                  <rect x="4" y="2" width="16" height="20" rx="2" ry="2" />
+                  <line x1="9" y1="22" x2="9" y2="16" />
+                  <line x1="9" y1="16" x2="15" y2="16" />
+                  <line x1="15" y1="16" x2="15" y2="22" />
+                  <line x1="9" y1="8" x2="15" y2="8" />
+                  <line x1="9" y1="12" x2="15" y2="12" />
+                </svg>
+              )
+            },
+            {
+              id: "drivers",
+              label: lang === "ar" ? "السائقين" : "Chauffeurs",
+              icon: (
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ width: "100%", height: "100%" }}>
+                  <rect x="1" y="3" width="15" height="13" />
+                  <polygon points="16 8 20 8 23 11 23 16 16 16" />
+                  <circle cx="5.5" cy="18.5" r="2.5" />
+                  <circle cx="18.5" cy="18.5" r="2.5" />
+                </svg>
+              )
+            },
+            {
+              id: "notifs",
+              label: t.notifications,
+              badge: unread,
+              icon: (
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ width: "100%", height: "100%" }}>
+                  <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                  <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+                </svg>
+              )
+            }
+          ]}
+        />
+      )}
     </div>
   );
 }
