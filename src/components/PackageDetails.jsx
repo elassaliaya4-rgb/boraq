@@ -71,8 +71,39 @@ export default function PackageDetails({ pkg, agencies, onClose, onUpdated, onDe
     );
   }
 
+  // State to track swipe gestures (swipe-to-back like iOS)
+  const [touchStart, setTouchStart] = useState(null);
+  const [touchEnd, setTouchEnd] = useState(null);
+
+  // Minimum distance in pixels required to trigger swipe back action
+  const minSwipeDistance = 50;
+
+  function handleTouchStart(e) {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  }
+
+  function handleTouchMove(e) {
+    setTouchEnd(e.targetTouches[0].clientX);
+  }
+
+  function handleTouchEnd() {
+    if (!touchStart || !touchEnd) return;
+    const distance = touchStart - touchEnd;
+    const isLeftToRightSwipe = distance < -minSwipeDistance; // Positive distance is right-to-left, negative is left-to-right swipe (Back gesture)
+    if (isLeftToRightSwipe) {
+      onClose(); // Trigger native back close
+    }
+  }
+
   return (
-    <div className="modal-bg" onClick={onClose}>
+    <div 
+      className="modal-bg" 
+      onClick={onClose}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+    >
       <div className="modal" onClick={(e) => e.stopPropagation()}>
         <div className="d-head" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
