@@ -6,7 +6,13 @@ import { Capacitor } from "@capacitor/core";
 const AppContext = createContext();
 
 export function AppProvider({ children }) {
-  const [lang, setLang] = useState("ar");
+  const [lang, setLang] = useState(() => {
+    try {
+      return localStorage.getItem("boraq_lang") || "ar";
+    } catch (e) {
+      return "ar";
+    }
+  });
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -27,6 +33,16 @@ export function AppProvider({ children }) {
     setTheme(next);
     try {
       localStorage.setItem("theme", next);
+    } catch (e) {
+      console.warn("localStorage access is restricted:", e);
+    }
+  };
+
+  // Persist lang to localStorage whenever it changes
+  const changeLang = (newLang) => {
+    setLang(newLang);
+    try {
+      localStorage.setItem("boraq_lang", newLang);
     } catch (e) {
       console.warn("localStorage access is restricted:", e);
     }
@@ -174,7 +190,7 @@ export function AppProvider({ children }) {
     <AppContext.Provider
       value={{
         lang,
-        setLang,
+        setLang: changeLang,
         t,
         dir,
         user,
