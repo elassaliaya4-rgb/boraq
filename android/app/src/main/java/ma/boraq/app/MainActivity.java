@@ -5,6 +5,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.view.Window;
+import android.view.WindowInsetsController;
 import android.view.WindowManager;
 import com.getcapacitor.BridgeActivity;
 
@@ -36,8 +37,23 @@ public class MainActivity extends BridgeActivity {
             window.setStatusBarContrastEnforced(false);
             window.setNavigationBarContrastEnforced(false);
         }
+
+        // 3. Force white status bar and navigation bar icons natively for dark backgrounds
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            WindowInsetsController controller = window.getInsetsController();
+            if (controller != null) {
+                // Clear APPEARANCE_LIGHT_STATUS_BARS to make status bar icons white/light
+                controller.setSystemBarsAppearance(0, WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS);
+                // Clear APPEARANCE_LIGHT_NAVIGATION_BARS to make navigation bar icons white/light
+                controller.setSystemBarsAppearance(0, WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS);
+            }
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            int flags = window.getDecorView().getSystemUiVisibility();
+            flags &= ~View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
+            window.getDecorView().setSystemUiVisibility(flags);
+        }
         
-        // 3. Set WebView background color to match dark theme to prevent white startup flashes
+        // 4. Set WebView background color to match dark theme to prevent white startup flashes
         try {
             this.bridge.getWebView().setBackgroundColor(Color.parseColor("#0f1729"));
         } catch (Exception e) {
