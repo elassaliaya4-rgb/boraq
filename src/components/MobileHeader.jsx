@@ -1,33 +1,125 @@
 import { useState } from "react";
 import { useApp } from "../lib/context";
 
+// iOS-style Toggle Switch Component
+function ToggleSwitch({ checked, onChange, colorOn = "#3b82f6" }) {
+  return (
+    <div
+      onClick={onChange}
+      style={{
+        width: "46px",
+        height: "26px",
+        borderRadius: "13px",
+        background: checked ? colorOn : "rgba(255,255,255,0.15)",
+        position: "relative",
+        cursor: "pointer",
+        transition: "background 0.3s ease",
+        flexShrink: 0,
+        boxShadow: checked
+          ? `0 0 10px ${colorOn}55`
+          : "inset 0 1px 3px rgba(0,0,0,0.3)"
+      }}
+    >
+      <div style={{
+        position: "absolute",
+        top: "3px",
+        left: checked ? "23px" : "3px",
+        width: "20px",
+        height: "20px",
+        borderRadius: "50%",
+        background: "#ffffff",
+        transition: "left 0.25s cubic-bezier(0.4,0,0.2,1)",
+        boxShadow: "0 2px 6px rgba(0,0,0,0.35)"
+      }} />
+    </div>
+  );
+}
+
+// Drawer Row Item with icon, label, and optional right content
+function DrawerRow({ icon, label, onClick, rightContent, danger }) {
+  return (
+    <div
+      onClick={onClick}
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: "14px",
+        width: "100%",
+        padding: "13px 16px",
+        borderRadius: "12px",
+        cursor: onClick ? "pointer" : "default",
+        background: danger ? "rgba(239,68,68,0.06)" : "transparent",
+        border: danger ? "1px solid rgba(239,68,68,0.15)" : "1px solid transparent",
+        transition: "background 0.18s ease",
+        userSelect: "none"
+      }}
+      onMouseEnter={e => {
+        if (!danger) e.currentTarget.style.background = "rgba(255,255,255,0.05)";
+      }}
+      onMouseLeave={e => {
+        if (!danger) e.currentTarget.style.background = "transparent";
+      }}
+    >
+      {/* Icon Badge */}
+      <div style={{
+        width: "36px",
+        height: "36px",
+        borderRadius: "10px",
+        background: danger
+          ? "rgba(239,68,68,0.12)"
+          : "rgba(59,130,246,0.12)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        fontSize: "18px",
+        flexShrink: 0
+      }}>
+        {icon}
+      </div>
+
+      {/* Label */}
+      <span style={{
+        flex: 1,
+        fontSize: "14px",
+        fontWeight: "500",
+        color: danger ? "#f87171" : "var(--text)",
+        letterSpacing: "0.01em"
+      }}>
+        {label}
+      </span>
+
+      {/* Right Content (toggle or chevron) */}
+      {rightContent}
+    </div>
+  );
+}
+
 export default function MobileHeader({ profileName, onScanClick, onLogout }) {
   const { t, lang, setLang, theme, toggleTheme } = useApp();
   const [isOpen, setIsOpen] = useState(false);
 
+  const isAr = lang === "ar";
+
   function handleLogoutClick() {
     setIsOpen(false);
-    if (onLogout) {
-      onLogout();
-    }
+    if (onLogout) onLogout();
   }
 
   function handleScanTap() {
     setIsOpen(false);
-    if (onScanClick) {
-      onScanClick();
-    }
+    if (onScanClick) onScanClick();
   }
 
   return (
     <>
-      {/* Top Header Bar */}
-      <header className="mobile-header" style={{
+      {/* ── Top Header Bar ── */}
+      <header style={{
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
+        flexDirection: isAr ? "row-reverse" : "row",
         width: "100%",
-        paddingTop: "calc(16px + env(safe-area-inset-top, 0px))",
+        paddingTop: "calc(14px + env(safe-area-inset-top, 0px))",
         paddingBottom: "14px",
         paddingLeft: "16px",
         paddingRight: "16px",
@@ -36,244 +128,236 @@ export default function MobileHeader({ profileName, onScanClick, onLogout }) {
         position: "sticky",
         top: 0,
         zIndex: 500,
-        boxShadow: "0 2px 10px rgba(0,0,0,0.1)"
+        boxShadow: "0 2px 12px rgba(0,0,0,0.12)"
       }}>
-        {/* Hamburger Menu Icon (Left) */}
-        <button 
+        {/* Hamburger */}
+        <button
           onClick={() => setIsOpen(true)}
           style={{
-            background: "none",
-            border: "none",
+            background: "rgba(255,255,255,0.06)",
+            border: "1px solid var(--border)",
             color: "var(--text)",
             cursor: "pointer",
-            padding: "6px",
+            padding: "7px",
+            borderRadius: "10px",
             display: "inline-flex",
             alignItems: "center",
             justifyContent: "center"
           }}
-          title="Menu / القائمة"
         >
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="4" y1="12" x2="20" y2="12" />
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" strokeWidth="2.5"
+            strokeLinecap="round" strokeLinejoin="round">
             <line x1="4" y1="6" x2="20" y2="6" />
+            <line x1="4" y1="12" x2="20" y2="12" />
             <line x1="4" y1="18" x2="20" y2="18" />
           </svg>
         </button>
 
-        {/* Brand Logo (Right) */}
+        {/* Brand */}
         <div style={{
           display: "flex",
           alignItems: "center",
-          gap: "6px",
-          fontWeight: "700",
+          gap: "5px",
+          fontWeight: "800",
           fontSize: "17px",
-          color: "var(--text)"
+          background: "linear-gradient(135deg, var(--primary), var(--accent))",
+          WebkitBackgroundClip: "text",
+          WebkitTextFillColor: "transparent"
         }}>
-          <span>{lang === "ar" ? "البراق" : "Boraq"}</span>
-          <span style={{ fontSize: "19px" }}>⚡</span>
+          <span>⚡</span>
+          <span>{isAr ? "البراق" : "Boraq"}</span>
         </div>
       </header>
 
-      {/* Drawer Overlay backdrop */}
+      {/* ── Backdrop ── */}
       {isOpen && (
-        <div 
+        <div
           onClick={() => setIsOpen(false)}
           style={{
-            position: "fixed",
-            top: 0,
-            bottom: 0,
-            left: 0,
-            right: 0,
-            background: "rgba(0, 0, 0, 0.4)",
+            position: "fixed", inset: 0,
+            background: "rgba(0,0,0,0.45)",
             backdropFilter: "blur(6px)",
             zIndex: 1000,
-            animation: "fade-in 0.25s ease"
+            animation: "fade-in 0.2s ease"
           }}
         />
       )}
 
-      {/* Side Slide-out Drawer */}
-      <div dir={lang === "ar" ? "rtl" : "ltr"} style={{
+      {/* ── Slide-out Drawer ── */}
+      <div dir={isAr ? "rtl" : "ltr"} style={{
         position: "fixed",
         top: 0,
         bottom: 0,
-        left: lang === "ar" ? "auto" : (isOpen ? 0 : "-290px"),
-        right: lang === "ar" ? (isOpen ? 0 : "-290px") : "auto",
-        width: "280px",
+        left: isAr ? "auto" : (isOpen ? 0 : "-300px"),
+        right: isAr ? (isOpen ? 0 : "-300px") : "auto",
+        width: "285px",
         background: "var(--surface)",
-        borderRight: lang === "ar" ? "none" : "1px solid var(--border)",
-        borderLeft: lang === "ar" ? "1px solid var(--border)" : "none",
-        boxShadow: lang === "ar" ? "-4px 0 24px rgba(0,0,0,0.35)" : "4px 0 24px rgba(0,0,0,0.35)",
+        borderRight: isAr ? "none" : "1px solid var(--border)",
+        borderLeft: isAr ? "1px solid var(--border)" : "none",
+        boxShadow: isAr
+          ? "-6px 0 32px rgba(0,0,0,0.4)"
+          : "6px 0 32px rgba(0,0,0,0.4)",
         zIndex: 1001,
         display: "flex",
         flexDirection: "column",
-        transition: lang === "ar" ? "right 0.3s cubic-bezier(0.16, 1, 0.3, 1)" : "left 0.3s cubic-bezier(0.16, 1, 0.3, 1)",
+        transition: isAr
+          ? "right 0.32s cubic-bezier(0.16,1,0.3,1)"
+          : "left 0.32s cubic-bezier(0.16,1,0.3,1)",
         paddingTop: "calc(16px + env(safe-area-inset-top, 0px))"
       }}>
-        {/* Drawer Header */}
+
+        {/* ── Drawer Header ── */}
         <div style={{
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          padding: "16px",
+          padding: "16px 18px",
           borderBottom: "1px solid var(--border)"
         }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 6, fontWeight: 700, fontSize: 16 }}>
-            <span>⚡ {lang === "ar" ? "البراق" : "Boraq"}</span>
+          <div style={{
+            fontWeight: "800",
+            fontSize: "17px",
+            background: "linear-gradient(135deg, var(--primary), var(--accent))",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent"
+          }}>
+            ⚡ {isAr ? "البراق" : "Boraq"}
           </div>
-          <button 
+          <button
             onClick={() => setIsOpen(false)}
             style={{
-              background: "none",
-              border: "none",
+              background: "rgba(255,255,255,0.06)",
+              border: "1px solid var(--border)",
               color: "var(--text-dim)",
-              fontSize: "18px",
+              fontSize: "14px",
               cursor: "pointer",
-              padding: "4px"
+              padding: "5px 8px",
+              borderRadius: "8px",
+              lineHeight: 1
             }}
-          >
-            ✕
-          </button>
+          >✕</button>
         </div>
 
-        {/* Profile Card */}
+        {/* ── Profile Card ── */}
         <div style={{
-          padding: "20px 16px",
-          background: "rgba(255, 255, 255, 0.02)",
-          borderBottom: "1px solid var(--border)",
+          margin: "14px 14px 6px",
+          padding: "14px 16px",
+          background: "linear-gradient(135deg, rgba(59,130,246,0.1), rgba(245,158,11,0.06))",
+          border: "1px solid rgba(59,130,246,0.2)",
+          borderRadius: "14px",
           display: "flex",
           flexDirection: "column",
-          gap: "4px"
+          gap: "3px"
         }}>
-          <div style={{ fontSize: "13px", color: "var(--text-dim)" }}>
-            {lang === "ar" ? "مرحباً بك" : "Bienvenue"}
+          <div style={{ fontSize: "12px", color: "var(--text-dim)", fontWeight: "500" }}>
+            {isAr ? "مرحباً بك 👋" : "Bienvenue 👋"}
           </div>
-          <div style={{ fontSize: "16px", fontWeight: "700", color: "var(--text)" }}>
-            👋 {profileName || "Utilisateur"}
+          <div style={{ fontSize: "15px", fontWeight: "700", color: "var(--text)" }}>
+            {profileName || "Utilisateur"}
           </div>
         </div>
 
-        {/* Menu Items List */}
+        {/* ── Menu Items ── */}
         <div style={{
           flex: 1,
-          padding: "16px 8px",
+          padding: "10px 10px",
           display: "flex",
           flexDirection: "column",
-          gap: "6px"
+          gap: "4px",
+          overflowY: "auto"
         }}>
-          {/* 1. Camera Code Scanner Option (if handler provided) */}
+
+          {/* Section label */}
+          <div style={{
+            fontSize: "11px",
+            fontWeight: "700",
+            color: "var(--text-dim)",
+            padding: "6px 6px 4px",
+            letterSpacing: "0.08em",
+            textTransform: "uppercase"
+          }}>
+            {isAr ? "الإجراءات" : "Actions"}
+          </div>
+
+          {/* 1. Scanner */}
           {onScanClick && (
-              <button 
+            <DrawerRow
+              icon="📷"
+              label={t?.scan || (isAr ? "مسح الرمز" : "Scanner")}
               onClick={handleScanTap}
-              className="drawer-item"
-              style={{
-                display: "flex",
-                alignItems: "center",
-                flexDirection: lang === "ar" ? "row-reverse" : "row",
-                gap: "12px",
-                width: "100%",
-                padding: "12px 14px",
-                background: "none",
-                border: "none",
-                borderRadius: "8px",
-                color: "var(--text)",
-                fontSize: "14px",
-                fontWeight: "500",
-                textAlign: lang === "ar" ? "right" : "left",
-                cursor: "pointer",
-                transition: "background 0.2s"
-              }}
-            >
-              <span style={{ fontSize: "18px" }}>📷</span>
-              <span style={{ flex: 1 }}>{t?.scan || "Scan"}</span>
-            </button>
+              rightContent={
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                  stroke="var(--text-dim)" strokeWidth="2" strokeLinecap="round">
+                  <polyline points={isAr ? "15 18 9 12 15 6" : "9 18 15 12 9 6"} />
+                </svg>
+              }
+            />
           )}
 
-          {/* 2. Language Toggle Option */}
-          <button 
-            onClick={() => setLang(lang === "ar" ? "fr" : "ar")}
-            className="drawer-item"
-            style={{
-              display: "flex",
-              alignItems: "center",
-              flexDirection: lang === "ar" ? "row-reverse" : "row",
-              gap: "12px",
-              width: "100%",
-              padding: "12px 14px",
-              background: "none",
-              border: "none",
-              borderRadius: "8px",
-              color: "var(--text)",
-              fontSize: "14px",
-              fontWeight: "500",
-              textAlign: lang === "ar" ? "right" : "left",
-              cursor: "pointer",
-              transition: "background 0.2s"
-            }}
-          >
-            <span style={{ fontSize: "18px" }}>🌐</span>
-            <span style={{ flex: 1 }}>{lang === "ar" ? "Français" : "العربية"}</span>
-          </button>
+          {/* Divider */}
+          <div style={{ height: "1px", background: "var(--border)", margin: "6px 6px" }} />
 
-          {/* 3. Dark/Light Mode Theme Toggle Option */}
-          <button 
+          {/* Section label */}
+          <div style={{
+            fontSize: "11px",
+            fontWeight: "700",
+            color: "var(--text-dim)",
+            padding: "2px 6px 4px",
+            letterSpacing: "0.08em",
+            textTransform: "uppercase"
+          }}>
+            {isAr ? "الإعدادات" : "Préférences"}
+          </div>
+
+          {/* 2. Language Toggle */}
+          <DrawerRow
+            icon={isAr ? "🇫🇷" : "🇲🇦"}
+            label={isAr ? "Français" : "العربية"}
+            onClick={() => setLang(isAr ? "fr" : "ar")}
+            rightContent={
+              <ToggleSwitch
+                checked={isAr}
+                onChange={() => setLang(isAr ? "fr" : "ar")}
+                colorOn="#3b82f6"
+              />
+            }
+          />
+
+          {/* 3. Dark/Light Mode Toggle */}
+          <DrawerRow
+            icon={theme === "dark" ? "🌙" : "☀️"}
+            label={theme === "dark"
+              ? (isAr ? "الوضع المظلم" : "Mode Sombre")
+              : (isAr ? "الوضع المضيء" : "Mode Clair")}
             onClick={toggleTheme}
-            className="drawer-item"
-            style={{
-              display: "flex",
-              alignItems: "center",
-              flexDirection: lang === "ar" ? "row-reverse" : "row",
-              gap: "12px",
-              width: "100%",
-              padding: "12px 14px",
-              background: "none",
-              border: "none",
-              borderRadius: "8px",
-              color: "var(--text)",
-              fontSize: "14px",
-              fontWeight: "500",
-              textAlign: lang === "ar" ? "right" : "left",
-              cursor: "pointer",
-              transition: "background 0.2s"
-            }}
-          >
-            <span style={{ fontSize: "18px" }}>{theme === "dark" ? "☀️" : "🌙"}</span>
-            <span style={{ flex: 1 }}>
-              {theme === "dark" 
-                ? (lang === "ar" ? "الوضع المضيء" : "Mode Clair") 
-                : (lang === "ar" ? "الوضع المظلم" : "Mode Sombre")}
-            </span>
-          </button>
+            rightContent={
+              <ToggleSwitch
+                checked={theme === "dark"}
+                onChange={toggleTheme}
+                colorOn="#6366f1"
+              />
+            }
+          />
 
           {/* Spacer */}
           <div style={{ flex: 1 }} />
 
-          {/* 4. Logout Option (Red accent) */}
-          <button 
+          {/* Divider */}
+          <div style={{ height: "1px", background: "var(--border)", margin: "6px 6px" }} />
+
+          {/* 4. Logout */}
+          <DrawerRow
+            icon="🚪"
+            label={isAr ? "تسجيل الخروج" : "Déconnexion"}
             onClick={handleLogoutClick}
-            className="drawer-item"
-            style={{
-              display: "flex",
-              alignItems: "center",
-              flexDirection: lang === "ar" ? "row-reverse" : "row",
-              gap: "12px",
-              width: "100%",
-              padding: "12px 14px",
-              background: "rgba(239, 68, 68, 0.05)",
-              border: "1px solid rgba(239, 68, 68, 0.15)",
-              borderRadius: "8px",
-              color: "#f87171",
-              fontSize: "14px",
-              fontWeight: "600",
-              textAlign: lang === "ar" ? "right" : "left",
-              cursor: "pointer",
-              transition: "all 0.2s"
-            }}
-          >
-            <span style={{ fontSize: "18px" }}>🚪</span>
-            <span style={{ flex: 1 }}>{lang === "ar" ? "تسجيل الخروج" : "Déconnexion"}</span>
-          </button>
+            danger
+          />
+
         </div>
+
+        {/* Safe area spacer at bottom */}
+        <div style={{ height: "calc(8px + env(safe-area-inset-bottom, 0px))" }} />
       </div>
     </>
   );
