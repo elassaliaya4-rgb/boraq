@@ -34,24 +34,22 @@ export default function PackagesTable({ packages, onManage, onRefresh }) {
     return null;
   }
 
-  // ── Long-press start ────────────────────────────────────────────────────────
+  // ── Long-press start ─────────────────────────────────────────────────
   function handleTouchStart(e, pId) {
+    // Always show hover glow on the touched card immediately
+    setDragHoverId(pId);
+
     if (selectionMode) {
-      // In selection mode: start drag tracking immediately
       isDragging.current = true;
       dragStartId.current = pId;
       lastDraggedId.current = pId;
       return;
     }
-    const touch = e.touches[0];
-    const startX = touch.clientX;
-    const startY = touch.clientY;
 
     if (pressTimerRef.current) clearTimeout(pressTimerRef.current);
 
     pressTimerRef.current = setTimeout(() => {
       pressTimerRef.current = null;
-      // Activate selection mode
       setSelectionMode(true);
       setSelectedIds([pId]);
       isDragging.current = true;
@@ -60,24 +58,27 @@ export default function PackagesTable({ packages, onManage, onRefresh }) {
       if (navigator.vibrate) {
         try { navigator.vibrate([40, 30, 40]); } catch (e) {}
       }
-    }, 500); // 500ms hold (faster than before)
+    }, 500);
   }
 
-  // ── Drag move: auto-select + hover glow under finger ──────────────────────
+  // ── Drag move: always track finger for glow, auto-select when in drag mode ──
   function handleTouchMove(e) {
+    const touch = e.touches[0];
+    const hoveredId = getPkgIdAtY(touch.clientY);
+
+    // ALWAYS update hover highlight regardless of mode
+    setDragHoverId(hoveredId || null);
+
     if (!isDragging.current) {
+      // Cancel long-press if user moves finger (scrolling)
       if (pressTimerRef.current) {
         clearTimeout(pressTimerRef.current);
         pressTimerRef.current = null;
       }
-      return;
+      return; // not in drag-select, just visual hover
     }
-    e.preventDefault();
-    const touch = e.touches[0];
-    const hoveredId = getPkgIdAtY(touch.clientY);
 
-    // Always update the hover highlight (even if already selected)
-    setDragHoverId(hoveredId || null);
+    e.preventDefault(); // prevent scroll only during drag-select
 
     if (!hoveredId || hoveredId === lastDraggedId.current) return;
     lastDraggedId.current = hoveredId;
