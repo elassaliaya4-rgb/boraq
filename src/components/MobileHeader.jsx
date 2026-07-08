@@ -346,13 +346,69 @@ export default function MobileHeader({ profileName, onScanClick, onLogout }) {
           {/* Divider */}
           <div style={{ height: "1px", background: "var(--border)", margin: "6px 6px" }} />
 
-          {/* 4. Logout */}
-          <DrawerRow
-            icon="🚪"
-            label={isAr ? "تسجيل الخروج" : "Déconnexion"}
+          {/* 4. Logout – Premium Red Button */}
+          <button
             onClick={handleLogoutClick}
-            danger
-          />
+            style={{
+              width: "100%",
+              padding: "14px 18px",
+              borderRadius: "14px",
+              background: "linear-gradient(135deg, #ef4444, #dc2626)",
+              border: "none",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              gap: "12px",
+              flexDirection: isAr ? "row-reverse" : "row",
+              boxShadow: "0 4px 18px rgba(239,68,68,0.35)",
+              transition: "all 0.2s ease"
+            }}
+            onMouseEnter={e => e.currentTarget.style.boxShadow = "0 6px 24px rgba(239,68,68,0.55)"}
+            onMouseLeave={e => e.currentTarget.style.boxShadow = "0 4px 18px rgba(239,68,68,0.35)"}
+            onTouchStart={e => e.currentTarget.style.transform = "scale(0.97)"}
+            onTouchEnd={e => e.currentTarget.style.transform = "scale(1)"}
+          >
+            {/* Icon badge */}
+            <div style={{
+              width: "34px",
+              height: "34px",
+              borderRadius: "10px",
+              background: "rgba(255,255,255,0.2)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: "17px",
+              flexShrink: 0
+            }}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                stroke="white" strokeWidth="2.5"
+                strokeLinecap="round" strokeLinejoin="round">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                <polyline points="16 17 21 12 16 7" />
+                <line x1="21" y1="12" x2="9" y2="12" />
+              </svg>
+            </div>
+
+            {/* Label */}
+            <span style={{
+              flex: 1,
+              fontSize: "14px",
+              fontWeight: "700",
+              color: "#fff",
+              textAlign: isAr ? "right" : "left",
+              letterSpacing: "0.01em"
+            }}>
+              {isAr ? "تسجيل الخروج" : "Déconnexion"}
+            </span>
+
+            {/* Arrow */}
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+              stroke="rgba(255,255,255,0.7)" strokeWidth="2.5"
+              strokeLinecap="round" strokeLinejoin="round"
+              style={{ flexShrink: 0, transform: isAr ? "rotate(180deg)" : "none" }}>
+              <polyline points="9 18 15 12 9 6" />
+            </svg>
+          </button>
 
         </div>
 
