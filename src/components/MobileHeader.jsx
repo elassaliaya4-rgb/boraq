@@ -268,35 +268,6 @@ export default function MobileHeader({ profileName, onScanClick, onLogout }) {
           overflowY: "auto"
         }}>
 
-          {/* Section label */}
-          <div style={{
-            fontSize: "11px",
-            fontWeight: "700",
-            color: "var(--text-dim)",
-            padding: "6px 6px 4px",
-            letterSpacing: "0.08em",
-            textTransform: "uppercase"
-          }}>
-            {isAr ? "الإجراءات" : "Actions"}
-          </div>
-
-          {/* 1. Scanner */}
-          {onScanClick && (
-            <DrawerRow
-              icon="📷"
-              label={t?.scan || (isAr ? "مسح الرمز" : "Scanner")}
-              onClick={handleScanTap}
-              rightContent={
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
-                  stroke="var(--text-dim)" strokeWidth="2" strokeLinecap="round">
-                  <polyline points={isAr ? "15 18 9 12 15 6" : "9 18 15 12 9 6"} />
-                </svg>
-              }
-            />
-          )}
-
-          {/* Divider */}
-          <div style={{ height: "1px", background: "var(--border)", margin: "6px 6px" }} />
 
           {/* Section label */}
           <div style={{
