@@ -1360,3 +1360,50 @@ input, select, textarea {
   display: flex !important;
 }
 
+/* RTL (Arabic) global overrides */
+[dir="rtl"] .topbar-actions {
+  flex-direction: row-reverse;
+}
+[dir="rtl"] .selection-bar {
+  flex-direction: row-reverse;
+}
+[dir="rtl"] .notif {
+  flex-direction: row-reverse;
+}
+[dir="rtl"] .nav-item {
+  flex-direction: row-reverse;
+  text-align: end;
+}
+[dir="rtl"] .nav-item .badge {
+  margin-inline-start: 0;
+  margin-inline-end: auto;
+}
+[dir="rtl"] .sidebar .logo {
+  text-align: right;
+}
+[dir="rtl"] .card-meta-row {
+  flex-direction: row-reverse;
+}
+[dir="rtl"] table th,
+[dir="rtl"] table td {
+  text-align: right;
+}
+[dir="rtl"] .stat-card {
+  text-align: right;
+}
+[dir="rtl"] .modal {
+  text-align: right;
+}
+[dir="rtl"] .form-row label {
+  text-align: right;
+}
+[dir="rtl"] .topbar {
+  flex-direction: row-reverse;
+}
+[dir="rtl"] .mobile-header-row {
+  flex-direction: row-reverse;
+}
+[dir="rtl"] .mobile-bottom-nav {
+  flex-direction: row-reverse;
+}
+

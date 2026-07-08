@@ -93,19 +93,21 @@ export default function MobileHeader({ profileName, onScanClick, onLogout }) {
       )}
 
       {/* Side Slide-out Drawer */}
-      <div style={{
+      <div dir={lang === "ar" ? "rtl" : "ltr"} style={{
         position: "fixed",
         top: 0,
         bottom: 0,
-        left: isOpen ? 0 : "-290px",
+        left: lang === "ar" ? "auto" : (isOpen ? 0 : "-290px"),
+        right: lang === "ar" ? (isOpen ? 0 : "-290px") : "auto",
         width: "280px",
         background: "var(--surface)",
-        borderRight: "1px solid var(--border)",
-        boxShadow: "4px 0 24px rgba(0,0,0,0.35)",
+        borderRight: lang === "ar" ? "none" : "1px solid var(--border)",
+        borderLeft: lang === "ar" ? "1px solid var(--border)" : "none",
+        boxShadow: lang === "ar" ? "-4px 0 24px rgba(0,0,0,0.35)" : "4px 0 24px rgba(0,0,0,0.35)",
         zIndex: 1001,
         display: "flex",
         flexDirection: "column",
-        transition: "left 0.3s cubic-bezier(0.16, 1, 0.3, 1)",
+        transition: lang === "ar" ? "right 0.3s cubic-bezier(0.16, 1, 0.3, 1)" : "left 0.3s cubic-bezier(0.16, 1, 0.3, 1)",
         paddingTop: "calc(16px + env(safe-area-inset-top, 0px))"
       }}>
         {/* Drawer Header */}
@@ -161,12 +163,13 @@ export default function MobileHeader({ profileName, onScanClick, onLogout }) {
         }}>
           {/* 1. Camera Code Scanner Option (if handler provided) */}
           {onScanClick && (
-            <button 
+              <button 
               onClick={handleScanTap}
               className="drawer-item"
               style={{
                 display: "flex",
                 alignItems: "center",
+                flexDirection: lang === "ar" ? "row-reverse" : "row",
                 gap: "12px",
                 width: "100%",
                 padding: "12px 14px",
@@ -176,7 +179,7 @@ export default function MobileHeader({ profileName, onScanClick, onLogout }) {
                 color: "var(--text)",
                 fontSize: "14px",
                 fontWeight: "500",
-                textAlign: "left",
+                textAlign: lang === "ar" ? "right" : "left",
                 cursor: "pointer",
                 transition: "background 0.2s"
               }}
@@ -193,6 +196,7 @@ export default function MobileHeader({ profileName, onScanClick, onLogout }) {
             style={{
               display: "flex",
               alignItems: "center",
+              flexDirection: lang === "ar" ? "row-reverse" : "row",
               gap: "12px",
               width: "100%",
               padding: "12px 14px",
@@ -202,7 +206,7 @@ export default function MobileHeader({ profileName, onScanClick, onLogout }) {
               color: "var(--text)",
               fontSize: "14px",
               fontWeight: "500",
-              textAlign: "left",
+              textAlign: lang === "ar" ? "right" : "left",
               cursor: "pointer",
               transition: "background 0.2s"
             }}
@@ -218,6 +222,7 @@ export default function MobileHeader({ profileName, onScanClick, onLogout }) {
             style={{
               display: "flex",
               alignItems: "center",
+              flexDirection: lang === "ar" ? "row-reverse" : "row",
               gap: "12px",
               width: "100%",
               padding: "12px 14px",
@@ -227,7 +232,7 @@ export default function MobileHeader({ profileName, onScanClick, onLogout }) {
               color: "var(--text)",
               fontSize: "14px",
               fontWeight: "500",
-              textAlign: "left",
+              textAlign: lang === "ar" ? "right" : "left",
               cursor: "pointer",
               transition: "background 0.2s"
             }}
@@ -250,6 +255,7 @@ export default function MobileHeader({ profileName, onScanClick, onLogout }) {
             style={{
               display: "flex",
               alignItems: "center",
+              flexDirection: lang === "ar" ? "row-reverse" : "row",
               gap: "12px",
               width: "100%",
               padding: "12px 14px",
@@ -259,7 +265,7 @@ export default function MobileHeader({ profileName, onScanClick, onLogout }) {
               color: "#f87171",
               fontSize: "14px",
               fontWeight: "600",
-              textAlign: "left",
+              textAlign: lang === "ar" ? "right" : "left",
               cursor: "pointer",
               transition: "all 0.2s"
             }}

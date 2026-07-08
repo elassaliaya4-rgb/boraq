@@ -542,7 +542,7 @@ export default function DriverPanel() {
                     </table>
 
                     {/* Mobile Card List View (no horizontal scroll) */}
-                    <div className="mobile-only-list" style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                    <div className="mobile-only-list" dir={lang === "ar" ? "rtl" : "ltr"} style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                       {pkgs.map((p) => {
                         const isLoaded = p.status === "inTransit";
                         return (

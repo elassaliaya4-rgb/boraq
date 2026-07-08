@@ -92,8 +92,10 @@ export default function PackagesTable({ packages, onManage, onRefresh }) {
     }
   }
 
+  const dir = lang === "ar" ? "rtl" : "ltr";
+
   return (
-    <div className="table-wrap" style={{ background: "none", border: "none", position: "relative" }}>
+    <div className="table-wrap" dir={dir} style={{ background: "none", border: "none", position: "relative" }}>
       
       {/* Floating Selection Top Bar / Action Bar */}
       {selectionMode && (
@@ -189,7 +191,7 @@ export default function PackagesTable({ packages, onManage, onRefresh }) {
       </table>
 
       {/* Mobile Card List View (no horizontal scroll) */}
-      <div className="mobile-only-list" style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+      <div className="mobile-only-list" dir={dir} style={{ display: "flex", flexDirection: "column", gap: 10 }}>
         {packages?.map((p) => {
           const isSelected = selectedIds.includes(p.id);
           return (
