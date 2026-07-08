@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef } from "react";
 import { supabase } from "../lib/supabase";
 import { useApp } from "../lib/context";
 
@@ -6,14 +6,16 @@ export default function PackagesTable({ packages, onManage, onRefresh }) {
   const { t, lang } = useApp();
   const [selectionMode, setSelectionMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState([]);
+  const [dragHoverId, setDragHoverId] = useState(null); // card under finger during drag
+  const [popIds, setPopIds] = useState(new Set());      // cards that just got selected (pop anim)
   const [busy, setBusy] = useState(false);
 
   // ─── Long-press & drag-select refs (Telegram style) ────────────────────────
   const pressTimerRef  = useRef(null);
-  const isDragging     = useRef(false);   // are we in a drag-select gesture?
-  const dragStartId    = useRef(null);    // id of the card where drag started
-  const lastDraggedId  = useRef(null);    // last card we hovered over during drag
-  const listRef        = useRef(null);    // ref to the mobile card list container
+  const isDragging     = useRef(false);
+  const dragStartId    = useRef(null);
+  const lastDraggedId  = useRef(null);
+  const listRef        = useRef(null);
 
   if (!packages || !packages.length) {
     return <div className="empty">{t?.noPackages || "No Packages"}</div>;
@@ -61,28 +63,37 @@ export default function PackagesTable({ packages, onManage, onRefresh }) {
     }, 500); // 500ms hold (faster than before)
   }
 
-  // ── Drag move: auto-select cards under finger ──────────────────────────────
+  // ── Drag move: auto-select + hover glow under finger ──────────────────────
   function handleTouchMove(e) {
     if (!isDragging.current) {
-      // Cancel long-press if user scrolls significantly
       if (pressTimerRef.current) {
         clearTimeout(pressTimerRef.current);
         pressTimerRef.current = null;
       }
       return;
     }
-    e.preventDefault(); // Prevent scroll during drag-select
+    e.preventDefault();
     const touch = e.touches[0];
     const hoveredId = getPkgIdAtY(touch.clientY);
+
+    // Always update the hover highlight (even if already selected)
+    setDragHoverId(hoveredId || null);
+
     if (!hoveredId || hoveredId === lastDraggedId.current) return;
     lastDraggedId.current = hoveredId;
 
-    // Auto-select the card under the finger
     setSelectedIds(prev => {
       if (prev.includes(hoveredId)) return prev;
       if (navigator.vibrate) {
-        try { navigator.vibrate(15); } catch (e) {}
+        try { navigator.vibrate(18); } catch (e) {}
       }
+      // Trigger pop animation for this card
+      setPopIds(pops => {
+        const next = new Set(pops);
+        next.add(hoveredId);
+        setTimeout(() => setPopIds(p => { const n = new Set(p); n.delete(hoveredId); return n; }), 350);
+        return next;
+      });
       return [...prev, hoveredId];
     });
   }
@@ -96,6 +107,7 @@ export default function PackagesTable({ packages, onManage, onRefresh }) {
     isDragging.current = false;
     dragStartId.current = null;
     lastDraggedId.current = null;
+    setDragHoverId(null); // remove hover highlight
   }
 
   function toggleSelect(pId) {
@@ -308,25 +320,38 @@ export default function PackagesTable({ packages, onManage, onRefresh }) {
                   : "var(--surface)",
                 border: isSelected
                   ? "1px solid rgba(59,130,246,0.45)"
-                  : "1px solid var(--border)",
-                borderRadius: 14,
+                  : dragHoverId === p.id
+                    ? "1px solid rgba(59,130,246,0.35)"
+                    : "1px solid var(--border)",
+                borderRadius: dragHoverId === p.id ? 20 : 14,
                 padding: "12px 14px",
                 cursor: "pointer",
                 display: "flex",
                 alignItems: "center",
                 gap: 12,
-                boxShadow: isSelected
-                  ? "0 4px 16px rgba(59,130,246,0.2)"
-                  : "0 2px 8px rgba(0,0,0,0.12)",
+                boxShadow: popIds.has(p.id)
+                  ? "0 8px 28px rgba(59,130,246,0.45)"
+                  : dragHoverId === p.id
+                    ? "0 6px 22px rgba(59,130,246,0.3)"
+                    : isSelected
+                      ? "0 4px 16px rgba(59,130,246,0.2)"
+                      : "0 2px 8px rgba(0,0,0,0.12)",
                 userSelect: "none",
-                transition: "all 0.18s ease",
-                transform: isSelected ? "scale(0.995)" : "scale(1)"
+                transition: "box-shadow 0.15s ease, border-radius 0.15s ease, transform 0.18s cubic-bezier(0.34,1.56,0.64,1)",
+                transform: popIds.has(p.id)
+                  ? "scale(1.055)"
+                  : dragHoverId === p.id
+                    ? "scale(1.04)"
+                    : isSelected
+                      ? "scale(0.995)"
+                      : "scale(1)",
+                zIndex: dragHoverId === p.id ? 2 : 1
               }}
             >
-              {/* Animated checkbox (appears in selection mode) */}
+              {/* Animated checkbox circle */}
               <div style={{
-                width: selectionMode ? "22px" : "0px",
-                height: "22px",
+                width: selectionMode ? "26px" : "0px",
+                height: "26px",
                 overflow: "hidden",
                 transition: "width 0.2s ease",
                 flexShrink: 0,
@@ -335,22 +360,28 @@ export default function PackagesTable({ packages, onManage, onRefresh }) {
                 justifyContent: "center"
               }}>
                 <div style={{
-                  width: "20px",
-                  height: "20px",
+                  width: dragHoverId === p.id ? "26px" : "22px",
+                  height: dragHoverId === p.id ? "26px" : "22px",
                   borderRadius: "50%",
-                  border: isSelected ? "none" : "2px solid var(--text-dim)",
+                  border: isSelected ? "none" : `2px solid ${dragHoverId === p.id ? "rgba(59,130,246,0.8)" : "var(--text-dim)"}`,
                   background: isSelected
                     ? "linear-gradient(135deg, var(--primary), #6366f1)"
-                    : "transparent",
+                    : dragHoverId === p.id
+                      ? "rgba(59,130,246,0.15)"
+                      : "transparent",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  transition: "all 0.18s ease",
-                  boxShadow: isSelected ? "0 0 8px rgba(59,130,246,0.5)" : "none"
+                  transition: "all 0.18s cubic-bezier(0.34,1.56,0.64,1)",
+                  boxShadow: isSelected
+                    ? "0 0 12px rgba(59,130,246,0.6)"
+                    : dragHoverId === p.id
+                      ? "0 0 10px rgba(59,130,246,0.4)"
+                      : "none"
                 }}>
                   {isSelected && (
-                    <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
-                      <polyline points="2 6 5 9 10 3" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                      <polyline points="2 6 5 9 10 3" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
                   )}
                 </div>
