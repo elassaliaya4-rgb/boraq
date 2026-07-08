@@ -6,16 +6,32 @@ export default function PackagesTable({ packages, onManage, onRefresh }) {
   const { t, lang } = useApp();
   const [selectionMode, setSelectionMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState([]);
-  const [dragHoverId, setDragHoverId] = useState(null); // card under finger during drag
-  const [popIds, setPopIds] = useState(new Set());      // cards that just got selected (pop anim)
+  const [fingerY, setFingerY] = useState(null);    // continuous Y pixel of finger
+  const [popIds, setPopIds] = useState(new Set()); // cards that just got selected (pop anim)
   const [busy, setBusy] = useState(false);
 
-  // ─── Long-press & drag-select refs (Telegram style) ────────────────────────
+  // ─── Long-press & drag-select refs ─────────────────────────────────────────
   const pressTimerRef  = useRef(null);
   const isDragging     = useRef(false);
   const dragStartId    = useRef(null);
   const lastDraggedId  = useRef(null);
   const listRef        = useRef(null);
+
+  // Compute macOS Dock-style magnification scale for a card at a given DOM element
+  function getMagScale(pkgId) {
+    if (fingerY === null || !listRef.current) return 1;
+    const card = listRef.current.querySelector(`[data-pkg-id="${pkgId}"]`);
+    if (!card) return 1;
+    const rect = card.getBoundingClientRect();
+    const cardCenterY = rect.top + rect.height / 2;
+    const dist = Math.abs(fingerY - cardCenterY);
+    const radius = 160; // px range of magnification
+    if (dist > radius) return 1;
+    // Smooth cubic falloff: strongest at center, fades to 0 at radius
+    const t = 1 - dist / radius;
+    const extra = 0.11 * (t * t * (3 - 2 * t)); // smoothstep
+    return 1 + extra;
+  }
 
   if (!packages || !packages.length) {
     return <div className="empty">{t?.noPackages || "No Packages"}</div>;
@@ -34,10 +50,9 @@ export default function PackagesTable({ packages, onManage, onRefresh }) {
     return null;
   }
 
-  // ── Long-press start ─────────────────────────────────────────────────
+  // ── Long-press start ─────────────────────────────────────────────
   function handleTouchStart(e, pId) {
-    // Always show hover glow on the touched card immediately
-    setDragHoverId(pId);
+    setFingerY(e.touches[0].clientY); // show magnification immediately
 
     if (selectionMode) {
       isDragging.current = true;
@@ -61,25 +76,25 @@ export default function PackagesTable({ packages, onManage, onRefresh }) {
     }, 500);
   }
 
-  // ── Drag move: always track finger for glow, auto-select when in drag mode ──
+  // ── Touch move: track finger pixel Y for magnification + drag-select ─────────
   function handleTouchMove(e) {
     const touch = e.touches[0];
-    const hoveredId = getPkgIdAtY(touch.clientY);
 
-    // ALWAYS update hover highlight regardless of mode
-    setDragHoverId(hoveredId || null);
+    // ALWAYS update fingerY for the magnification lens effect
+    setFingerY(touch.clientY);
 
     if (!isDragging.current) {
-      // Cancel long-press if user moves finger (scrolling)
+      // Cancel long-press if user scrolls
       if (pressTimerRef.current) {
         clearTimeout(pressTimerRef.current);
         pressTimerRef.current = null;
       }
-      return; // not in drag-select, just visual hover
+      return;
     }
 
-    e.preventDefault(); // prevent scroll only during drag-select
+    e.preventDefault(); // block scroll only during drag-select
 
+    const hoveredId = getPkgIdAtY(touch.clientY);
     if (!hoveredId || hoveredId === lastDraggedId.current) return;
     lastDraggedId.current = hoveredId;
 
@@ -88,7 +103,6 @@ export default function PackagesTable({ packages, onManage, onRefresh }) {
       if (navigator.vibrate) {
         try { navigator.vibrate(18); } catch (e) {}
       }
-      // Trigger pop animation for this card
       setPopIds(pops => {
         const next = new Set(pops);
         next.add(hoveredId);
@@ -99,7 +113,7 @@ export default function PackagesTable({ packages, onManage, onRefresh }) {
     });
   }
 
-  // ── Touch end: clean up drag state ─────────────────────────────────────────
+  // ── Touch end: reset lens and drag state ─────────────────────────────
   function handleTouchEnd() {
     if (pressTimerRef.current) {
       clearTimeout(pressTimerRef.current);
@@ -108,7 +122,7 @@ export default function PackagesTable({ packages, onManage, onRefresh }) {
     isDragging.current = false;
     dragStartId.current = null;
     lastDraggedId.current = null;
-    setDragHoverId(null); // remove hover highlight
+    setFingerY(null); // hide magnification
   }
 
   function toggleSelect(pId) {
@@ -315,39 +329,36 @@ export default function PackagesTable({ packages, onManage, onRefresh }) {
               onClick={() => handleRowClick(p)}
               onTouchStart={(e) => handleTouchStart(e, p.id)}
               className={`clickable-row ${isSelected ? "selected-card" : ""}`}
-              style={{
-                background: isSelected
-                  ? "linear-gradient(135deg, rgba(59,130,246,0.15), rgba(99,102,241,0.08))"
-                  : "var(--surface)",
-                border: isSelected
-                  ? "1px solid rgba(59,130,246,0.45)"
-                  : dragHoverId === p.id
-                    ? "1px solid rgba(59,130,246,0.35)"
-                    : "1px solid var(--border)",
-                borderRadius: dragHoverId === p.id ? 20 : 14,
-                padding: "12px 14px",
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                gap: 12,
-                boxShadow: popIds.has(p.id)
-                  ? "0 8px 28px rgba(59,130,246,0.45)"
-                  : dragHoverId === p.id
-                    ? "0 6px 22px rgba(59,130,246,0.3)"
-                    : isSelected
-                      ? "0 4px 16px rgba(59,130,246,0.2)"
-                      : "0 2px 8px rgba(0,0,0,0.12)",
-                userSelect: "none",
-                transition: "box-shadow 0.15s ease, border-radius 0.15s ease, transform 0.18s cubic-bezier(0.34,1.56,0.64,1)",
-                transform: popIds.has(p.id)
-                  ? "scale(1.055)"
-                  : dragHoverId === p.id
-                    ? "scale(1.04)"
-                    : isSelected
-                      ? "scale(0.995)"
-                      : "scale(1)",
-                zIndex: dragHoverId === p.id ? 2 : 1
-              }}
+              style={(() => {
+                const mag = getMagScale(p.id);
+                const isHot = mag > 1.05;
+                const finalScale = popIds.has(p.id) ? Math.max(mag, 1.055) : isSelected ? Math.max(mag * 0.995, 1) : mag;
+                const glowStr = ((mag - 1) * 3).toFixed(2);
+                const glowPx = Math.round((mag - 1) * 200);
+                return {
+                  background: isSelected
+                    ? "linear-gradient(135deg, rgba(59,130,246,0.15), rgba(99,102,241,0.08))"
+                    : "var(--surface)",
+                  border: isSelected
+                    ? "1px solid rgba(59,130,246,0.45)"
+                    : isHot ? "1px solid rgba(59,130,246,0.35)" : "1px solid var(--border)",
+                  borderRadius: isHot ? 20 : 14,
+                  padding: "12px 14px",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 12,
+                  boxShadow: popIds.has(p.id)
+                    ? "0 8px 28px rgba(59,130,246,0.45)"
+                    : isHot
+                      ? `0 ${glowPx}px ${glowPx * 2}px rgba(59,130,246,${glowStr})`
+                      : isSelected ? "0 4px 16px rgba(59,130,246,0.2)" : "0 2px 8px rgba(0,0,0,0.12)",
+                  userSelect: "none",
+                  transition: "transform 0.1s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.1s ease, border-radius 0.1s ease",
+                  transform: `scale(${finalScale.toFixed(4)})`,
+                  zIndex: isHot ? 3 : isSelected ? 2 : 1
+                };
+              })()}
             >
               {/* Animated checkbox circle */}
               <div style={{
@@ -360,32 +371,35 @@ export default function PackagesTable({ packages, onManage, onRefresh }) {
                 alignItems: "center",
                 justifyContent: "center"
               }}>
-                <div style={{
-                  width: dragHoverId === p.id ? "26px" : "22px",
-                  height: dragHoverId === p.id ? "26px" : "22px",
-                  borderRadius: "50%",
-                  border: isSelected ? "none" : `2px solid ${dragHoverId === p.id ? "rgba(59,130,246,0.8)" : "var(--text-dim)"}`,
-                  background: isSelected
-                    ? "linear-gradient(135deg, var(--primary), #6366f1)"
-                    : dragHoverId === p.id
-                      ? "rgba(59,130,246,0.15)"
-                      : "transparent",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  transition: "all 0.18s cubic-bezier(0.34,1.56,0.64,1)",
-                  boxShadow: isSelected
-                    ? "0 0 12px rgba(59,130,246,0.6)"
-                    : dragHoverId === p.id
-                      ? "0 0 10px rgba(59,130,246,0.4)"
-                      : "none"
-                }}>
-                  {isSelected && (
-                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                      <polyline points="2 6 5 9 10 3" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                  )}
-                </div>
+                {(() => {
+                  const mag = getMagScale(p.id);
+                  const isHot = mag > 1.05;
+                  const circleSize = isHot ? Math.round(22 + (mag - 1) * 80) : 22;
+                  return (
+                    <div style={{
+                      width: `${circleSize}px`,
+                      height: `${circleSize}px`,
+                      borderRadius: "50%",
+                      border: isSelected ? "none" : `2px solid ${isHot ? "rgba(59,130,246,0.8)" : "var(--text-dim)"}`,
+                      background: isSelected
+                        ? "linear-gradient(135deg, var(--primary), #6366f1)"
+                        : isHot ? "rgba(59,130,246,0.15)" : "transparent",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      transition: "all 0.1s cubic-bezier(0.34,1.56,0.64,1)",
+                      boxShadow: isSelected
+                        ? "0 0 12px rgba(59,130,246,0.6)"
+                        : isHot ? "0 0 10px rgba(59,130,246,0.4)" : "none"
+                    }}>
+                      {isSelected && (
+                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                          <polyline points="2 6 5 9 10 3" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                      )}
+                    </div>
+                  );
+                })()}
               </div>
 
               <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 6 }}>
