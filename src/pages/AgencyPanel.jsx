@@ -238,53 +238,59 @@ export default function AgencyPanel() {
           </div>
         )}
         <div className="nav-grid">
-          <button className={`nav-item ${tab === "packages" ? "active" : ""}`} onClick={() => setTab("packages")}>
-            📦 {t.myPackages}
+          <button className={`nav-item ${tab === "packages" ? "active" : ""}`} onClick={() => setTab("packages")} style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+            <div style={{ width: 32, height: 32, borderRadius: 9, background: tab === "packages" ? "rgba(59,130,246,0.2)" : "rgba(255,255,255,0.06)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, flexShrink: 0, transition: "background 0.2s" }}>📦</div>
+            <span style={{ flex: 1 }}>{t.myPackages}</span>
           </button>
-          <button className={`nav-item ${tab === "scan_session" ? "active" : ""}`} onClick={() => setTab("scan_session")}>
-            ✅ {lang === "ar" ? "التحقق والمسح" : "Scan & Validation"}
+          <button className={`nav-item ${tab === "scan_session" ? "active" : ""}`} onClick={() => setTab("scan_session")} style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+            <div style={{ width: 32, height: 32, borderRadius: 9, background: tab === "scan_session" ? "rgba(59,130,246,0.2)" : "rgba(255,255,255,0.06)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, flexShrink: 0, transition: "background 0.2s" }}>✅</div>
+            <span style={{ flex: 1 }}>{lang === "ar" ? "التحقق والمسح" : "Scan & Validation"}</span>
           </button>
-          <button className={`nav-item ${tab === "notifs" ? "active" : ""}`} onClick={() => setTab("notifs")}>
-            🔔 {t.notifications}
+          <button className={`nav-item ${tab === "notifs" ? "active" : ""}`} onClick={() => setTab("notifs")} style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+            <div style={{ width: 32, height: 32, borderRadius: 9, background: tab === "notifs" ? "rgba(59,130,246,0.2)" : "rgba(255,255,255,0.06)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, flexShrink: 0, transition: "background 0.2s" }}>🔔</div>
+            <span style={{ flex: 1 }}>{t.notifications}</span>
             {unread > 0 && <span className="badge">{unread}</span>}
           </button>
         </div>
 
-        {/* Discreet Logout Link at bottom of sidebar */}
-        <div style={{ marginTop: "auto", paddingTop: 14, display: "flex", justifyContent: "center", width: "100%" }}>
+        {/* Premium Logout Button at bottom of sidebar */}
+        <div style={{ marginTop: "auto", paddingTop: 16, paddingBottom: 4 }}>
           <button 
             onClick={confirmSignOut}
             style={{ 
-              background: "rgba(239, 68, 68, 0.06)",
-              border: "1px solid rgba(239, 68, 68, 0.35)",
+              width: "100%",
+              padding: "12px 16px",
               borderRadius: "12px",
-              color: "#f87171", 
+              background: "linear-gradient(135deg, #ef4444, #dc2626)",
+              border: "none",
               cursor: "pointer",
-              padding: "10px",
-              display: "inline-flex",
+              display: "flex",
               alignItems: "center",
-              justifyContent: "center",
-              opacity: 0.85,
-              transition: "all 0.2s ease",
-              width: "42px",
-              height: "42px"
+              gap: "10px",
+              boxShadow: "0 4px 16px rgba(239,68,68,0.3)",
+              transition: "all 0.2s ease"
             }}
-            title={lang === "ar" ? "تسجيل الخروج" : "Déconnexion"}
             onMouseEnter={(e) => {
-              e.currentTarget.style.opacity = "1";
-              e.currentTarget.style.background = "rgba(239, 68, 68, 0.15)";
-              e.currentTarget.style.borderColor = "rgba(239, 68, 68, 0.6)";
+              e.currentTarget.style.boxShadow = "0 6px 22px rgba(239,68,68,0.5)";
+              e.currentTarget.style.transform = "translateY(-1px)";
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.opacity = "0.85";
-              e.currentTarget.style.background = "rgba(239, 68, 68, 0.06)";
-              e.currentTarget.style.borderColor = "rgba(239, 68, 68, 0.35)";
+              e.currentTarget.style.boxShadow = "0 4px 16px rgba(239,68,68,0.3)";
+              e.currentTarget.style.transform = "translateY(0)";
             }}
           >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-              <polyline points="16 17 21 12 16 7" />
-              <line x1="21" y1="12" x2="9" y2="12" />
+            <div style={{ width: 30, height: 30, borderRadius: 8, background: "rgba(255,255,255,0.2)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                <polyline points="16 17 21 12 16 7" />
+                <line x1="21" y1="12" x2="9" y2="12" />
+              </svg>
+            </div>
+            <span style={{ flex: 1, fontSize: "13px", fontWeight: "700", color: "#fff", textAlign: "start" }}>
+              {lang === "ar" ? "تسجيل الخروج" : "Déconnexion"}
+            </span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" strokeWidth="2.5" strokeLinecap="round">
+              <polyline points={lang === "ar" ? "15 18 9 12 15 6" : "9 18 15 12 9 6"} />
             </svg>
           </button>
         </div>
