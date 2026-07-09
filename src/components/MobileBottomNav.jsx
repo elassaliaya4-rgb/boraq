@@ -1,82 +1,100 @@
 import { useRef, useState } from "react";
 
 export default function MobileBottomNav({ tabs, activeTab, onChange }) {
-  const activeIndex   = tabs.findIndex((t) => t.id === activeTab);
-  const percentWidth  = 100 / tabs.length;
   const navRef        = useRef(null);
-
-  // ─── Swipe gesture state ────────────────────────────────────────────────────
+  const [fingerX, setFingerX]       = useState(null); // live X position of finger
+  const [touching, setTouching]     = useState(false);
   const swipeStartX   = useRef(null);
   const swipeStartY   = useRef(null);
-  const [dragOffset, setDragOffset]   = useState(0);   // px offset while dragging
-  const [isDragging, setIsDragging]   = useState(false);
 
-  // ── Pill indicator base left (%) + drag offset (px) ────────────────────────
-  const indicatorBaseLeft = `calc(${activeIndex * percentWidth}% + 6px)`;
+  const activeIndex = tabs.findIndex((t) => t.id === activeTab);
 
+  // ── get which tab index the finger is hovering over ──────────────────────
+  function getTabIdxAtX(clientX) {
+    if (!navRef.current) return null;
+    const btns = navRef.current.querySelectorAll("[data-tab-idx]");
+    for (const btn of btns) {
+      const rect = btn.getBoundingClientRect();
+      if (clientX >= rect.left && clientX <= rect.right) {
+        return Number(btn.getAttribute("data-tab-idx"));
+      }
+    }
+    return null;
+  }
+
+  // ── magnification scale: Instagram Dock-style ─────────────────────────────
+  // The icon under the finger → 1.45x, neighbours ±1 → 1.22x, ±2 → 1.10x
+  function getMagScale(idx) {
+    if (!touching || fingerX === null || !navRef.current) return 1;
+    const btn = navRef.current.querySelector(`[data-tab-idx="${idx}"]`);
+    if (!btn) return 1;
+    const rect    = btn.getBoundingClientRect();
+    const btnCenterX = rect.left + rect.width / 2;
+    const dist    = Math.abs(fingerX - btnCenterX);
+    const radius  = rect.width * 2.2; // magnification radius in px
+    if (dist > radius) return 1;
+    // smoothstep falloff
+    const t = 1 - dist / radius;
+    const extra = 0.45 * (t * t * (3 - 2 * t)); // 0.45 → max extra scale
+    return 1 + extra;
+  }
+
+  // ── touch handlers ────────────────────────────────────────────────────────
+  function onTouchStart(e) {
+    swipeStartX.current = e.touches[0].clientX;
+    swipeStartY.current = e.touches[0].clientY;
+    setFingerX(e.touches[0].clientX);
+    setTouching(true);
+  }
+
+  function onTouchMove(e) {
+    const clientX = e.touches[0].clientX;
+    const clientY = e.touches[0].clientY;
+    const dx = clientX - swipeStartX.current;
+    const dy = clientY - swipeStartY.current;
+
+    // only track horizontal movement on the nav bar
+    if (Math.abs(dy) > Math.abs(dx) * 1.5) return;
+    e.stopPropagation();
+
+    setFingerX(clientX);
+  }
+
+  function onTouchEnd(e) {
+    const endX = e.changedTouches[0].clientX;
+    const endY = e.changedTouches[0].clientY;
+    const dx = endX - (swipeStartX.current ?? endX);
+    const dy = endY - (swipeStartY.current ?? endY);
+
+    // if mostly horizontal swipe → commit to tab under finger
+    if (Math.abs(dx) > 8 && Math.abs(dx) > Math.abs(dy)) {
+      const finalIdx = getTabIdxAtX(endX);
+      if (finalIdx !== null && tabs[finalIdx]) {
+        onChange(tabs[finalIdx].id);
+      }
+    }
+
+    setTouching(false);
+    setFingerX(null);
+    swipeStartX.current = null;
+    swipeStartY.current = null;
+  }
+
+  // pill indicator base position
+  const percentWidth = 100 / tabs.length;
   const indicatorStyle = {
     position: "absolute",
     top: "6px",
     bottom: "6px",
-    left: isDragging
-      ? `calc(${activeIndex * percentWidth}% + 6px + ${dragOffset}px)`
-      : indicatorBaseLeft,
+    left: `calc(${activeIndex * percentWidth}% + 6px)`,
     width: `calc(${percentWidth}% - 12px)`,
     background: "rgba(59, 130, 246, 0.14)",
     borderRadius: "20px",
-    transition: isDragging ? "none" : "left 0.28s cubic-bezier(0.25, 0.8, 0.25, 1)",
+    transition: "left 0.28s cubic-bezier(0.25, 0.8, 0.25, 1)",
     pointerEvents: "none",
     border: "1px solid rgba(59, 130, 246, 0.28)",
     boxShadow: "0 2px 10px rgba(59, 130, 246, 0.12)"
   };
-
-  // ── Touch handlers on the nav bar ──────────────────────────────────────────
-  function onTouchStart(e) {
-    swipeStartX.current = e.touches[0].clientX;
-    swipeStartY.current = e.touches[0].clientY;
-    setIsDragging(false);
-    setDragOffset(0);
-  }
-
-  function onTouchMove(e) {
-    if (swipeStartX.current === null) return;
-    const dx = e.touches[0].clientX - swipeStartX.current;
-    const dy = e.touches[0].clientY - swipeStartY.current;
-
-    // Only treat as horizontal swipe if movement is mostly horizontal
-    if (Math.abs(dx) < 8 && !isDragging) return;
-    if (Math.abs(dy) > Math.abs(dx) * 1.4) return; // mostly vertical – ignore
-
-    e.stopPropagation();
-    setIsDragging(true);
-
-    // Clamp: don't go past first/last tab
-    const navWidth = navRef.current?.offsetWidth || 300;
-    const tabWidth = navWidth / tabs.length;
-    const minOff   = -activeIndex * tabWidth;
-    const maxOff   = (tabs.length - 1 - activeIndex) * tabWidth;
-    const clamped  = Math.max(minOff, Math.min(maxOff, dx));
-    setDragOffset(clamped * 0.55); // 0.55 = resistance factor (rubber-band feel)
-  }
-
-  function onTouchEnd(e) {
-    if (!isDragging) {
-      swipeStartX.current = null;
-      return;
-    }
-    const dx = e.changedTouches[0].clientX - swipeStartX.current;
-    const threshold = 40; // px needed to commit to next tab
-
-    setIsDragging(false);
-    setDragOffset(0);
-    swipeStartX.current = null;
-
-    if (dx < -threshold && activeIndex < tabs.length - 1) {
-      onChange(tabs[activeIndex + 1].id);
-    } else if (dx > threshold && activeIndex > 0) {
-      onChange(tabs[activeIndex - 1].id);
-    }
-  }
 
   return (
     <div
@@ -103,7 +121,8 @@ export default function MobileBottomNav({ tabs, activeTab, onChange }) {
         justifyContent: "space-between",
         padding: "0 6px",
         userSelect: "none",
-        touchAction: "none"
+        touchAction: "none",
+        overflow: "hidden"
       }}
     >
       {/* Sliding Active Pill */}
@@ -111,10 +130,14 @@ export default function MobileBottomNav({ tabs, activeTab, onChange }) {
 
       {/* Tabs */}
       {tabs.map((tab, idx) => {
-        const isActive = tab.id === activeTab;
+        const isActive  = tab.id === activeTab;
+        const magScale  = getMagScale(idx);
+        const isHot     = magScale > 1.25; // directly under finger
+
         return (
           <button
             key={tab.id}
+            data-tab-idx={idx}
             onClick={() => onChange(tab.id)}
             style={{
               display: "flex",
@@ -123,27 +146,37 @@ export default function MobileBottomNav({ tabs, activeTab, onChange }) {
               justifyContent: "center",
               background: "none",
               border: "none",
-              color: isActive ? "var(--primary)" : "var(--text-dim)",
+              color: isActive ? "var(--primary)" : isHot ? "rgba(255,255,255,0.9)" : "var(--text-dim)",
               fontSize: "9px",
               fontWeight: "700",
-              gap: "4px",
+              gap: "3px",
               flex: 1,
               height: "100%",
               cursor: "pointer",
               position: "relative",
-              transition: "color 0.22s ease",
-              padding: 0
+              padding: 0,
+              // Apply magnification: push upward as the icon grows (like macOS Dock)
+              transform: `scale(${magScale.toFixed(3)}) translateY(${touching && magScale > 1 ? -((magScale - 1) * 18) : 0}px)`,
+              transition: touching
+                ? "transform 0.06s cubic-bezier(0.34,1.56,0.64,1), color 0.1s ease"
+                : "transform 0.22s cubic-bezier(0.34,1.56,0.64,1), color 0.22s ease",
+              zIndex: isHot ? 5 : 1,
+              willChange: "transform"
             }}
           >
-            {/* Icon */}
+            {/* Icon wrapper */}
             <div style={{
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
               width: "24px",
               height: "24px",
-              transition: "transform 0.22s cubic-bezier(0.34,1.56,0.64,1)",
-              transform: isActive ? "scale(1.18) translateY(-1px)" : "scale(1) translateY(0)"
+              filter: isHot
+                ? "drop-shadow(0 0 6px rgba(59,130,246,0.7))"
+                : isActive
+                  ? "drop-shadow(0 0 4px rgba(59,130,246,0.4))"
+                  : "none",
+              transition: "filter 0.1s ease"
             }}>
               {tab.icon}
             </div>
@@ -170,10 +203,10 @@ export default function MobileBottomNav({ tabs, activeTab, onChange }) {
             )}
 
             <span style={{
-              opacity: isActive ? 1 : 0.75,
+              opacity: isActive ? 1 : isHot ? 0.95 : 0.72,
               fontSize: "9px",
               letterSpacing: "0.2px",
-              transition: "opacity 0.2s"
+              transition: "opacity 0.15s"
             }}>
               {tab.label}
             </span>
