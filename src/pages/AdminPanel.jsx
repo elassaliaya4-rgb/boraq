@@ -31,8 +31,17 @@ export default function AdminPanel() {
   const [detailPkg, setDetailPkg] = useState(null);
   const [showScanner, setShowScanner] = useState(false);
   const [mapDriver, setMapDriver] = useState(null);
-  const [scannedSessionPkgs, setScannedSessionPkgs] = useState([]);
+  const [scannedSessionPkgs, setScannedSessionPkgs] = useState(() => {
+    try { return JSON.parse(localStorage.getItem("boraq_scan_session_admin") || "[]"); }
+    catch { return []; }
+  });
   const [scanFilterAgency, setScanFilterAgency] = useState("");
+
+  // Auto-save scan session to localStorage so it survives refresh
+  useEffect(() => {
+    try { localStorage.setItem("boraq_scan_session_admin", JSON.stringify(scannedSessionPkgs)); }
+    catch {}
+  }, [scannedSessionPkgs]);
 
   const unread = notifs?.filter((n) => !n.is_read)?.length || 0;
 
@@ -466,7 +475,7 @@ export default function AdminPanel() {
                 </span>
               </div>
               <button 
-                onClick={() => setScannedSessionPkgs([])}
+                onClick={() => { setScannedSessionPkgs([]); localStorage.removeItem("boraq_scan_session_admin"); }}
                 style={{ 
                   background: "none", 
                   border: "none", 

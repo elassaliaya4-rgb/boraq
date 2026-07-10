@@ -27,8 +27,17 @@ export default function AgencyPanel() {
   const [showPkgForm, setShowPkgForm] = useState(false);
   const [detailPkg, setDetailPkg] = useState(null);
   const [showScanner, setShowScanner] = useState(false);
-  const [scannedSessionPkgs, setScannedSessionPkgs] = useState([]);
+  const [scannedSessionPkgs, setScannedSessionPkgs] = useState(() => {
+    try { return JSON.parse(localStorage.getItem("boraq_scan_session_agency") || "[]"); }
+    catch { return []; }
+  });
   // Removed scanFilterAgency state
+
+  // Auto-save scan session to localStorage so it survives refresh
+  useEffect(() => {
+    try { localStorage.setItem("boraq_scan_session_agency", JSON.stringify(scannedSessionPkgs)); }
+    catch {}
+  }, [scannedSessionPkgs]);
 
   const unread = notifs?.filter((n) => !n.is_read)?.length || 0;
 
@@ -404,7 +413,7 @@ export default function AgencyPanel() {
                 </span>
               </div>
               <button 
-                onClick={() => setScannedSessionPkgs([])}
+                onClick={() => { setScannedSessionPkgs([]); localStorage.removeItem("boraq_scan_session_agency"); }}
                 style={{ 
                   background: "none", 
                   border: "none", 
