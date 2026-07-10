@@ -80,21 +80,51 @@ export default function MobileBottomNav({ tabs, activeTab, onChange }) {
     swipeStartY.current = null;
   }
 
-  // pill indicator base position
-  const percentWidth = 100 / tabs.length;
-  const indicatorStyle = {
-    position: "absolute",
-    top: "6px",
-    bottom: "6px",
-    left: `calc(${activeIndex * percentWidth}% + 6px)`,
-    width: `calc(${percentWidth}% - 12px)`,
-    background: "rgba(59, 130, 246, 0.14)",
-    borderRadius: "20px",
-    transition: "left 0.28s cubic-bezier(0.25, 0.8, 0.25, 1)",
-    pointerEvents: "none",
-    border: "1px solid rgba(59, 130, 246, 0.28)",
-    boxShadow: "0 2px 10px rgba(59, 130, 246, 0.12)"
-  };
+  // ── Live pill position that follows the finger ────────────────────────────
+  function getPillStyle() {
+    const percentWidth = 100 / tabs.length;
+
+    if (!touching || fingerX === null || !navRef.current) {
+      // Snap to active tab with spring animation
+      return {
+        position: "absolute",
+        top: "6px",
+        bottom: "6px",
+        left: `calc(${activeIndex * percentWidth}% + 6px)`,
+        width: `calc(${percentWidth}% - 12px)`,
+        background: "rgba(59, 130, 246, 0.14)",
+        borderRadius: "20px",
+        transition: "left 0.32s cubic-bezier(0.34, 1.56, 0.64, 1)",
+        pointerEvents: "none",
+        border: "1px solid rgba(59, 130, 246, 0.28)",
+        boxShadow: "0 2px 10px rgba(59, 130, 246, 0.12)"
+      };
+    }
+
+    // Live: compute pill left based on fingerX inside the nav
+    const navRect   = navRef.current.getBoundingClientRect();
+    const navWidth  = navRect.width;
+    const tabWidth  = navWidth / tabs.length;
+    const pillWidth = tabWidth - 12;
+    // pill center tracks finger, clamped inside nav
+    const fingerInNav  = fingerX - navRect.left;
+    const pillCenter   = Math.max(pillWidth / 2 + 6, Math.min(navWidth - pillWidth / 2 - 6, fingerInNav));
+    const pillLeft     = pillCenter - pillWidth / 2;
+
+    return {
+      position: "absolute",
+      top: "6px",
+      bottom: "6px",
+      left: `${pillLeft}px`,
+      width: `${pillWidth}px`,
+      background: "rgba(59, 130, 246, 0.18)",
+      borderRadius: "20px",
+      transition: "none",           // instant follow during touch
+      pointerEvents: "none",
+      border: "1px solid rgba(59, 130, 246, 0.40)",
+      boxShadow: "0 2px 14px rgba(59, 130, 246, 0.25)"
+    };
+  }
 
   return (
     <div
@@ -125,8 +155,8 @@ export default function MobileBottomNav({ tabs, activeTab, onChange }) {
         overflow: "hidden"
       }}
     >
-      {/* Sliding Active Pill */}
-      {activeIndex !== -1 && <div style={indicatorStyle} />}
+      {/* Sliding Active Pill — follows finger live */}
+      {activeIndex !== -1 && <div style={getPillStyle()} />}
 
       {/* Tabs */}
       {tabs.map((tab, idx) => {
