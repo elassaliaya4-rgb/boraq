@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useApp } from "../lib/context";
 
 // iOS-style Toggle Switch Component
@@ -26,16 +26,16 @@ function ToggleSwitch({ checked, onChange, colorOn = "#3b82f6" }) {
         left: checked ? "23px" : "3px",
         width: "20px",
         height: "20px",
-        borderRadius: "50%",
-        background: "#ffffff",
-        transition: "left 0.25s cubic-bezier(0.4,0,0.2,1)",
-        boxShadow: "0 2px 6px rgba(0,0,0,0.35)"
+        borderRadius: "10px",
+        background: "white",
+        boxShadow: "0 2px 4px rgba(0,0,0,0.4)",
+        transition: "left 0.25s cubic-bezier(0.25, 0.8, 0.25, 1)"
       }} />
     </div>
   );
 }
 
-// Drawer Row Item with icon, label, and optional right content
+// Drawer Row helper component
 function DrawerRow({ icon, label, onClick, rightContent, danger }) {
   return (
     <div
@@ -43,11 +43,9 @@ function DrawerRow({ icon, label, onClick, rightContent, danger }) {
       style={{
         display: "flex",
         alignItems: "center",
-        gap: "14px",
-        width: "100%",
-        padding: "13px 16px",
+        justifyContent: "space-between",
+        padding: "12px 14px",
         borderRadius: "12px",
-        cursor: onClick ? "pointer" : "default",
         background: danger ? "rgba(239,68,68,0.06)" : "transparent",
         border: danger ? "1px solid rgba(239,68,68,0.15)" : "1px solid transparent",
         transition: "background 0.18s ease",
@@ -98,7 +96,16 @@ export default function MobileHeader({ profileName, onScanClick, onLogout }) {
   const { t, lang, setLang, theme, toggleTheme } = useApp();
   const [isOpen, setIsOpen] = useState(false);
 
+  const [width, setWidth] = useState(window.innerWidth);
+  useEffect(() => {
+    const handleResize = () => setWidth(window.innerWidth);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   const isAr = lang === "ar";
+
+  if (width > 768) return null;
 
   function handleLogoutClick() {
     setIsOpen(false);

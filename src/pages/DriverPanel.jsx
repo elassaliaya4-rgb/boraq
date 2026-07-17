@@ -243,13 +243,11 @@ export default function DriverPanel() {
 
   return (
     <div className={`app ${isMobileAPK ? "native-apk" : ""}`} style={isMobileAPK ? { flexDirection: "column" } : {}}>
-      {isMobileAPK && (
-        <MobileHeader 
-          profileName={profile?.name || user?.email}
-          onScanClick={() => setShowScanner(true)}
-          onLogout={confirmSignOut}
-        />
-      )}
+      <MobileHeader 
+        profileName={profile?.name || user?.email}
+        onScanClick={() => setShowScanner(true)}
+        onLogout={confirmSignOut}
+      />
       <div style={isMobileAPK ? { display: "flex", flex: 1, width: "100%", overflow: "hidden" } : { display: "contents" }}>
         <aside className="sidebar">
           <div className="logo" style={{ fontSize: 22, marginBottom: 18 }}>⚡ {t.appName}</div>
