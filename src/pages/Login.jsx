@@ -60,12 +60,73 @@ export default function Login() {
     <div className="login-wrap">
       <div className="login-card">
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 15 }}>
-          <button
-            className="btn-sm"
+          {/* ── Premium Sliding Language Toggle ── */}
+          <div
+            style={{
+              position: "relative",
+              display: "inline-flex",
+              alignItems: "center",
+              borderRadius: "12px",
+              border: "1px solid var(--border)",
+              background: "var(--surface-2)",
+              padding: "2px",
+              cursor: "pointer",
+              userSelect: "none",
+              height: "38px",
+              width: "125px",
+              boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+              overflow: "hidden"
+            }}
             onClick={() => setLang(lang === "ar" ? "fr" : "ar")}
           >
-            🌐 {lang === "ar" ? "Français" : "العربية"}
-          </button>
+            {/* Sliding active pill */}
+            <div style={{
+              position: "absolute",
+              top: "2px",
+              bottom: "2px",
+              left: lang === "fr" ? "2px" : "calc(50% + 1px)",
+              width: "calc(50% - 3px)",
+              background: "linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%)",
+              borderRadius: "9px",
+              boxShadow: "0 2px 8px rgba(37, 99, 235, 0.4)",
+              transition: "left 0.25s cubic-bezier(0.4, 0, 0.2, 1)",
+              zIndex: 1
+            }} />
+
+            {/* FR Option */}
+            <div style={{
+              flex: 1,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "4px",
+              fontSize: "11px",
+              fontWeight: "700",
+              color: lang === "fr" ? "#fff" : "var(--text-dim)",
+              zIndex: 2,
+              transition: "color 0.2s"
+            }}>
+              <span style={{ fontSize: "14px" }}>🇫🇷</span>
+              <span>FR</span>
+            </div>
+
+            {/* AR Option */}
+            <div style={{
+              flex: 1,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "4px",
+              fontSize: "11px",
+              fontWeight: "700",
+              color: lang === "ar" ? "#fff" : "var(--text-dim)",
+              zIndex: 2,
+              transition: "color 0.2s"
+            }}>
+              <span style={{ fontSize: "14px" }}>🇲🇦</span>
+              <span>عربي</span>
+            </div>
+          </div>
           <button
             className="btn-sm"
             onClick={() => {

@@ -439,40 +439,72 @@ export default function AdminPanel() {
             </button>
 
             {/* ── Premium Language Toggle Pill ── */}
+            {/* ── Premium Sliding Language Toggle ── */}
             <div
-              onClick={() => setLang(lang === "ar" ? "fr" : "ar")}
               style={{
+                position: "relative",
                 display: "inline-flex",
                 alignItems: "center",
-                gap: 0,
                 borderRadius: "12px",
                 border: "1px solid var(--border)",
-                background: "var(--surface)",
-                overflow: "hidden",
+                background: "var(--surface-2)",
+                padding: "2px",
                 cursor: "pointer",
                 userSelect: "none",
                 height: "38px",
-                boxShadow: "0 2px 8px rgba(0,0,0,0.2)"
+                width: "125px",
+                boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+                overflow: "hidden"
               }}
+              onClick={() => setLang(lang === "ar" ? "fr" : "ar")}
             >
-              {[{code:"ar",label:"عربي",flag:"🇲🇦"},{code:"fr",label:"FR",flag:"🇫🇷"}].map(opt => (
-                <div key={opt.code} style={{
-                  padding: "0 14px",
-                  height: "100%",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "5px",
-                  fontSize: "12px",
-                  fontWeight: "700",
-                  background: lang === opt.code ? "linear-gradient(135deg, rgba(59,130,246,0.25), rgba(99,102,241,0.15))" : "transparent",
-                  color: lang === opt.code ? "#93c5fd" : "var(--text-dim)",
-                  borderInlineEnd: opt.code === "ar" ? "1px solid var(--border)" : "none",
-                  transition: "all 0.2s ease"
-                }}>
-                  <span style={{fontSize:"15px"}}>{opt.flag}</span>
-                  {opt.label}
-                </div>
-              ))}
+              {/* Sliding active pill */}
+              <div style={{
+                position: "absolute",
+                top: "2px",
+                bottom: "2px",
+                left: lang === "fr" ? "2px" : "calc(50% + 1px)",
+                width: "calc(50% - 3px)",
+                background: "linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%)",
+                borderRadius: "9px",
+                boxShadow: "0 2px 8px rgba(37, 99, 235, 0.4)",
+                transition: "left 0.25s cubic-bezier(0.4, 0, 0.2, 1)",
+                zIndex: 1
+              }} />
+
+              {/* FR Option */}
+              <div style={{
+                flex: 1,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "4px",
+                fontSize: "11px",
+                fontWeight: "700",
+                color: lang === "fr" ? "#fff" : "var(--text-dim)",
+                zIndex: 2,
+                transition: "color 0.2s"
+              }}>
+                <span style={{ fontSize: "14px" }}>🇫🇷</span>
+                <span>FR</span>
+              </div>
+
+              {/* AR Option */}
+              <div style={{
+                flex: 1,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "4px",
+                fontSize: "11px",
+                fontWeight: "700",
+                color: lang === "ar" ? "#fff" : "var(--text-dim)",
+                zIndex: 2,
+                transition: "color 0.2s"
+              }}>
+                <span style={{ fontSize: "14px" }}>🇲🇦</span>
+                <span>عربي</span>
+              </div>
             </div>
 
             {/* ── Theme Toggle ── */}

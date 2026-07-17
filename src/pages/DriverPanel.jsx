@@ -398,22 +398,73 @@ export default function DriverPanel() {
               </svg>
               <span>{t.scan}</span>
             </button>
-            <button 
-              className="btn-sm" 
-              onClick={() => setLang(lang === "ar" ? "fr" : "ar")}
+            {/* ── Premium Sliding Language Toggle ── */}
+            <div
               style={{
-                padding: "8px 12px",
-                fontSize: "13px",
-                fontWeight: "600",
-                borderRadius: "8px",
-                cursor: "pointer",
+                position: "relative",
                 display: "inline-flex",
                 alignItems: "center",
-                gap: "5px"
+                borderRadius: "12px",
+                border: "1px solid var(--border)",
+                background: "var(--surface-2)",
+                padding: "2px",
+                cursor: "pointer",
+                userSelect: "none",
+                height: "38px",
+                width: "125px",
+                boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+                overflow: "hidden"
               }}
+              onClick={() => setLang(lang === "ar" ? "fr" : "ar")}
             >
-              🌐 {lang === "ar" ? "FR" : "عربي"}
-            </button>
+              {/* Sliding active pill */}
+              <div style={{
+                position: "absolute",
+                top: "2px",
+                bottom: "2px",
+                left: lang === "fr" ? "2px" : "calc(50% + 1px)",
+                width: "calc(50% - 3px)",
+                background: "linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%)",
+                borderRadius: "9px",
+                boxShadow: "0 2px 8px rgba(37, 99, 235, 0.4)",
+                transition: "left 0.25s cubic-bezier(0.4, 0, 0.2, 1)",
+                zIndex: 1
+              }} />
+
+              {/* FR Option */}
+              <div style={{
+                flex: 1,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "4px",
+                fontSize: "11px",
+                fontWeight: "700",
+                color: lang === "fr" ? "#fff" : "var(--text-dim)",
+                zIndex: 2,
+                transition: "color 0.2s"
+              }}>
+                <span style={{ fontSize: "14px" }}>🇫🇷</span>
+                <span>FR</span>
+              </div>
+
+              {/* AR Option */}
+              <div style={{
+                flex: 1,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "4px",
+                fontSize: "11px",
+                fontWeight: "700",
+                color: lang === "ar" ? "#fff" : "var(--text-dim)",
+                zIndex: 2,
+                transition: "color 0.2s"
+              }}>
+                <span style={{ fontSize: "14px" }}>🇲🇦</span>
+                <span>عربي</span>
+              </div>
+            </div>
             <button 
               className="btn-sm" 
               onClick={toggleTheme}
