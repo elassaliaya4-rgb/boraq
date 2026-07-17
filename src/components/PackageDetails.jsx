@@ -308,7 +308,7 @@ export default function PackageDetails({ pkg, agencies, onClose, onUpdated, onDe
       </div>
 
       {showTicket && (
-        <Ticket pkg={pkg} onClose={() => setShowTicket(false)} />
+        <Ticket pkg={pkg} agencyName={agencyName} onClose={() => setShowTicket(false)} />
       )}
 
       {wa && (

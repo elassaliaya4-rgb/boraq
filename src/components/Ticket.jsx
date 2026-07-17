@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import QRCode from "qrcode";
 import { useApp } from "../lib/context";
 
-export default function Ticket({ pkg, onClose }) {
+export default function Ticket({ pkg, agencyName, onClose }) {
   const { t, lang } = useApp();
   const canvasRef = useRef(null);
 
@@ -36,7 +36,9 @@ export default function Ticket({ pkg, onClose }) {
       <div className="modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 360 }}>
         <div className="ticket" id="ticket-print">
           <div className="t-head">
-            <div className="t-logo">⚡ {t.appName}</div>
+            <div className="t-logo">
+              {agencyName && agencyName !== "—" ? `⚡ ${agencyName}` : `⚡ ${t.appName}`}
+            </div>
             <div style={{ fontSize: 11, color: "#888" }}>Cargo & Livraison</div>
           </div>
           <div className="t-num">{pkg.tracking_number}</div>
