@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { useApp } from "../lib/context";
 
 export default function MobileBottomNav({ tabs, activeTab, onChange }) {
@@ -8,9 +8,18 @@ export default function MobileBottomNav({ tabs, activeTab, onChange }) {
   const swipeStartX   = useRef(null);
   const swipeStartY   = useRef(null);
 
+  const [width, setWidth] = useState(window.innerWidth);
+  useEffect(() => {
+    const handleResize = () => setWidth(window.innerWidth);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   const { theme } = useApp();
   const isLight = theme === "light";
   const activeIndex = tabs.findIndex((t) => t.id === activeTab);
+
+  if (width > 768) return null;
 
   // ── get which tab index the finger is hovering over ──────────────────────
   function getTabIdxAtX(clientX) {
