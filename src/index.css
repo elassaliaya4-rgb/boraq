@@ -1073,6 +1073,12 @@ input, select, textarea {
     display: none !important;
   }
   
+  /* Hide desktop language and theme toggles on mobile screens */
+  .lang-selector-desktop,
+  .theme-toggle-desktop {
+    display: none !important;
+  }
+  
   /* Show custom floating bottom navigation */
   .mobile-bottom-nav {
     display: flex;

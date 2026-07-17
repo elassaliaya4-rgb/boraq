@@ -438,9 +438,9 @@ export default function AdminPanel() {
               <span>{t.scan}</span>
             </button>
 
-            {/* ── Premium Language Toggle Pill ── */}
             {/* ── Premium Sliding Language Toggle ── */}
             <div
+              className="lang-selector-desktop"
               style={{
                 position: "relative",
                 display: "inline-flex",
@@ -509,6 +509,7 @@ export default function AdminPanel() {
 
             {/* ── Theme Toggle ── */}
             <button
+              className="theme-toggle-desktop"
               onClick={toggleTheme}
               style={{
                 width: "38px",

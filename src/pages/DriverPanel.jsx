@@ -400,6 +400,7 @@ export default function DriverPanel() {
             </button>
             {/* ── Premium Sliding Language Toggle ── */}
             <div
+              className="lang-selector-desktop"
               style={{
                 position: "relative",
                 display: "inline-flex",
@@ -466,7 +467,7 @@ export default function DriverPanel() {
               </div>
             </div>
             <button 
-              className="btn-sm" 
+              className="theme-toggle-desktop"
               onClick={toggleTheme}
               style={{
                 padding: "8px 12px",
