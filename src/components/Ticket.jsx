@@ -44,7 +44,6 @@ export default function Ticket({ pkg, agencyName, onClose }) {
           <div className="t-num">{pkg.tracking_number}</div>
           <div className="t-row"><span className="k">{t.senderName}</span><span className="v">{pkg.sender_name}</span></div>
           <div className="t-row"><span className="k">{t.receiverName}</span><span className="v">{pkg.receiver_name}</span></div>
-          <div className="t-row"><span className="k">{t.origin}</span><span className="v">{pkg.origin}</span></div>
           <div className="t-row"><span className="k">{t.destination}</span><span className="v">{pkg.destination}</span></div>
           <div className="t-row"><span className="k">{t.weight}</span><span className="v">{pkg.weight} {t.kg}</span></div>
           <div className="t-row"><span className="k">{t.dateSent}</span><span className="v">{pkg.date_sent}</span></div>

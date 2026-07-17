@@ -6,7 +6,7 @@ import { statusColors, statusBg, buildWhatsAppLink } from "../lib/helpers";
 import Ticket from "./Ticket";
 
 export default function PackageDetails({ pkg, agencies, onClose, onUpdated, onDelete }) {
-  const { t, lang } = useApp();
+  const { t, lang, profile } = useApp();
   const [showTicket, setShowTicket] = useState(false);
   const [wa, setWa] = useState(null);
   const [busy, setBusy] = useState(false);
@@ -42,6 +42,10 @@ export default function PackageDetails({ pkg, agencies, onClose, onUpdated, onDe
 
   const agencyName =
     agencies.find((a) => a.id === pkg.agency_id)?.name || "—";
+  const activeAgencyName = profile?.agency_id
+    ? (agencies.find((a) => a.id === profile.agency_id)?.name)
+    : null;
+  const ticketAgencyName = activeAgencyName && activeAgencyName !== "—" ? activeAgencyName : agencyName;
   const curIdx = FLOW.indexOf(pkg.status);
   const nextStatus = curIdx < FLOW.length - 1 ? FLOW[curIdx + 1] : null;
 
@@ -308,7 +312,7 @@ export default function PackageDetails({ pkg, agencies, onClose, onUpdated, onDe
       </div>
 
       {showTicket && (
-        <Ticket pkg={pkg} agencyName={agencyName} onClose={() => setShowTicket(false)} />
+        <Ticket pkg={pkg} agencyName={ticketAgencyName} onClose={() => setShowTicket(false)} />
       )}
 
       {wa && (
