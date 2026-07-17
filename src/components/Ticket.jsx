@@ -46,6 +46,9 @@ export default function Ticket({ pkg, onClose }) {
           <div className="t-row"><span className="k">{t.destination}</span><span className="v">{pkg.destination}</span></div>
           <div className="t-row"><span className="k">{t.weight}</span><span className="v">{pkg.weight} {t.kg}</span></div>
           <div className="t-row"><span className="k">{t.dateSent}</span><span className="v">{pkg.date_sent}</span></div>
+          <div className="t-row"><span className="k">{t.totalPrice}</span><span className="v" style={{ fontWeight: "700" }}>{pkg.total_price || (pkg.weight * (pkg.price_per_kg || 20))} DH</span></div>
+          <div className="t-row"><span className="k">{t.payer}</span><span className="v">{pkg.payer === "sender" ? t.sender : t.receiver}</span></div>
+          <div className="t-row"><span className="k">{t.paymentStatus}</span><span className="v" style={{ fontWeight: "700" }}>{pkg.payment_status === "paid" ? t.paid : t.unpaid}</span></div>
           <div className="t-qr"><canvas ref={canvasRef}></canvas></div>
         </div>
         <div className="modal-actions" style={{ gap: 8 }}>

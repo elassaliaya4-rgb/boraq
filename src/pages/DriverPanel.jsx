@@ -293,13 +293,15 @@ export default function DriverPanel() {
               <div style={{ fontSize: "14px", fontWeight: "600", color: "#fff", marginTop: "2px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                 {driverInfo.name}
               </div>
-              <div style={{ display: "flex", alignItems: "center", gap: "6px", marginTop: "4px", fontSize: "10px", color: "var(--text-dim)" }}>
-                <span style={{ display: "flex", alignItems: "center", gap: "2px" }}>
-                  🚚 {lang === "ar" ? "سائق" : "Saa'iq"}
+              <div style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "6px", fontSize: "10px", color: "var(--text-dim)" }}>
+                <span style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}>
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: 2 }}><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+                  {lang === "ar" ? "سائق" : "Conducteur"}
                 </span>
                 <span style={{ color: "rgba(255, 255, 255, 0.15)" }}>•</span>
-                <span style={{ display: "flex", alignItems: "center", gap: "2px" }}>
-                  🔑 {driverInfo.code}
+                <span style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}>
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+                  {driverInfo.code}
                 </span>
               </div>
             </div>
@@ -308,7 +310,7 @@ export default function DriverPanel() {
 
         <div className="nav-grid">
           <NavBtn
-            icon="📦"
+            icon={<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 16, height: 16 }}><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>}
             label={lang === "ar" ? "ورقة الطريق" : "Feuille de Route"}
             active={true}
             onClick={() => {}}
@@ -654,8 +656,9 @@ function NavBtn({ icon, label, active, onClick, badge }) {
       <div style={{
         width: 32, height: 32, borderRadius: 9,
         background: active ? "rgba(59,130,246,0.2)" : "rgba(255,255,255,0.06)",
+        color: active ? "#3b82f6" : "var(--text-dim)",
         display: "flex", alignItems: "center", justifyContent: "center",
-        fontSize: 16, flexShrink: 0, transition: "background 0.2s"
+        flexShrink: 0, transition: "all 0.2s ease"
       }}>{icon}</div>
       <span style={{ flex: 1 }}>{label}</span>
       {badge > 0 && <span className="badge">{badge}</span>}

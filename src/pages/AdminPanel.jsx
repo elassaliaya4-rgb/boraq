@@ -307,12 +307,30 @@ export default function AdminPanel() {
         <aside className="sidebar">
           <div className="logo" style={{ fontSize: 22, marginBottom: 18 }}>⚡ {t.appName}</div>
         <div className="nav-grid">
-          <NavBtn icon="📊" label={t.dashboard} active={tab === "dashboard"} onClick={() => setTab("dashboard")} />
-          <NavBtn icon="📦" label={t.packages} active={tab === "packages"} onClick={() => setTab("packages")} />
-          <NavBtn icon="✅" label={lang === "ar" ? "التحقق والمسح" : "Scan & Validation"} active={tab === "scan_session"} onClick={() => setTab("scan_session")} />
-          <NavBtn icon="🏢" label={t.agencies} active={tab === "agencies"} onClick={() => setTab("agencies")} />
-          <NavBtn icon="🚚" label={lang === "ar" ? "السائقين" : "Chauffeurs"} active={tab === "drivers"} onClick={() => setTab("drivers")} />
-          <NavBtn icon="🔔" label={t.notifications} active={tab === "notifs"} onClick={() => setTab("notifs")} badge={unread} />
+          <NavBtn
+            icon={<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3m0 4h4v-4m-4 0h4"/></svg>}
+            iconColor="#818cf8"
+            label={t.dashboard} active={tab === "dashboard"} onClick={() => setTab("dashboard")} />
+          <NavBtn
+            icon={<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l2-1.14"/><path d="m7.5 4.27 9 5.15"/><polyline points="3.29 7 12 12 20.71 7"/><line x1="12" y1="22" x2="12" y2="12"/><circle cx="18.5" cy="15.5" r="2.5"/><path d="M20.27 17.27 22 19"/></svg>}
+            iconColor="#38bdf8"
+            label={t.packages} active={tab === "packages"} onClick={() => setTab("packages")} />
+          <NavBtn
+            icon={<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><polyline points="7 12 10 15 17 8"/></svg>}
+            iconColor="#34d399"
+            label={lang === "ar" ? "التحقق والمسح" : "Scan & Validation"} active={tab === "scan_session"} onClick={() => setTab("scan_session")} />
+          <NavBtn
+            icon={<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>}
+            iconColor="#fb923c"
+            label={t.agencies} active={tab === "agencies"} onClick={() => setTab("agencies")} />
+          <NavBtn
+            icon={<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 5v3h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>}
+            iconColor="#facc15"
+            label={lang === "ar" ? "السائقين" : "Chauffeurs"} active={tab === "drivers"} onClick={() => setTab("drivers")} />
+          <NavBtn
+            icon={<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>}
+            iconColor="#f472b6"
+            label={t.notifications} active={tab === "notifs"} onClick={() => setTab("notifs")} badge={unread} />
         </div>
         
         {/* Premium Logout Button at bottom of sidebar */}
@@ -390,67 +408,102 @@ export default function AdminPanel() {
             <h1>{t.adminPanel}</h1>
           </div>
           <div className="topbar-actions">
-            <button 
-              className="btn-accent" 
+            {/* ── Premium Scan Button ── */}
+            <button
               onClick={() => setShowScanner(true)}
               style={{
                 display: "inline-flex",
                 alignItems: "center",
-                gap: "6px",
-                padding: "8px 14px",
+                gap: "8px",
+                padding: "9px 18px",
                 fontSize: "13px",
-                fontWeight: "600",
-                borderRadius: "8px",
-                cursor: "pointer"
+                fontWeight: "700",
+                borderRadius: "12px",
+                cursor: "pointer",
+                background: "linear-gradient(135deg, #0ea5e9, #6366f1)",
+                border: "1px solid rgba(99,102,241,0.4)",
+                color: "#fff",
+                boxShadow: "0 4px 16px rgba(99,102,241,0.35), inset 0 1px 0 rgba(255,255,255,0.15)",
+                letterSpacing: "0.02em",
+                transition: "all 0.2s ease",
+                position: "relative",
+                overflow: "hidden"
               }}
+              onMouseEnter={e => { e.currentTarget.style.boxShadow = "0 6px 24px rgba(99,102,241,0.55)"; e.currentTarget.style.transform = "translateY(-1px)"; }}
+              onMouseLeave={e => { e.currentTarget.style.boxShadow = "0 4px 16px rgba(99,102,241,0.35)"; e.currentTarget.style.transform = "translateY(0)"; }}
             >
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
-                <path d="M3 7V5a2 2 0 0 1 2-2h2" />
-                <path d="M17 3h2a2 2 0 0 1 2 2v2" />
-                <path d="M21 17v2a2 2 0 0 1-2 2h-2" />
-                <path d="M3 17v2a2 2 0 0 0 2 2h2" />
-                <line x1="7" y1="12" x2="17" y2="12" />
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/>
+                <path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M3 17v2a2 2 0 0 0 2 2h2"/>
+                <line x1="7" y1="12" x2="17" y2="12"/>
               </svg>
               <span>{t.scan}</span>
             </button>
-            <button 
-              className="btn-sm" 
+
+            {/* ── Premium Language Toggle Pill ── */}
+            <div
               onClick={() => setLang(lang === "ar" ? "fr" : "ar")}
               style={{
-                padding: "8px 12px",
-                fontSize: "13px",
-                fontWeight: "600",
-                borderRadius: "8px",
-                cursor: "pointer",
                 display: "inline-flex",
                 alignItems: "center",
-                gap: "5px"
+                gap: 0,
+                borderRadius: "12px",
+                border: "1px solid var(--border)",
+                background: "var(--surface)",
+                overflow: "hidden",
+                cursor: "pointer",
+                userSelect: "none",
+                height: "38px",
+                boxShadow: "0 2px 8px rgba(0,0,0,0.2)"
               }}
             >
-              🌐 {lang === "ar" ? "FR" : "عربي"}
-            </button>
-            <button 
-              className="btn-sm" 
+              {[{code:"ar",label:"عربي",flag:"🇲🇦"},{code:"fr",label:"FR",flag:"🇫🇷"}].map(opt => (
+                <div key={opt.code} style={{
+                  padding: "0 14px",
+                  height: "100%",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "5px",
+                  fontSize: "12px",
+                  fontWeight: "700",
+                  background: lang === opt.code ? "linear-gradient(135deg, rgba(59,130,246,0.25), rgba(99,102,241,0.15))" : "transparent",
+                  color: lang === opt.code ? "#93c5fd" : "var(--text-dim)",
+                  borderInlineEnd: opt.code === "ar" ? "1px solid var(--border)" : "none",
+                  transition: "all 0.2s ease"
+                }}>
+                  <span style={{fontSize:"15px"}}>{opt.flag}</span>
+                  {opt.label}
+                </div>
+              ))}
+            </div>
+
+            {/* ── Theme Toggle ── */}
+            <button
               onClick={toggleTheme}
               style={{
-                padding: "8px 12px",
-                fontSize: "13px",
-                fontWeight: "600",
-                borderRadius: "8px",
+                width: "38px",
+                height: "38px",
+                padding: 0,
+                fontSize: "16px",
+                borderRadius: "12px",
                 cursor: "pointer",
                 display: "inline-flex",
                 alignItems: "center",
-                gap: "5px",
-                background: "rgba(255,255,255,0.06)",
+                justifyContent: "center",
+                background: "var(--surface)",
                 border: "1px solid var(--border)",
-                color: "var(--text)"
+                color: "var(--text)",
+                boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
+                transition: "all 0.2s ease"
               }}
+              onMouseEnter={e => e.currentTarget.style.borderColor = "var(--primary)"}
+              onMouseLeave={e => e.currentTarget.style.borderColor = "var(--border)"}
               title={lang === "ar" ? "تغيير المظهر" : "Changer le thème"}
             >
               {theme === "dark" ? "☀️" : "🌙"}
             </button>
-          </div>
         </div>
+      </div>
 
         {/* Session Scanned Packages Tray */}
         {scannedSessionPkgs.length > 0 && (
@@ -1013,34 +1066,55 @@ export default function AdminPanel() {
   );
 }
 
-function NavBtn({ icon, label, active, onClick, badge }) {
+function NavBtn({ icon, iconColor, label, active, onClick, badge }) {
   return (
     <button
       className={`nav-item ${active ? "active" : ""}`}
       onClick={onClick}
       style={{ display: "flex", alignItems: "center", gap: "12px" }}
     >
-      {/* Icon Badge */}
+      {/* SVG Icon Badge */}
       <div style={{
-        width: "32px",
-        height: "32px",
-        borderRadius: "9px",
+        width: "34px",
+        height: "34px",
+        borderRadius: "10px",
         background: active
-          ? "rgba(59,130,246,0.2)"
-          : "rgba(255,255,255,0.06)",
+          ? `rgba(${iconColor ? hexToRgb(iconColor) : "59,130,246"}, 0.18)`
+          : "rgba(255,255,255,0.05)",
+        border: active
+          ? `1px solid rgba(${iconColor ? hexToRgb(iconColor) : "59,130,246"}, 0.3)`
+          : "1px solid transparent",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        fontSize: "16px",
         flexShrink: 0,
-        transition: "background 0.2s"
+        transition: "all 0.2s ease",
+        boxShadow: active ? `0 0 12px rgba(${iconColor ? hexToRgb(iconColor) : "59,130,246"}, 0.25)` : "none"
       }}>
-        {icon}
+        <div style={{
+          width: "18px",
+          height: "18px",
+          color: active ? (iconColor || "var(--primary)") : "var(--text-dim)",
+          transition: "color 0.2s ease",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center"
+        }}>
+          {icon}
+        </div>
       </div>
-      <span style={{ flex: 1 }}>{label}</span>
+      <span style={{ flex: 1, fontSize: "13.5px", fontWeight: active ? "600" : "500" }}>{label}</span>
       {badge > 0 && <span className="badge">{badge}</span>}
     </button>
   );
+}
+
+// Helper: convert #hex color to "r,g,b" string for rgba()
+function hexToRgb(hex) {
+  const r = parseInt(hex.slice(1,3),16);
+  const g = parseInt(hex.slice(3,5),16);
+  const b = parseInt(hex.slice(5,7),16);
+  return `${r},${g},${b}`;
 }
 
 function Stat({ val, lbl, onClick }) {

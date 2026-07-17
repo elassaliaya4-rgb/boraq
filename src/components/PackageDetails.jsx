@@ -58,6 +58,24 @@ export default function PackageDetails({ pkg, agencies, onClose, onUpdated, onDe
     onClose();
   }
 
+  async function markAsPaid() {
+    setBusy(true);
+    const { error } = await supabase
+      .from("packages")
+      .update({ 
+        payment_status: "paid",
+        paid_at: new Date().toISOString()
+      })
+      .eq("id", pkg.id);
+    setBusy(false);
+    if (error) {
+      alert("Error: " + error.message);
+    } else {
+      onUpdated && onUpdated();
+      onClose();
+    }
+  }
+
   function openWhatsApp(who) {
     setWa(buildWhatsAppLink(pkg, who, agencyName, lang, t));
   }
@@ -207,7 +225,28 @@ export default function PackageDetails({ pkg, agencies, onClose, onUpdated, onDe
           <Row k={t.destAgency} v={agencyName} />
           <Row k={"⚖️ " + t.weight} v={pkg.weight + " " + t.kg} />
           <Row k={"📅 " + t.dateSent} v={pkg.date_sent} />
+          <Row k={"💰 " + t.pricePerKg} v={(pkg.price_per_kg || 20) + " DH"} />
+          <Row k={"💳 " + t.totalPrice} v={(pkg.total_price || (pkg.weight * (pkg.price_per_kg || 20))) + " DH"} highlight={true} />
+          <Row k={"👤 " + t.payer} v={pkg.payer === "sender" ? t.sender : t.receiver} />
+          <Row k={"📊 " + t.paymentStatus} v={pkg.payment_status === "paid" ? `✅ ${t.paid}` : `❌ ${t.unpaid}`} highlight={true} />
         </div>
+
+        {pkg.payment_status !== "paid" && (
+          <button 
+            className="btn-accent btn-block" 
+            onClick={markAsPaid} 
+            disabled={busy} 
+            style={{ 
+              fontSize: 13, 
+              padding: "12px 10px", 
+              background: "linear-gradient(135deg, #10b981, #059669)", 
+              boxShadow: "0 4px 12px rgba(16,185,129,0.3)",
+              marginBottom: 10
+            }}
+          >
+            💵 {t.markAsPaid}
+          </button>
+        )}
 
         {nextStatus ? (
           <button className="btn-accent btn-block" onClick={advance} disabled={busy} style={{ fontSize: 13, padding: "12px 10px" }}>

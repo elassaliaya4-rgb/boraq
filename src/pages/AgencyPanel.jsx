@@ -234,13 +234,15 @@ export default function AgencyPanel() {
               <div style={{ fontSize: "14px", fontWeight: "600", color: "#fff", marginTop: "2px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                 {agencyInfo.name}
               </div>
-              <div style={{ display: "flex", alignItems: "center", gap: "6px", marginTop: "4px", fontSize: "10px", color: "var(--text-dim)" }}>
-                <span style={{ display: "flex", alignItems: "center", gap: "2px" }}>
-                  📍 {agencyInfo.city}
+              <div style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "6px", fontSize: "10px", color: "var(--text-dim)" }}>
+                <span style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}>
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                  {agencyInfo.city}
                 </span>
                 <span style={{ color: "rgba(255, 255, 255, 0.15)" }}>•</span>
-                <span style={{ display: "flex", alignItems: "center", gap: "2px" }}>
-                  🔑 {agencyInfo.code}
+                <span style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}>
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+                  {agencyInfo.code}
                 </span>
               </div>
             </div>
@@ -248,15 +250,51 @@ export default function AgencyPanel() {
         )}
         <div className="nav-grid">
           <button className={`nav-item ${tab === "packages" ? "active" : ""}`} onClick={() => setTab("packages")} style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-            <div style={{ width: 32, height: 32, borderRadius: 9, background: tab === "packages" ? "rgba(59,130,246,0.2)" : "rgba(255,255,255,0.06)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, flexShrink: 0, transition: "background 0.2s" }}>📦</div>
+            <div style={{
+              width: 32, height: 32, borderRadius: 9,
+              background: tab === "packages" ? "rgba(59,130,246,0.2)" : "rgba(255,255,255,0.06)",
+              color: tab === "packages" ? "#3b82f6" : "var(--text-dim)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              flexShrink: 0, transition: "all 0.2s ease"
+            }}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 16, height: 16 }}>
+                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+                <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
+                <line x1="12" y1="22.08" x2="12" y2="12" />
+              </svg>
+            </div>
             <span style={{ flex: 1 }}>{t.myPackages}</span>
           </button>
+
           <button className={`nav-item ${tab === "scan_session" ? "active" : ""}`} onClick={() => setTab("scan_session")} style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-            <div style={{ width: 32, height: 32, borderRadius: 9, background: tab === "scan_session" ? "rgba(59,130,246,0.2)" : "rgba(255,255,255,0.06)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, flexShrink: 0, transition: "background 0.2s" }}>✅</div>
+            <div style={{
+              width: 32, height: 32, borderRadius: 9,
+              background: tab === "scan_session" ? "rgba(59,130,246,0.2)" : "rgba(255,255,255,0.06)",
+              color: tab === "scan_session" ? "#10b981" : "var(--text-dim)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              flexShrink: 0, transition: "all 0.2s ease"
+            }}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 16, height: 16 }}>
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                <polyline points="9 11 11 13 15 9" />
+              </svg>
+            </div>
             <span style={{ flex: 1 }}>{lang === "ar" ? "التحقق والمسح" : "Scan & Validation"}</span>
           </button>
+
           <button className={`nav-item ${tab === "notifs" ? "active" : ""}`} onClick={() => setTab("notifs")} style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-            <div style={{ width: 32, height: 32, borderRadius: 9, background: tab === "notifs" ? "rgba(59,130,246,0.2)" : "rgba(255,255,255,0.06)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, flexShrink: 0, transition: "background 0.2s" }}>🔔</div>
+            <div style={{
+              width: 32, height: 32, borderRadius: 9,
+              background: tab === "notifs" ? "rgba(59,130,246,0.2)" : "rgba(255,255,255,0.06)",
+              color: tab === "notifs" ? "#f59e0b" : "var(--text-dim)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              flexShrink: 0, transition: "all 0.2s ease"
+            }}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 16, height: 16 }}>
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+              </svg>
+            </div>
             <span style={{ flex: 1 }}>{t.notifications}</span>
             {unread > 0 && <span className="badge">{unread}</span>}
           </button>
