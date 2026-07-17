@@ -1079,6 +1079,11 @@ input, select, textarea {
     display: none !important;
   }
   
+  /* Hide elements marked specifically for mobile hiding */
+  .hide-on-mobile {
+    display: none !important;
+  }
+  
   /* Show custom floating bottom navigation */
   .mobile-bottom-nav {
     display: flex;

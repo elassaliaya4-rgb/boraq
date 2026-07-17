@@ -592,7 +592,7 @@ export default function AgencyPanel() {
               <h2>✅ {lang === "ar" ? "بوابة التحقق والمسح" : "Centre de Vérification"}</h2>
               <button 
                 onClick={() => setShowScanner(true)} 
-                className="btn-accent"
+                className="btn-accent hide-on-mobile"
                 style={{
                   display: "inline-flex",
                   alignItems: "center",

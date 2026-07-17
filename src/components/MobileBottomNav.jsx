@@ -47,7 +47,7 @@ export default function MobileBottomNav({ tabs, activeTab, onChange }) {
     if (dist > radius) return 1;
     // smoothstep falloff
     const t = 1 - dist / radius;
-    const extra = 0.45 * (t * t * (3 - 2 * t)); // 0.45 → max extra scale
+    const extra = 0.12 * (t * t * (3 - 2 * t)); // 0.12 → very subtle max scale of 1.12
     return 1 + extra;
   }
 
@@ -199,8 +199,8 @@ export default function MobileBottomNav({ tabs, activeTab, onChange }) {
               cursor: "pointer",
               position: "relative",
               padding: 0,
-              // Apply magnification: push upward as the icon grows (like macOS Dock)
-              transform: `scale(${magScale.toFixed(3)}) translateY(${touching && magScale > 1 ? -((magScale - 1) * 18) : 0}px)`,
+              // Apply subtle magnification in-place without vertical jumps
+              transform: `scale(${magScale.toFixed(3)}) translateY(0px)`,
               transition: touching
                 ? "transform 0.06s cubic-bezier(0.34,1.56,0.64,1), color 0.1s ease"
                 : "transform 0.22s cubic-bezier(0.34,1.56,0.64,1), color 0.22s ease",
