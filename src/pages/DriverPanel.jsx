@@ -257,13 +257,17 @@ export default function DriverPanel() {
         {driverInfo && (
           <div style={{
             position: "relative",
-            background: "linear-gradient(135deg, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0.02) 100%)",
+            background: theme === "light"
+              ? "linear-gradient(135deg, rgba(15, 23, 42, 0.04) 0%, rgba(15, 23, 42, 0.01) 100%)"
+              : "linear-gradient(135deg, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0.02) 100%)",
             padding: "12px 14px",
             borderRadius: "12px",
             marginBottom: "20px",
-            border: "1px solid rgba(255, 255, 255, 0.1)",
+            border: theme === "light" ? "1px solid rgba(15, 23, 42, 0.08)" : "1px solid rgba(255, 255, 255, 0.1)",
             borderInlineStart: "4px solid var(--primary)",
-            boxShadow: "0 8px 32px 0 rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1)",
+            boxShadow: theme === "light"
+              ? "0 4px 20px 0 rgba(15, 23, 42, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.6)"
+              : "0 8px 32px 0 rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1)",
             display: "flex",
             alignItems: "center",
             gap: "12px"
@@ -290,7 +294,7 @@ export default function DriverPanel() {
               <div style={{ fontSize: "9px", textTransform: "uppercase", letterSpacing: "0.05em", color: "var(--text-dim)", fontWeight: "600" }}>
                 {lang === "ar" ? "السائق المهني" : "Conducteur Pro"}
               </div>
-              <div style={{ fontSize: "14px", fontWeight: "600", color: "#fff", marginTop: "2px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+              <div style={{ fontSize: "14px", fontWeight: "600", color: "var(--text)", marginTop: "2px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                 {driverInfo.name}
               </div>
               <div style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "6px", fontSize: "10px", color: "var(--text-dim)" }}>
@@ -298,7 +302,7 @@ export default function DriverPanel() {
                   <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: 2 }}><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
                   {lang === "ar" ? "سائق" : "Conducteur"}
                 </span>
-                <span style={{ color: "rgba(255, 255, 255, 0.15)" }}>•</span>
+                <span style={{ color: theme === "light" ? "rgba(15, 23, 42, 0.15)" : "rgba(255, 255, 255, 0.15)" }}>•</span>
                 <span style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}>
                   <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
                   {driverInfo.code}

@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import { useApp } from "../lib/context";
 
 export default function MobileBottomNav({ tabs, activeTab, onChange }) {
   const navRef        = useRef(null);
@@ -7,6 +8,8 @@ export default function MobileBottomNav({ tabs, activeTab, onChange }) {
   const swipeStartX   = useRef(null);
   const swipeStartY   = useRef(null);
 
+  const { theme } = useApp();
+  const isLight = theme === "light";
   const activeIndex = tabs.findIndex((t) => t.id === activeTab);
 
   // ── get which tab index the finger is hovering over ──────────────────────
@@ -92,12 +95,12 @@ export default function MobileBottomNav({ tabs, activeTab, onChange }) {
         bottom: "6px",
         left: `calc(${activeIndex * percentWidth}% + 6px)`,
         width: `calc(${percentWidth}% - 12px)`,
-        background: "rgba(59, 130, 246, 0.14)",
+        background: isLight ? "rgba(37, 99, 235, 0.12)" : "rgba(59, 130, 246, 0.14)",
         borderRadius: "20px",
         transition: "left 0.32s cubic-bezier(0.34, 1.56, 0.64, 1)",
         pointerEvents: "none",
-        border: "1px solid rgba(59, 130, 246, 0.28)",
-        boxShadow: "0 2px 10px rgba(59, 130, 246, 0.12)"
+        border: isLight ? "1px solid rgba(37, 99, 235, 0.2)" : "1px solid rgba(59, 130, 246, 0.28)",
+        boxShadow: isLight ? "0 2px 10px rgba(37, 99, 235, 0.08)" : "0 2px 10px rgba(59, 130, 246, 0.12)"
       };
     }
 
@@ -117,12 +120,12 @@ export default function MobileBottomNav({ tabs, activeTab, onChange }) {
       bottom: "6px",
       left: `${pillLeft}px`,
       width: `${pillWidth}px`,
-      background: "rgba(59, 130, 246, 0.18)",
+      background: isLight ? "rgba(37, 99, 235, 0.15)" : "rgba(59, 130, 246, 0.18)",
       borderRadius: "20px",
       transition: "none",           // instant follow during touch
       pointerEvents: "none",
-      border: "1px solid rgba(59, 130, 246, 0.40)",
-      boxShadow: "0 2px 14px rgba(59, 130, 246, 0.25)"
+      border: isLight ? "1px solid rgba(37, 99, 235, 0.3)" : "1px solid rgba(59, 130, 246, 0.40)",
+      boxShadow: isLight ? "0 2px 14px rgba(37, 99, 235, 0.18)" : "0 2px 14px rgba(59, 130, 246, 0.25)"
     };
   }
 
@@ -140,12 +143,14 @@ export default function MobileBottomNav({ tabs, activeTab, onChange }) {
         left: "16px",
         right: "16px",
         height: "64px",
-        background: "rgba(15, 23, 42, 0.84)",
+        background: isLight ? "rgba(255, 255, 255, 0.85)" : "rgba(15, 23, 42, 0.84)",
         backdropFilter: "blur(22px)",
         WebkitBackdropFilter: "blur(22px)",
-        border: "1px solid rgba(255, 255, 255, 0.08)",
+        border: isLight ? "1px solid rgba(15, 23, 42, 0.08)" : "1px solid rgba(255, 255, 255, 0.08)",
         borderRadius: "26px",
-        boxShadow: "0 12px 36px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.1)",
+        boxShadow: isLight 
+          ? "0 12px 36px rgba(15, 23, 42, 0.1), inset 0 1px 0 rgba(255,255,255,0.6)" 
+          : "0 12px 36px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.1)",
         zIndex: 999,
         alignItems: "center",
         justifyContent: "space-between",
@@ -176,7 +181,7 @@ export default function MobileBottomNav({ tabs, activeTab, onChange }) {
               justifyContent: "center",
               background: "none",
               border: "none",
-              color: isActive ? "var(--primary)" : isHot ? "rgba(255,255,255,0.9)" : "var(--text-dim)",
+              color: isActive ? "var(--primary)" : isHot ? (isLight ? "#0f172a" : "rgba(255,255,255,0.9)") : "var(--text-dim)",
               fontSize: "9px",
               fontWeight: "700",
               gap: "3px",
@@ -226,7 +231,7 @@ export default function MobileBottomNav({ tabs, activeTab, onChange }) {
                 minWidth: "14px",
                 textAlign: "center",
                 boxShadow: "0 0 8px rgba(239,68,68,0.55)",
-                border: "1.5px solid rgba(15,23,42,0.8)"
+                border: isLight ? "1.5px solid rgba(255,255,255,0.8)" : "1.5px solid rgba(15,23,42,0.8)"
               }}>
                 {tab.badge}
               </span>
