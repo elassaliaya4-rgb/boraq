@@ -12,7 +12,16 @@ import { Capacitor } from "@capacitor/core";
 export default function AgencyPanel() {
   const { t, lang, setLang, signOut, profile, user, triggerToast, theme, toggleTheme } = useApp();
   const isMobileAPK = Capacitor.getPlatform() === "android" || Capacitor.getPlatform() === "ios";
-  const [tab, setTab] = useState("packages");
+  const [tabHistory, setTabHistory] = useState(["packages"]);
+  const [tab, setTabState] = useState("packages");
+  const setTab = (newTab) => {
+    setTabState((prevTab) => {
+      if (prevTab !== newTab) {
+        setTabHistory((prevHist) => [...prevHist, prevTab]);
+      }
+      return newTab;
+    });
+  };
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 768);
@@ -64,22 +73,69 @@ export default function AgencyPanel() {
     else alert(t.notFound + ": " + tracking);
   }
 
+  const goBack = () => {
+    if (detailPkg) {
+      setDetailPkg(null);
+    } else if (showPkgForm) {
+      setShowPkgForm(false);
+    } else if (showScanner) {
+      setShowScanner(false);
+    } else if (showSettings) {
+      setShowSettings(false);
+    } else if (tabHistory.length > 0) {
+      setTabHistory((prev) => {
+        const copy = [...prev];
+        const lastTab = copy.pop();
+        if (lastTab) {
+          setTimeout(() => setTabState(lastTab), 0);
+        }
+        return copy;
+      });
+    }
+  };
+
   // Handle native Android back button to dismiss modals/subtabs
   useEffect(() => {
-    const handleBack = () => {
-      if (detailPkg) {
-        setDetailPkg(null);
-      } else if (showPkgForm) {
-        setShowPkgForm(false);
-      } else if (showScanner) {
-        setShowScanner(false);
-      } else if (tab !== "packages") {
-        setTab("packages");
+    window.addEventListener("appBackClick", goBack);
+    return () => window.removeEventListener("appBackClick", goBack);
+  }, [detailPkg, showPkgForm, showScanner, showSettings, tabHistory]);
+
+  // Swipe-to-back gesture logic from left edge
+  useEffect(() => {
+    let startX = 0;
+    let startY = 0;
+    let isEdgeSwipe = false;
+
+    const handleTouchStart = (e) => {
+      const touch = e.touches[0];
+      if (touch.clientX < 35) {
+        startX = touch.clientX;
+        startY = touch.clientY;
+        isEdgeSwipe = true;
+      } else {
+        isEdgeSwipe = false;
       }
     };
-    window.addEventListener("appBackClick", handleBack);
-    return () => window.removeEventListener("appBackClick", handleBack);
-  }, [detailPkg, showPkgForm, showScanner, tab]);
+
+    const handleTouchMove = (e) => {
+      if (!isEdgeSwipe) return;
+      const touch = e.touches[0];
+      const diffX = touch.clientX - startX;
+      const diffY = touch.clientY - startY;
+
+      if (diffX > 85 && Math.abs(diffX) > Math.abs(diffY) * 1.5) {
+        isEdgeSwipe = false; // Prevent double trigger
+        goBack();
+      }
+    };
+
+    window.addEventListener("touchstart", handleTouchStart, { passive: true });
+    window.addEventListener("touchmove", handleTouchMove, { passive: true });
+    return () => {
+      window.removeEventListener("touchstart", handleTouchStart);
+      window.removeEventListener("touchmove", handleTouchMove);
+    };
+  }, [detailPkg, showPkgForm, showScanner, showSettings, tabHistory]);
 
   useEffect(() => {
     if (!profile?.agency_id) return;

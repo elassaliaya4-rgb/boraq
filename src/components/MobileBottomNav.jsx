@@ -94,16 +94,16 @@ export default function MobileBottomNav({ tabs, activeTab, onChange }) {
 
   // ── Live pill position that follows the finger ────────────────────────────
   function getPillStyle() {
-    const percentWidth = 100 / tabs.length;
+    const numTabs = tabs.length;
 
     if (!touching || fingerX === null || !navRef.current) {
-      // Snap to active tab with spring animation
+      // Snap to active tab with spring animation (perfectly centered)
       return {
         position: "absolute",
         top: "6px",
         bottom: "6px",
-        left: `calc(${activeIndex * percentWidth}% + 6px)`,
-        width: `calc(${percentWidth}% - 12px)`,
+        left: `calc(12px + ${activeIndex} * ((100% - 12px) / ${numTabs}))`,
+        width: `calc(((100% - 12px) / ${numTabs}) - 12px)`,
         background: isLight ? "rgba(37, 99, 235, 0.12)" : "rgba(59, 130, 246, 0.14)",
         borderRadius: "20px",
         transition: "left 0.32s cubic-bezier(0.34, 1.56, 0.64, 1)",
@@ -113,14 +113,18 @@ export default function MobileBottomNav({ tabs, activeTab, onChange }) {
       };
     }
 
-    // Live: compute pill left based on fingerX inside the nav
+    // Live: compute pill left based on fingerX inside the nav (perfectly centered)
     const navRect   = navRef.current.getBoundingClientRect();
     const navWidth  = navRect.width;
-    const tabWidth  = navWidth / tabs.length;
-    const pillWidth = tabWidth - 12;
-    // pill center tracks finger, clamped inside nav
+    const innerWidth = navWidth - 12; // accounting for 6px padding on left/right
+    const tabWidth  = innerWidth / numTabs;
+    const pillWidth = tabWidth - 12; // 6px gap on both sides of the pill
+
+    // pill center tracks finger, clamped inside nav inner limits
     const fingerInNav  = fingerX - navRect.left;
-    const pillCenter   = Math.max(pillWidth / 2 + 6, Math.min(navWidth - pillWidth / 2 - 6, fingerInNav));
+    const minCenter    = 6 + pillWidth / 2 + 6; // left padding + half pill + left gap
+    const maxCenter    = navWidth - 6 - pillWidth / 2 - 6; // right padding + half pill + right gap
+    const pillCenter   = Math.max(minCenter, Math.min(maxCenter, fingerInNav));
     const pillLeft     = pillCenter - pillWidth / 2;
 
     return {

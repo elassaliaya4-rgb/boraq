@@ -283,10 +283,10 @@ export default function Scanner({ onClose, onOpenPackage, agencies = [], onUpdat
           const mapW = (vw) => vw * scale;
           const mapH = (vh) => vh * scale;
 
-          let targetX = (canvas.width - 240) / 2;
-          let targetY = (canvas.height - 240) / 2;
-          let targetW = 240;
-          let targetH = 240;
+          const rx = (canvas.width - 240) / 2;
+          const ry = (canvas.height - 240) / 2;
+          const rw = 240;
+          const rh = 240;
           let codeDetected = false;
 
           if (window.BarcodeDetector) {
@@ -295,11 +295,6 @@ export default function Scanner({ onClose, onOpenPackage, agencies = [], onUpdat
               const barcodes = await detector.detect(videoEl);
               if (barcodes.length > 0) {
                 const barcode = barcodes[0];
-                const { x, y, width, height } = barcode.boundingBox;
-                targetX = mapX(x);
-                targetY = mapY(y);
-                targetW = mapW(width);
-                targetH = mapH(height);
                 codeDetected = true;
                 if (barcode.rawValue && !stoppedRef.current) {
                   onDecoded(barcode.rawValue);
@@ -321,13 +316,6 @@ export default function Scanner({ onClose, onOpenPackage, agencies = [], onUpdat
                 });
 
                 if (code) {
-                  const loc = code.location;
-                  const xs = [loc.topLeftCorner.x, loc.topRightCorner.x, loc.bottomRightCorner.x, loc.bottomLeftCorner.x].map(mapX);
-                  const ys = [loc.topLeftCorner.y, loc.topRightCorner.y, loc.bottomRightCorner.y, loc.bottomLeftCorner.y].map(mapY);
-                  targetX = Math.min(...xs);
-                  targetY = Math.min(...ys);
-                  targetW = Math.max(...xs) - targetX;
-                  targetH = Math.max(...ys) - targetY;
                   codeDetected = true;
                   if (code.data && !stoppedRef.current) {
                     onDecoded(code.data);
@@ -337,26 +325,23 @@ export default function Scanner({ onClose, onOpenPackage, agencies = [], onUpdat
             }
           }
 
-          // Smooth target rect coordinates with low-pass interpolation to prevent jitter and slide smoothly
-          if (!smoothRectRef.current.initialized) {
-            smoothRectRef.current = { x: targetX, y: targetY, w: targetW, h: targetH, initialized: true };
-          } else {
-            smoothRectRef.current.x += (targetX - smoothRectRef.current.x) * 0.35;
-            smoothRectRef.current.y += (targetY - smoothRectRef.current.y) * 0.35;
-            smoothRectRef.current.w += (targetW - smoothRectRef.current.w) * 0.35;
-            smoothRectRef.current.h += (targetH - smoothRectRef.current.h) * 0.35;
-          }
-
-          const rx = smoothRectRef.current.x;
-          const ry = smoothRectRef.current.y;
-          const rw = smoothRectRef.current.w;
-          const rh = smoothRectRef.current.h;
-
           if (ctx) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // 2. Draw Telegram-style corner brackets directly around the active box (rx, ry, rw, rh)
-            const len = Math.max(16, Math.min(28, rw * 0.25));
-            ctx.strokeStyle = "#ffffff"; // Always crisp white corners to prevent color flicker
+            // 1. Draw semi-transparent dark background outside the central square
+            ctx.fillStyle = "rgba(0, 0, 0, 0.45)";
+            // Top
+            ctx.fillRect(0, 0, canvas.width, ry);
+            // Bottom
+            ctx.fillRect(0, ry + rh, canvas.width, canvas.height - (ry + rh));
+            // Left
+            ctx.fillRect(0, ry, rx, rh);
+            // Right
+            ctx.fillRect(rx + rw, ry, canvas.width - (rx + rw), rh);
+
+            // 2. Draw corner brackets (Green when code detected, white otherwise)
+            const len = 24;
+            ctx.strokeStyle = codeDetected ? "#10b981" : "#ffffff";
             ctx.lineWidth = 5;
             ctx.lineCap = "round";
             ctx.lineJoin = "round";
@@ -389,15 +374,31 @@ export default function Scanner({ onClose, onOpenPackage, agencies = [], onUpdat
             ctx.lineTo(rx + rw, ry + rh - len);
             ctx.stroke();
 
-            // 3. Highlight fill inside the brackets
-            ctx.fillStyle = "rgba(255, 255, 255, 0.02)"; // Constant transparent fill to prevent flicker
-            ctx.beginPath();
-            if (ctx.roundRect) {
-              ctx.roundRect(rx, ry, rw, rh, 16);
+            // 3. Draw animated sliding laser line
+            if (!smoothRectRef.current.laserY || smoothRectRef.current.laserY < ry || smoothRectRef.current.laserY > ry + rh) {
+              smoothRectRef.current.laserY = ry + 10;
+              smoothRectRef.current.laserDir = 1;
             } else {
-              ctx.rect(rx, ry, rw, rh);
+              smoothRectRef.current.laserY += 3.5 * smoothRectRef.current.laserDir;
+              if (smoothRectRef.current.laserY >= ry + rh - 10) {
+                smoothRectRef.current.laserY = ry + rh - 10;
+                smoothRectRef.current.laserDir = -1;
+              } else if (smoothRectRef.current.laserY <= ry + 10) {
+                smoothRectRef.current.laserY = ry + 10;
+                smoothRectRef.current.laserDir = 1;
+              }
             }
-            ctx.fill();
+
+            ctx.strokeStyle = "rgba(59, 130, 246, 0.85)"; // Premium blue laser
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(rx + 15, smoothRectRef.current.laserY);
+            ctx.lineTo(rx + rw - 15, smoothRectRef.current.laserY);
+            ctx.stroke();
+
+            // 4. Highlight fill inside the brackets
+            ctx.fillStyle = "rgba(255, 255, 255, 0.02)";
+            ctx.fillRect(rx, ry, rw, rh);
           }
         }
 

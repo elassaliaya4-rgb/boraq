@@ -35,17 +35,55 @@ export default function DriverPanel() {
     };
   }, []);
 
+  const goBack = () => {
+    if (detailPkg) {
+      setDetailPkg(null);
+    } else if (showScanner) {
+      setShowScanner(false);
+    }
+  };
+
   // Handle native Android back button to dismiss modals/subtabs
   useEffect(() => {
-    const handleBack = () => {
-      if (detailPkg) {
-        setDetailPkg(null);
-      } else if (showScanner) {
-        setShowScanner(false);
+    window.addEventListener("appBackClick", goBack);
+    return () => window.removeEventListener("appBackClick", goBack);
+  }, [detailPkg, showScanner]);
+
+  // Swipe-to-back gesture logic from left edge
+  useEffect(() => {
+    let startX = 0;
+    let startY = 0;
+    let isEdgeSwipe = false;
+
+    const handleTouchStart = (e) => {
+      const touch = e.touches[0];
+      if (touch.clientX < 35) {
+        startX = touch.clientX;
+        startY = touch.clientY;
+        isEdgeSwipe = true;
+      } else {
+        isEdgeSwipe = false;
       }
     };
-    window.addEventListener("appBackClick", handleBack);
-    return () => window.removeEventListener("appBackClick", handleBack);
+
+    const handleTouchMove = (e) => {
+      if (!isEdgeSwipe) return;
+      const touch = e.touches[0];
+      const diffX = touch.clientX - startX;
+      const diffY = touch.clientY - startY;
+
+      if (diffX > 85 && Math.abs(diffX) > Math.abs(diffY) * 1.5) {
+        isEdgeSwipe = false; // Prevent double trigger
+        goBack();
+      }
+    };
+
+    window.addEventListener("touchstart", handleTouchStart, { passive: true });
+    window.addEventListener("touchmove", handleTouchMove, { passive: true });
+    return () => {
+      window.removeEventListener("touchstart", handleTouchStart);
+      window.removeEventListener("touchmove", handleTouchMove);
+    };
   }, [detailPkg, showScanner]);
 
   useEffect(() => {
