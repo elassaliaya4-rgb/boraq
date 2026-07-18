@@ -373,6 +373,7 @@ export default function AgencyPanel() {
             )}
             <h1>{t.welcome} {agencyInfo?.name || "Agence"} 👋</h1>
           </div>
+          <div className="topbar-actions">
             {/* ── Premium Scan Button ── */}
             <button
               onClick={() => setShowScanner(true)}

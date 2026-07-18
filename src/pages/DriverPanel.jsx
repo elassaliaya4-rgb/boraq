@@ -371,6 +371,7 @@ export default function DriverPanel() {
               {lang === "ar" ? "الطرود مرتبة حسب وجهة كل مدينة" : "Colis groupés par agence destinataire"}
             </p>
           </div>
+          <div className="topbar-actions">
             {/* ── Premium Scan Button ── */}
             <button
               onClick={() => {
