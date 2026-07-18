@@ -6,8 +6,9 @@ export default function PackagesTable({ packages, onManage, onRefresh }) {
   const { t, lang } = useApp();
   const [selectionMode, setSelectionMode] = useState(false);
   const [selectedIds, setSelectedIds]     = useState([]);
-  const [hoveredIdx, setHoveredIdx]       = useState(null); // index of card under finger
+  const [hoveredIdx, setHoveredIdx]       = useState(null);
   const [busy, setBusy]                   = useState(false);
+  const [isPressing, setIsPressing]       = useState(false); // true during long-press countdown
 
   // refs
   const pressTimerRef  = useRef(null);
@@ -24,18 +25,16 @@ export default function PackagesTable({ packages, onManage, onRefresh }) {
     const onMove = (e) => handleTouchMove(e);
     const onEnd  = ()  => handleTouchEnd();
 
-    // {passive: false} is required to call preventDefault() without a warning/crash
-    el.addEventListener("touchmove", onMove, { passive: false });
-    el.addEventListener("touchend",  onEnd,  { passive: true });
-    el.addEventListener("touchcancel", onEnd, { passive: true });
+    el.addEventListener("touchmove",   onMove, { passive: false });
+    el.addEventListener("touchend",    onEnd,  { passive: true });
+    el.addEventListener("touchcancel", onEnd,  { passive: true });
     return () => {
-      el.removeEventListener("touchmove", onMove);
-      el.removeEventListener("touchend",  onEnd);
+      el.removeEventListener("touchmove",   onMove);
+      el.removeEventListener("touchend",    onEnd);
       el.removeEventListener("touchcancel", onEnd);
     };
-  // Re-register whenever selectionMode or dragging state changes
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectionMode]);
+  }, [selectionMode, isPressing]);
 
   if (!packages || !packages.length) {
     return <div className="empty">{t?.noPackages || "No Packages"}</div>;
@@ -67,7 +66,8 @@ export default function PackagesTable({ packages, onManage, onRefresh }) {
 
   // ─── Touch handlers ────────────────────────────────────────────────────────
   function handleTouchStart(e, idx, pId) {
-    setHoveredIdx(idx); // immediate magnification on touch
+    setHoveredIdx(idx);
+    setIsPressing(true); // block zoom immediately on first touch
 
     if (selectionMode) {
       isDragging.current = true;
@@ -133,6 +133,7 @@ export default function PackagesTable({ packages, onManage, onRefresh }) {
     isDragging.current  = false;
     lastDragIdx.current = null;
     setHoveredIdx(null);
+    setIsPressing(false); // allow zoom again once finger is lifted
   }
 
   // ─── Selection helpers ─────────────────────────────────────────────────────
@@ -284,8 +285,9 @@ export default function PackagesTable({ packages, onManage, onRefresh }) {
           display: "flex",
           flexDirection: "column",
           gap: 8,
-          // Allow pinch-to-zoom at all times; we handle drag-select in JS
-          touchAction: selectionMode ? "none" : "pan-y pinch-zoom"
+          // Block zoom when pressing (long-press countdown) OR in selection mode
+          // Allow pan+zoom only when user is just scrolling normally
+          touchAction: (selectionMode || isPressing) ? "none" : "pan-y pinch-zoom"
         }}
       >
         {packages?.map((p, idx) => {
