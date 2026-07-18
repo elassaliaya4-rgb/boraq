@@ -36,6 +36,8 @@ export default function Login() {
       setError('Google login failed');
     }
   }
+
+  async function handleLogin() {
     let loginEmail = email;
     let loginPassword = password;
 
