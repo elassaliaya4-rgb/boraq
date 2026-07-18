@@ -30,6 +30,9 @@ export default function AgencyPanel() {
   const [agencies, setAgencies] = useState([]);
   const [notifs, setNotifs] = useState([]);
   const [agencyInfo, setAgencyInfo] = useState(null);
+  const [showSettings, setShowSettings] = useState(false);
+  const [editCity, setEditCity] = useState("");
+  const [editMapsLink, setEditMapsLink] = useState("");
   const [showPkgForm, setShowPkgForm] = useState(false);
   const [detailPkg, setDetailPkg] = useState(null);
   const [showScanner, setShowScanner] = useState(false);
@@ -152,7 +155,7 @@ export default function AgencyPanel() {
   async function loadData() {
     const { data: ag } = await supabase
       .from("agencies")
-      .select("name, city, code")
+      .select("id, name, city, code, google_maps_link")
       .eq("id", profile.agency_id)
       .maybeSingle();
     setAgencyInfo(ag);
@@ -173,6 +176,34 @@ export default function AgencyPanel() {
       .eq("target", "agency")
       .order("created_at", { ascending: false });
     setNotifs(nts || []);
+  }
+
+  function openSettings() {
+    setEditCity(agencyInfo?.city || "");
+    setEditMapsLink(agencyInfo?.google_maps_link || "");
+    setShowSettings(true);
+  }
+
+  async function saveSettings() {
+    if (!editCity.trim()) {
+      alert(lang === "ar" ? "المرجو إدخال المدينة" : "Veuillez entrer la ville");
+      return;
+    }
+    const { error } = await supabase
+      .from("agencies")
+      .update({
+        city: editCity.trim(),
+        google_maps_link: editMapsLink.trim()
+      })
+      .eq("id", agencyInfo.id);
+
+    if (error) {
+      alert(error.message);
+    } else {
+      triggerToast(lang === "ar" ? "تم تحديث الموقع بنجاح" : "Localisation mise à jour");
+      setShowSettings(false);
+      loadData();
+    }
   }
 
   async function openNotif(n) {
@@ -255,7 +286,7 @@ export default function AgencyPanel() {
               <div style={{ fontSize: "16px", fontWeight: "800", color: "var(--text)", marginTop: "3px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                 {agencyInfo.name}
               </div>
-              <div style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "6px" }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "8px", marginTop: "6px" }}>
                 <span style={{ 
                   display: "inline-flex", 
                   alignItems: "center", 
@@ -267,6 +298,28 @@ export default function AgencyPanel() {
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
                   {agencyInfo.city}
                 </span>
+                <button
+                  onClick={openSettings}
+                  style={{
+                    background: "rgba(255,255,255,0.06)",
+                    border: "none",
+                    borderRadius: "4px",
+                    width: "20px",
+                    height: "20px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    cursor: "pointer",
+                    fontSize: "10px",
+                    color: "var(--text-dim)",
+                    transition: "all 0.2s"
+                  }}
+                  onMouseEnter={e => e.currentTarget.style.background = "rgba(255,255,255,0.12)"}
+                  onMouseLeave={e => e.currentTarget.style.background = "rgba(255,255,255,0.06)"}
+                  title={lang === "ar" ? "تعديل الموقع" : "Modifier localisation"}
+                >
+                  ✏️
+                </button>
               </div>
             </div>
           </div>
@@ -819,6 +872,40 @@ export default function AgencyPanel() {
           onClose={() => setShowScanner(false)}
           onUpdated={loadData}
         />
+      )}
+      {showSettings && (
+        <div className="modal-bg" onClick={() => setShowSettings(false)}>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
+            <h2>⚙️ {lang === "ar" ? "إعدادات موقع الوكالة" : "Paramètres de localisation"}</h2>
+            <div className="field">
+              <label>{lang === "ar" ? "المدينة" : "Ville"}</label>
+              <input 
+                type="text" 
+                value={editCity} 
+                onChange={(e) => setEditCity(e.target.value)} 
+                placeholder="Rabat"
+              />
+            </div>
+            <div className="field">
+              <label>{lang === "ar" ? "رابط Google Maps" : "Lien Google Maps"}</label>
+              <input 
+                type="text" 
+                value={editMapsLink} 
+                onChange={(e) => setEditMapsLink(e.target.value)} 
+                placeholder="https://maps.app.goo.gl/..."
+              />
+              <span style={{ fontSize: "10px", color: "var(--text-dim)", display: "block", marginTop: "4px" }}>
+                {lang === "ar" 
+                  ? "قم بنسخ رابط مشاركة موقع الوكالة (Share Link) من تطبيق Google Maps وضعه هنا."
+                  : "Copiez le lien de partage (Share Link) de la localisation de l'agence depuis l'application Google Maps et collez-le ici."}
+              </span>
+            </div>
+            <div className="modal-actions">
+              <button className="btn-primary" onClick={saveSettings}>{t.save}</button>
+              <button className="btn-sm" onClick={() => setShowSettings(false)}>{t.cancel}</button>
+            </div>
+          </div>
+        </div>
       )}
       </div>
       <MobileBottomNav 

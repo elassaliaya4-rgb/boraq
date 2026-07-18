@@ -1151,8 +1151,8 @@ function PkgHeader({ t, onAdd }) {
 }
 
 function AgencyForm({ onClose, onSaved }) {
-  const { t } = useApp();
-  const [form, setForm] = useState({ name: "", city: "", code: "" });
+  const { t, lang } = useApp();
+  const [form, setForm] = useState({ name: "", city: "", code: "", google_maps_link: "" });
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
 
@@ -1184,7 +1184,9 @@ function AgencyForm({ onClose, onSaved }) {
       .insert({
         name: form.name,
         code: form.code.toUpperCase().trim(),
-        city: form.city, email: generatedEmail,
+        city: form.city, 
+        email: generatedEmail,
+        google_maps_link: form.google_maps_link
       })
       .select().single();
 
@@ -1217,6 +1219,14 @@ function AgencyForm({ onClose, onSaved }) {
         <div className="field"><label>{t.name}</label><input value={form.name} onChange={(e) => set("name", e.target.value)} placeholder="Agence Mohammedia" /></div>
         <div className="field"><label>{t.city}</label><input value={form.city} onChange={(e) => set("city", e.target.value)} placeholder="Mohammedia" /></div>
         <div className="field"><label>{t.code}</label><input value={form.code} onChange={(e) => set("code", e.target.value)} placeholder="MHM" style={{ textTransform: "uppercase" }} /></div>
+        <div className="field">
+          <label>{lang === "ar" ? "رابط موقع Google Maps" : "Lien Google Maps"}</label>
+          <input 
+            value={form.google_maps_link} 
+            onChange={(e) => set("google_maps_link", e.target.value)} 
+            placeholder="https://maps.app.goo.gl/..." 
+          />
+        </div>
         <div className="modal-actions">
           <button className="btn-primary" onClick={save} disabled={busy}>{busy ? "..." : t.save}</button>
           <button className="btn-sm" onClick={onClose}>{t.cancel}</button>
