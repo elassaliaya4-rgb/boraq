@@ -646,24 +646,6 @@ export default function AdminPanel() {
           <>
             <div className="row-head" style={{ marginBottom: 16 }}>
               <h2>✅ {lang === "ar" ? "بوابة التحقق والمسح" : "Centre de Vérification"}</h2>
-              {!isMobile && (
-                <button 
-                  onClick={() => setShowScanner(true)} 
-                  className="btn-accent"
-                  style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: 8,
-                    padding: "10px 20px",
-                    fontSize: 14,
-                    fontWeight: "bold",
-                    borderRadius: 10,
-                    boxShadow: "0 0 15px rgba(251, 191, 36, 0.25)"
-                  }}
-                >
-                  📷 {lang === "ar" ? "ابدأ مسح طرد جديد" : "Démarrer le Scan"}
-                </button>
-              )}
             </div>
 
             {/* Filter by Agency / Route */}
