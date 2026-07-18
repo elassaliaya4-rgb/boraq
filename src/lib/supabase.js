@@ -5,4 +5,11 @@ import { createClient } from "@supabase/supabase-js";
 export const SUPABASE_URL = "https://thmewwpsvdsrkvuawhhi.supabase.co";
 export const SUPABASE_ANON_KEY = "sb_publishable_bS00fApm1kOtGuJ7UNaBxw_TrIjXHil";
 
-export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  auth: {
+    flowType: 'pkce',
+    autoRefreshToken: true,
+    persistSession: true,
+    detectSessionInUrl: true,
+  },
+});

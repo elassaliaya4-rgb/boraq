@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useApp } from "../lib/context";
+import { supabase } from "../lib/supabase";
 
 export default function Login() {
   const { t, lang, setLang, signIn } = useApp();
@@ -8,9 +9,33 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const [busy, setBusy] = useState(false);
+  // Process OAuth redirect callback (required for PKCE flow on mobile)
+  useEffect(() => {
+    (async () => {
+      const { data, error } = await supabase.auth.getSessionFromUrl({
+        storeSession: true,
+        // automatically redirects to landing page after handling
+      });
+      if (error) setError(error.message);
+    })();
+  }, []);
 
-  async function handleLogin() {
+
+  // Google OAuth login handler
+  async function handleGoogleLogin() {
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: { redirectTo: window.location.origin },
+      });
+      if (error) {
+        setError(error.message);
+      }
+    } catch (e) {
+      console.error('Google login error:', e);
+      setError('Google login failed');
+    }
+  }
     let loginEmail = email;
     let loginPassword = password;
 
@@ -183,9 +208,15 @@ export default function Login() {
           </>
         )}
 
-        <button className="btn-primary" onClick={handleLogin} disabled={busy}>
-          {busy ? "..." : t.signIn}
-        </button>
+                  {/* Sign-in with code/email */}
+          <button className="btn-primary" onClick={handleLogin} disabled={busy}>
+            {busy ? "..." : t.signIn}
+          </button>
+          {/* Google OAuth login */}
+          <button className="btn-primary" style={{marginTop: "8px"}} onClick={handleGoogleLogin}>
+            Google
+          </button>
+
       </div>
     </div>
   );
