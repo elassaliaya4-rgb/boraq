@@ -9,16 +9,6 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  // Process OAuth redirect callback (required for PKCE flow on mobile)
-  useEffect(() => {
-    (async () => {
-      const { data, error } = await supabase.auth.getSessionFromUrl({
-        storeSession: true,
-        // automatically redirects to landing page after handling
-      });
-      if (error) setError(error.message);
-    })();
-  }, []);
 
 
   // Google OAuth login handler
