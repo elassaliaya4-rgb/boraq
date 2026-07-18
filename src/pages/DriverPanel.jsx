@@ -409,7 +409,6 @@ export default function DriverPanel() {
               <span>{t.scan}</span>
             </button>
 
-            {/* ── Premium Sliding Language Toggle ── */}
             <div
               className="lang-selector-desktop"
               style={{
@@ -425,7 +424,8 @@ export default function DriverPanel() {
                 height: "34px",
                 width: "105px",
                 boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
-                overflow: "hidden"
+                overflow: "hidden",
+                direction: "ltr"
               }}
               onClick={() => setLang(lang === "ar" ? "fr" : "ar")}
             >

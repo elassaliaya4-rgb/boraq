@@ -93,7 +93,8 @@ export default function Login() {
               height: "34px",
               width: "105px",
               boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
-              overflow: "hidden"
+              overflow: "hidden",
+              direction: "ltr"
             }}
             onClick={() => setLang(lang === "ar" ? "fr" : "ar")}
           >
