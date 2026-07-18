@@ -256,19 +256,21 @@ export default function DriverPanel() {
           <div style={{
             position: "relative",
             background: theme === "light"
-              ? "linear-gradient(135deg, rgba(37, 99, 235, 0.05) 0%, rgba(37, 99, 235, 0.01) 100%)"
-              : "linear-gradient(135deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.02) 100%)",
-            padding: "14px 16px",
-            borderRadius: "16px",
+              ? "linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0.5) 100%)"
+              : "linear-gradient(135deg, rgba(30, 41, 59, 0.7) 0%, rgba(15, 23, 42, 0.8) 100%)",
+            padding: "16px",
+            borderRadius: "20px",
             marginBottom: "24px",
-            border: theme === "light" ? "1px solid rgba(15, 23, 42, 0.06)" : "1px solid rgba(255, 255, 255, 0.08)",
+            border: theme === "light" ? "1px solid rgba(226, 232, 240, 0.8)" : "1px solid rgba(255, 255, 255, 0.08)",
             boxShadow: theme === "light"
-              ? "0 4px 20px 0 rgba(15, 23, 42, 0.03), inset 0 1px 0 rgba(255, 255, 255, 0.6)"
-              : "0 8px 32px 0 rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.05)",
+              ? "0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05)"
+              : "0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.3)",
             display: "flex",
             alignItems: "center",
-            gap: "12px",
-            overflow: "hidden"
+            gap: "14px",
+            overflow: "hidden",
+            backdropFilter: "blur(12px)",
+            WebkitBackdropFilter: "blur(12px)"
           }}>
             {/* Subtle premium vertical indicator */}
             <div style={{
@@ -277,37 +279,45 @@ export default function DriverPanel() {
               top: 0,
               bottom: 0,
               width: "4px",
-              background: "linear-gradient(180deg, var(--primary) 0%, #d97706 100%)"
+              background: "linear-gradient(180deg, #fbbf24 0%, #d97706 100%)"
             }} />
 
             {/* Avatar Initials Badge */}
             <div style={{
-              width: "38px",
-              height: "38px",
+              width: "42px",
+              height: "42px",
               borderRadius: "50%",
-              background: "linear-gradient(135deg, var(--primary) 0%, #d97706 100%)",
-              color: "#0f172a",
+              background: "linear-gradient(135deg, #fbbf24 0%, #d97706 100%)",
+              color: "#1a0e00",
               fontWeight: "800",
-              fontSize: "14px",
+              fontSize: "15px",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              boxShadow: "0 0 14px rgba(251, 191, 36, 0.25)",
-              flexShrink: 0
+              boxShadow: "0 0 16px rgba(217, 119, 6, 0.35)",
+              flexShrink: 0,
+              border: "2px solid rgba(255, 255, 255, 0.1)"
             }}>
               {driverInfo.name.substring(0, 2).toUpperCase()}
             </div>
             
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: "9px", textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--text-dim)", fontWeight: "700" }}>
+              <div style={{ fontSize: "10px", textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--text-dim)", fontWeight: "800" }}>
                 {lang === "ar" ? "السائق المهني" : "Conducteur Pro"}
               </div>
-              <div style={{ fontSize: "14px", fontWeight: "700", color: "var(--text)", marginTop: "2px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+              <div style={{ fontSize: "16px", fontWeight: "800", color: "var(--text)", marginTop: "3px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                 {driverInfo.name}
               </div>
-              <div style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "5px", fontSize: "11px", color: "var(--text-dim)" }}>
-                <span style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}>
-                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: 2 }}><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "6px" }}>
+                <span style={{ 
+                  display: "inline-flex", 
+                  alignItems: "center", 
+                  gap: "4px",
+                  fontSize: "12px",
+                  color: "#3b82f6",
+                  fontWeight: "600"
+                }}>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: 2 }}><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
                   {lang === "ar" ? "سائق" : "Conducteur"}
                 </span>
               </div>
@@ -535,6 +545,30 @@ export default function DriverPanel() {
                       🏢 {agency.name} {agency.city && `(${agency.city})`}
                     </h3>
                     <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      <a
+                        href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent("Agence " + agency.name + " " + (agency.city || ""))}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{
+                          padding: "4px 10px",
+                          fontSize: 12,
+                          fontWeight: "bold",
+                          borderRadius: 6,
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: 4,
+                          cursor: "pointer",
+                          textDecoration: "none",
+                          background: "rgba(59,130,246,0.1)",
+                          border: "1px solid rgba(59,130,246,0.2)",
+                          color: "#3b82f6",
+                          transition: "all 0.2s ease"
+                        }}
+                        onMouseEnter={e => { e.currentTarget.style.background = "rgba(59,130,246,0.2)"; }}
+                        onMouseLeave={e => { e.currentTarget.style.background = "rgba(59,130,246,0.1)"; }}
+                      >
+                        📍 {lang === "ar" ? "الموقع" : "Localiser"}
+                      </a>
                       <button
                         onClick={() => {
                           setScanFilterAgency(agency.name);
