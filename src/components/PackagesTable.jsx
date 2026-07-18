@@ -15,6 +15,28 @@ export default function PackagesTable({ packages, onManage, onRefresh }) {
   const lastDragIdx    = useRef(null);
   const listRef        = useRef(null);
 
+  // Register non-passive touch listeners on the list so we can call preventDefault
+  // when drag-selecting (prevents scroll lock crash on Android WebView)
+  useEffect(() => {
+    const el = listRef.current;
+    if (!el) return;
+
+    const onMove = (e) => handleTouchMove(e);
+    const onEnd  = ()  => handleTouchEnd();
+
+    // {passive: false} is required to call preventDefault() without a warning/crash
+    el.addEventListener("touchmove", onMove, { passive: false });
+    el.addEventListener("touchend",  onEnd,  { passive: true });
+    el.addEventListener("touchcancel", onEnd, { passive: true });
+    return () => {
+      el.removeEventListener("touchmove", onMove);
+      el.removeEventListener("touchend",  onEnd);
+      el.removeEventListener("touchcancel", onEnd);
+    };
+  // Re-register whenever selectionMode or dragging state changes
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectionMode]);
+
   if (!packages || !packages.length) {
     return <div className="empty">{t?.noPackages || "No Packages"}</div>;
   }
@@ -65,8 +87,15 @@ export default function PackagesTable({ packages, onManage, onRefresh }) {
   }
 
   function handleTouchMove(e) {
-    const clientY  = e.touches[0].clientY;
-    const newIdx   = getIdxAtY(clientY);
+    // Always allow pinch-to-zoom (2+ fingers) — never block it
+    if (e.touches.length >= 2) {
+      if (pressTimerRef.current) { clearTimeout(pressTimerRef.current); pressTimerRef.current = null; }
+      isDragging.current = false;
+      return;
+    }
+
+    const clientY = e.touches[0].clientY;
+    const newIdx  = getIdxAtY(clientY);
 
     // always update hovered index for magnification
     if (newIdx !== null) setHoveredIdx(newIdx);
@@ -80,7 +109,8 @@ export default function PackagesTable({ packages, onManage, onRefresh }) {
       return;
     }
 
-    e.preventDefault(); // only block scroll when drag-selecting
+    // Only block scroll when we are actively drag-selecting
+    try { e.preventDefault(); } catch (_) {}
 
     if (newIdx === null || newIdx === lastDragIdx.current) return;
     lastDragIdx.current = newIdx;
@@ -250,9 +280,13 @@ export default function PackagesTable({ packages, onManage, onRefresh }) {
         ref={listRef}
         className="mobile-only-list"
         dir={dir}
-        style={{ display: "flex", flexDirection: "column", gap: 8 }}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: 8,
+          // Allow pinch-to-zoom at all times; we handle drag-select in JS
+          touchAction: selectionMode ? "none" : "pan-y pinch-zoom"
+        }}
       >
         {packages?.map((p, idx) => {
           const isSelected = selectedIds.includes(p.id);
