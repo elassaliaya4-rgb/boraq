@@ -14,7 +14,8 @@ export default function Scanner({ onClose, onOpenPackage, agencies = [], onUpdat
   const startPromiseRef = useRef(null); // Tracks the camera start promise
   const canvasRef = useRef(null);
   const loopRef = useRef(null);
-  const smoothRectRef = useRef({ x: 0, y: 0, w: 0, h: 0, initialized: false });
+  const smoothRectRef = useRef({ laserPhase: 0, laserDir: 1 });
+  const successRef = useRef({ active: false, alpha: 0 }); // for fade-out on scan success
   const fileInputRef = useRef(null);
   const [isTorchOn, setIsTorchOn] = useState(false);
   const [torchSupported, setTorchSupported] = useState(false);
@@ -237,57 +238,17 @@ export default function Scanner({ onClose, onOpenPackage, agencies = [], onUpdat
       const offscreen = document.createElement("canvas");
       const offscreenCtx = offscreen.getContext("2d");
 
+      // ─── Scan state shared between the two loops ───────────────────────────
+      let codeDetected = false;
       let lastScanTime = 0;
 
-      const trackLoop = async () => {
+      // ─── SCAN LOOP — throttled async (runs every ~150ms) ──────────────────
+      const scanLoop = async () => {
         if (stoppedRef.current || !videoEl || !canvasRef.current) return;
 
-        if (canvas.width !== videoEl.clientWidth || canvas.height !== videoEl.clientHeight) {
-          canvas.width = videoEl.clientWidth;
-          canvas.height = videoEl.clientHeight;
-        }
-
         const now = Date.now();
-        if (now - lastScanTime > 150) { // Throttle: 6 times per second max (silky smooth camera, zero lag)
+        if (now - lastScanTime > 150) {
           lastScanTime = now;
-
-          if (ctx) {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-          }
-
-          // Calculate dimensions and offsets mapping to video cover viewport (object-fit: cover)
-          const videoWidth = videoEl.videoWidth;
-          const videoHeight = videoEl.videoHeight;
-          const canvasWidth = canvas.width;
-          const canvasHeight = canvas.height;
-
-          let scale = 1;
-          let offsetX = 0;
-          let offsetY = 0;
-
-          if (videoWidth > 0 && videoHeight > 0) {
-            const videoRatio = videoWidth / videoHeight;
-            const canvasRatio = canvasWidth / canvasHeight;
-
-            if (canvasRatio > videoRatio) {
-              scale = canvasWidth / videoWidth;
-              offsetY = (canvasHeight - videoHeight * scale) / 2;
-            } else {
-              scale = canvasHeight / videoHeight;
-              offsetX = (canvasWidth - videoWidth * scale) / 2;
-            }
-          }
-
-          const mapX = (vx) => vx * scale + offsetX;
-          const mapY = (vy) => vy * scale + offsetY;
-          const mapW = (vw) => vw * scale;
-          const mapH = (vh) => vh * scale;
-
-          const rx = (canvas.width - 240) / 2;
-          const ry = (canvas.height - 240) / 2;
-          const rw = 240;
-          const rh = 240;
-          let codeDetected = false;
 
           if (window.BarcodeDetector) {
             try {
@@ -297,117 +258,170 @@ export default function Scanner({ onClose, onOpenPackage, agencies = [], onUpdat
                 const barcode = barcodes[0];
                 codeDetected = true;
                 if (barcode.rawValue && !stoppedRef.current) {
+                  successRef.current.active = true;
                   onDecoded(barcode.rawValue);
                 }
+              } else {
+                codeDetected = false;
               }
-            } catch (e) {}
+            } catch (e) { codeDetected = false; }
           } else {
             // CPU Fallback with jsQR
             if (videoEl.videoWidth > 0 && videoEl.videoHeight > 0) {
               offscreen.width = videoEl.videoWidth;
               offscreen.height = videoEl.videoHeight;
-
               try {
                 offscreenCtx.drawImage(videoEl, 0, 0, offscreen.width, offscreen.height);
                 const imgData = offscreenCtx.getImageData(0, 0, offscreen.width, offscreen.height);
-                
                 const code = jsQR(imgData.data, imgData.width, imgData.height, {
                   inversionAttempts: "dontInvert"
                 });
-
                 if (code) {
                   codeDetected = true;
                   if (code.data && !stoppedRef.current) {
+                    successRef.current.active = true;
                     onDecoded(code.data);
                   }
+                } else {
+                  codeDetected = false;
                 }
-              } catch (e) {}
+              } catch (e) { codeDetected = false; }
             }
-          }
-
-          if (ctx) {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            // 1. Draw semi-transparent dark background outside the central square
-            ctx.fillStyle = "rgba(0, 0, 0, 0.45)";
-            // Top
-            ctx.fillRect(0, 0, canvas.width, ry);
-            // Bottom
-            ctx.fillRect(0, ry + rh, canvas.width, canvas.height - (ry + rh));
-            // Left
-            ctx.fillRect(0, ry, rx, rh);
-            // Right
-            ctx.fillRect(rx + rw, ry, canvas.width - (rx + rw), rh);
-
-            // 2. Draw corner brackets (Green when code detected, white otherwise)
-            const len = 24;
-            ctx.strokeStyle = codeDetected ? "#10b981" : "#ffffff";
-            ctx.lineWidth = 5;
-            ctx.lineCap = "round";
-            ctx.lineJoin = "round";
-
-            // Top-Left
-            ctx.beginPath();
-            ctx.moveTo(rx + len, ry);
-            ctx.lineTo(rx, ry);
-            ctx.lineTo(rx, ry + len);
-            ctx.stroke();
-
-            // Top-Right
-            ctx.beginPath();
-            ctx.moveTo(rx + rw - len, ry);
-            ctx.lineTo(rx + rw, ry);
-            ctx.lineTo(rx + rw, ry + len);
-            ctx.stroke();
-
-            // Bottom-Left
-            ctx.beginPath();
-            ctx.moveTo(rx + len, ry + rh);
-            ctx.lineTo(rx, ry + rh);
-            ctx.lineTo(rx, ry + rh - len);
-            ctx.stroke();
-
-            // Bottom-Right
-            ctx.beginPath();
-            ctx.moveTo(rx + rw - len, ry + rh);
-            ctx.lineTo(rx + rw, ry + rh);
-            ctx.lineTo(rx + rw, ry + rh - len);
-            ctx.stroke();
-
-            // 3. Draw animated sliding laser line
-            if (!smoothRectRef.current.laserY || smoothRectRef.current.laserY < ry || smoothRectRef.current.laserY > ry + rh) {
-              smoothRectRef.current.laserY = ry + 10;
-              smoothRectRef.current.laserDir = 1;
-            } else {
-              smoothRectRef.current.laserY += 3.5 * smoothRectRef.current.laserDir;
-              if (smoothRectRef.current.laserY >= ry + rh - 10) {
-                smoothRectRef.current.laserY = ry + rh - 10;
-                smoothRectRef.current.laserDir = -1;
-              } else if (smoothRectRef.current.laserY <= ry + 10) {
-                smoothRectRef.current.laserY = ry + 10;
-                smoothRectRef.current.laserDir = 1;
-              }
-            }
-
-            ctx.strokeStyle = "rgba(59, 130, 246, 0.85)"; // Premium blue laser
-            ctx.lineWidth = 3;
-            ctx.beginPath();
-            ctx.moveTo(rx + 15, smoothRectRef.current.laserY);
-            ctx.lineTo(rx + rw - 15, smoothRectRef.current.laserY);
-            ctx.stroke();
-
-            // 4. Highlight fill inside the brackets
-            ctx.fillStyle = "rgba(255, 255, 255, 0.02)";
-            ctx.fillRect(rx, ry, rw, rh);
           }
         }
 
         if (!stoppedRef.current) {
-          loopRef.current = requestAnimationFrame(trackLoop);
+          setTimeout(scanLoop, 50);
         }
       };
+      scanLoop();
 
-      loopRef.current = requestAnimationFrame(trackLoop);
+      // ─── DRAW LOOP — 60fps via requestAnimationFrame ───────────────────────
+      // Laser animation: sine-wave for natural ease-in-out
+      // One full cycle = 1.8 seconds → phase increments by (2π / (1.8 * 60)) per frame
+      const CYCLE_FRAMES = 1.8 * 60; // ~108 frames per full up→down→up cycle
+      const PHASE_STEP = (2 * Math.PI) / CYCLE_FRAMES;
+
+      const drawLoop = (timestamp) => {
+        if (stoppedRef.current || !canvasRef.current) return;
+
+        // Sync canvas size to video element
+        if (canvas.width !== videoEl.clientWidth || canvas.height !== videoEl.clientHeight) {
+          canvas.width = videoEl.clientWidth;
+          canvas.height = videoEl.clientHeight;
+        }
+
+        if (!ctx || canvas.width === 0 || canvas.height === 0) {
+          loopRef.current = requestAnimationFrame(drawLoop);
+          return;
+        }
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Frame rect (static, centered)
+        const rx = (canvas.width - 240) / 2;
+        const ry = (canvas.height - 240) / 2;
+        const rw = 240;
+        const rh = 240;
+
+        // ── Success fade-out logic ──────────────────────────────────────────
+        if (successRef.current.active) {
+          successRef.current.alpha = Math.min(1, successRef.current.alpha + 0.04); // ~25 frames = 0.4s fade
+        } else {
+          successRef.current.alpha = Math.max(0, successRef.current.alpha - 0.05);
+        }
+        const fadeAlpha = successRef.current.alpha;
+        // When fully faded out after success we stop drawing the overlay
+        const overlayAlpha = 1 - fadeAlpha * 0.95; // dims to near-invisible on success
+
+        // ── 1. Semi-transparent dark overlay with cutout ───────────────────
+        // Use a clipping region trick: fill full rect then clear the scan square
+        ctx.save();
+        ctx.fillStyle = `rgba(0, 0, 0, ${0.55 * overlayAlpha})`;
+        // Draw overlay as 4 rects around the clear viewport
+        ctx.fillRect(0, 0, canvas.width, ry);                                // Top
+        ctx.fillRect(0, ry + rh, canvas.width, canvas.height - (ry + rh));  // Bottom
+        ctx.fillRect(0, ry, rx, rh);                                          // Left
+        ctx.fillRect(rx + rw, ry, canvas.width - (rx + rw), rh);            // Right
+        ctx.restore();
+
+        // ── 2. Rounded corner brackets ─────────────────────────────────────
+        const len = 28;   // arm length
+        const rad = 6;    // corner radius
+        const bracketColor = codeDetected ? `rgba(16,185,129,${overlayAlpha})` : `rgba(255,255,255,${overlayAlpha})`;
+        ctx.strokeStyle = bracketColor;
+        ctx.lineWidth = 4;
+        ctx.lineCap = "round";
+        ctx.lineJoin = "round";
+
+        // Helper: draw one rounded L-bracket
+        // (sx, sy) = arm start X, arm start Y for horizontal arm
+        // corner is at (cx, cy); vertical arm goes to (vx, vy)
+        const drawBracket = (hx1, hy1, cx, cy, vx, vy) => {
+          ctx.beginPath();
+          ctx.moveTo(hx1, hy1);
+          ctx.arcTo(cx, cy, vx, vy, rad);
+          ctx.lineTo(vx, vy);
+          ctx.stroke();
+        };
+
+        // Top-Left
+        drawBracket(rx + len, ry, rx, ry, rx, ry + len);
+        // Top-Right
+        drawBracket(rx + rw - len, ry, rx + rw, ry, rx + rw, ry + len);
+        // Bottom-Left
+        drawBracket(rx + len, ry + rh, rx, ry + rh, rx, ry + rh - len);
+        // Bottom-Right
+        drawBracket(rx + rw - len, ry + rh, rx + rw, ry + rh, rx + rw, ry + rh - len);
+
+        // ── 3. Gradient laser line with ease-in-out (sine wave) ────────────
+        if (!successRef.current.active) {
+          // Advance laser phase
+          smoothRectRef.current.laserPhase = (smoothRectRef.current.laserPhase || 0) + PHASE_STEP;
+
+          // sin goes -1 → 1 → -1; map to [ry+12, ry+rh-12]
+          const sinVal = Math.sin(smoothRectRef.current.laserPhase); // -1 to 1
+          const laserY = ry + 12 + ((sinVal + 1) / 2) * (rh - 24);
+
+          // Gradient: transparent → blue → transparent (horizontal fade)
+          const grad = ctx.createLinearGradient(rx, laserY, rx + rw, laserY);
+          grad.addColorStop(0,    `rgba(59,130,246,0)`);
+          grad.addColorStop(0.12, `rgba(59,130,246,${0.9 * overlayAlpha})`);
+          grad.addColorStop(0.5,  `rgba(99,179,255,${overlayAlpha})`);
+          grad.addColorStop(0.88, `rgba(59,130,246,${0.9 * overlayAlpha})`);
+          grad.addColorStop(1,    `rgba(59,130,246,0)`);
+
+          ctx.strokeStyle = grad;
+          ctx.lineWidth = 2.5;
+          ctx.lineCap = "round";
+          ctx.beginPath();
+          ctx.moveTo(rx + 4, laserY);
+          ctx.lineTo(rx + rw - 4, laserY);
+          ctx.stroke();
+
+          // Subtle glow beneath the laser
+          const glowGrad = ctx.createLinearGradient(rx, laserY, rx + rw, laserY);
+          glowGrad.addColorStop(0,    `rgba(59,130,246,0)`);
+          glowGrad.addColorStop(0.5,  `rgba(59,130,246,${0.18 * overlayAlpha})`);
+          glowGrad.addColorStop(1,    `rgba(59,130,246,0)`);
+          ctx.strokeStyle = glowGrad;
+          ctx.lineWidth = 8;
+          ctx.beginPath();
+          ctx.moveTo(rx + 4, laserY);
+          ctx.lineTo(rx + rw - 4, laserY);
+          ctx.stroke();
+        }
+
+        // ── 4. Subtle inner highlight fill ─────────────────────────────────
+        ctx.fillStyle = codeDetected
+          ? `rgba(16,185,129,${0.06 * overlayAlpha})`
+          : `rgba(255,255,255,${0.015 * overlayAlpha})`;
+        ctx.fillRect(rx, ry, rw, rh);
+
+        loopRef.current = requestAnimationFrame(drawLoop);
+      };
+
+      loopRef.current = requestAnimationFrame(drawLoop);
     }
 
     const timer = setTimeout(startScanner, 250);
