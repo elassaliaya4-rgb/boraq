@@ -14,6 +14,12 @@ export default function AdminPanel() {
   const { t, lang, setLang, signOut, profile, user, triggerToast, theme, toggleTheme } = useApp();
   const isMobileAPK = Capacitor.getPlatform() === "android" || Capacitor.getPlatform() === "ios";
   const [tab, setTab] = useState("dashboard");
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   function confirmSignOut() {
     const msg = lang === "ar" ? "هل تريد تسجيل الخروج؟" : "Voulez-vous vous déconnecter ?";
@@ -644,22 +650,24 @@ export default function AdminPanel() {
           <>
             <div className="row-head" style={{ marginBottom: 16 }}>
               <h2>✅ {lang === "ar" ? "بوابة التحقق والمسح" : "Centre de Vérification"}</h2>
-              <button 
-                onClick={() => setShowScanner(true)} 
-                className="btn-accent hide-on-mobile"
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: 8,
-                  padding: "10px 20px",
-                  fontSize: 14,
-                  fontWeight: "bold",
-                  borderRadius: 10,
-                  boxShadow: "0 0 15px rgba(251, 191, 36, 0.25)"
-                }}
-              >
-                📷 {lang === "ar" ? "ابدأ مسح طرد جديد" : "Démarrer le Scan"}
-              </button>
+              {!isMobile && (
+                <button 
+                  onClick={() => setShowScanner(true)} 
+                  className="btn-accent"
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 8,
+                    padding: "10px 20px",
+                    fontSize: 14,
+                    fontWeight: "bold",
+                    borderRadius: 10,
+                    boxShadow: "0 0 15px rgba(251, 191, 36, 0.25)"
+                  }}
+                >
+                  📷 {lang === "ar" ? "ابدأ مسح طرد جديد" : "Démarrer le Scan"}
+                </button>
+              )}
             </div>
 
             {/* Filter by Agency / Route */}
