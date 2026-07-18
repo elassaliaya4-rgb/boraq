@@ -256,54 +256,59 @@ export default function DriverPanel() {
           <div style={{
             position: "relative",
             background: theme === "light"
-              ? "linear-gradient(135deg, rgba(15, 23, 42, 0.04) 0%, rgba(15, 23, 42, 0.01) 100%)"
-              : "linear-gradient(135deg, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0.02) 100%)",
-            padding: "12px 14px",
-            borderRadius: "12px",
-            marginBottom: "20px",
-            border: theme === "light" ? "1px solid rgba(15, 23, 42, 0.08)" : "1px solid rgba(255, 255, 255, 0.1)",
-            borderInlineStart: "4px solid var(--primary)",
+              ? "linear-gradient(135deg, rgba(37, 99, 235, 0.05) 0%, rgba(37, 99, 235, 0.01) 100%)"
+              : "linear-gradient(135deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.02) 100%)",
+            padding: "14px 16px",
+            borderRadius: "16px",
+            marginBottom: "24px",
+            border: theme === "light" ? "1px solid rgba(15, 23, 42, 0.06)" : "1px solid rgba(255, 255, 255, 0.08)",
             boxShadow: theme === "light"
-              ? "0 4px 20px 0 rgba(15, 23, 42, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.6)"
-              : "0 8px 32px 0 rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1)",
+              ? "0 4px 20px 0 rgba(15, 23, 42, 0.03), inset 0 1px 0 rgba(255, 255, 255, 0.6)"
+              : "0 8px 32px 0 rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.05)",
             display: "flex",
             alignItems: "center",
-            gap: "12px"
+            gap: "12px",
+            overflow: "hidden"
           }}>
+            {/* Subtle premium vertical indicator */}
+            <div style={{
+              position: "absolute",
+              left: 0,
+              top: 0,
+              bottom: 0,
+              width: "4px",
+              background: "linear-gradient(180deg, var(--primary) 0%, #d97706 100%)"
+            }} />
+
             {/* Avatar Initials Badge */}
             <div style={{
-              width: "36px",
-              height: "36px",
+              width: "38px",
+              height: "38px",
               borderRadius: "50%",
               background: "linear-gradient(135deg, var(--primary) 0%, #d97706 100%)",
               color: "#0f172a",
-              fontWeight: "700",
+              fontWeight: "800",
               fontSize: "14px",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              boxShadow: "0 0 12px rgba(251, 191, 36, 0.3)",
+              boxShadow: "0 0 14px rgba(251, 191, 36, 0.25)",
               flexShrink: 0
             }}>
               {driverInfo.name.substring(0, 2).toUpperCase()}
             </div>
             
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: "9px", textTransform: "uppercase", letterSpacing: "0.05em", color: "var(--text-dim)", fontWeight: "600" }}>
+              <div style={{ fontSize: "9px", textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--text-dim)", fontWeight: "700" }}>
                 {lang === "ar" ? "السائق المهني" : "Conducteur Pro"}
               </div>
-              <div style={{ fontSize: "14px", fontWeight: "600", color: "var(--text)", marginTop: "2px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+              <div style={{ fontSize: "14px", fontWeight: "700", color: "var(--text)", marginTop: "2px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                 {driverInfo.name}
               </div>
-              <div style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "6px", fontSize: "10px", color: "var(--text-dim)" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "5px", fontSize: "11px", color: "var(--text-dim)" }}>
                 <span style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}>
                   <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: 2 }}><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
                   {lang === "ar" ? "سائق" : "Conducteur"}
-                </span>
-                <span style={{ color: theme === "light" ? "rgba(15, 23, 42, 0.15)" : "rgba(255, 255, 255, 0.15)" }}>•</span>
-                <span style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}>
-                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
-                  {driverInfo.code}
                 </span>
               </div>
             </div>
