@@ -12,21 +12,6 @@ export default function Login() {
   const [busy, setBusy] = useState(false);
 
 
-  // Google OAuth login handler
-  async function handleGoogleLogin() {
-    try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: { redirectTo: window.location.origin },
-      });
-      if (error) {
-        setError(error.message);
-      }
-    } catch (e) {
-      console.error('Google login error:', e);
-      setError('Google login failed');
-    }
-  }
 
   async function handleLogin() {
     let loginEmail = email;
@@ -201,10 +186,6 @@ export default function Login() {
                   {/* Sign-in with code/email */}
           <button className="btn-primary" onClick={handleLogin} disabled={busy}>
             {busy ? "..." : t.signIn}
-          </button>
-          {/* Google OAuth login */}
-          <button className="btn-primary" style={{marginTop: "8px"}} onClick={handleGoogleLogin}>
-            Google
           </button>
 
       </div>
