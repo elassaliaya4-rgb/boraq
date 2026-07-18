@@ -373,20 +373,29 @@ export default function AgencyPanel() {
             )}
             <h1>{t.welcome} {agencyInfo?.name || "Agence"} 👋</h1>
           </div>
-          <div className="topbar-actions">
-            <button 
-              className="btn-accent" 
+            {/* ── Premium Scan Button ── */}
+            <button
               onClick={() => setShowScanner(true)}
               style={{
                 display: "inline-flex",
                 alignItems: "center",
-                gap: "6px",
-                padding: "8px 14px",
+                gap: "8px",
+                padding: "9px 18px",
                 fontSize: "13px",
-                fontWeight: "600",
-                borderRadius: "8px",
-                cursor: "pointer"
+                fontWeight: "700",
+                borderRadius: "50px",
+                cursor: "pointer",
+                background: "linear-gradient(135deg, #0ea5e9, #6366f1)",
+                border: "1px solid rgba(99,102,241,0.4)",
+                color: "#fff",
+                boxShadow: "0 4px 16px rgba(99,102,241,0.35), inset 0 1px 0 rgba(255,255,255,0.15)",
+                letterSpacing: "0.02em",
+                transition: "all 0.2s ease",
+                position: "relative",
+                overflow: "hidden"
               }}
+              onMouseEnter={e => { e.currentTarget.style.boxShadow = "0 6px 24px rgba(99,102,241,0.55)"; e.currentTarget.style.transform = "translateY(-1px)"; }}
+              onMouseLeave={e => { e.currentTarget.style.boxShadow = "0 4px 16px rgba(99,102,241,0.35)"; e.currentTarget.style.transform = "translateY(0)"; }}
             >
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
                 <path d="M3 7V5a2 2 0 0 1 2-2h2" />
@@ -397,6 +406,7 @@ export default function AgencyPanel() {
               </svg>
               <span>{t.scan}</span>
             </button>
+
             {/* ── Premium Sliding Language Toggle ── */}
             <div
               className="lang-selector-desktop"
@@ -404,14 +414,14 @@ export default function AgencyPanel() {
                 position: "relative",
                 display: "inline-flex",
                 alignItems: "center",
-                borderRadius: "12px",
+                borderRadius: "30px",
                 border: "1px solid var(--border)",
                 background: "var(--surface-2)",
                 padding: "2px",
                 cursor: "pointer",
                 userSelect: "none",
-                height: "38px",
-                width: "125px",
+                height: "34px",
+                width: "105px",
                 boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
                 overflow: "hidden"
               }}
@@ -425,8 +435,8 @@ export default function AgencyPanel() {
                 left: lang === "fr" ? "2px" : "calc(50% + 1px)",
                 width: "calc(50% - 3px)",
                 background: "linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%)",
-                borderRadius: "9px",
-                boxShadow: "0 2px 8px rgba(37, 99, 235, 0.4)",
+                borderRadius: "30px",
+                boxShadow: "0 2px 8px rgba(37, 99, 235, 0.3)",
                 transition: "left 0.25s cubic-bezier(0.4, 0, 0.2, 1)",
                 zIndex: 1
               }} />
@@ -437,15 +447,13 @@ export default function AgencyPanel() {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                gap: "4px",
-                fontSize: "11px",
-                fontWeight: "700",
+                fontSize: "12px",
+                fontWeight: "800",
                 color: lang === "fr" ? "#fff" : "var(--text-dim)",
                 zIndex: 2,
                 transition: "color 0.2s"
               }}>
-                <span style={{ fontSize: "14px" }}>🇫🇷</span>
-                <span>FR</span>
+                FR
               </div>
 
               {/* AR Option */}
@@ -454,33 +462,37 @@ export default function AgencyPanel() {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                gap: "4px",
-                fontSize: "11px",
-                fontWeight: "700",
+                fontSize: "12px",
+                fontWeight: "800",
                 color: lang === "ar" ? "#fff" : "var(--text-dim)",
                 zIndex: 2,
                 transition: "color 0.2s"
               }}>
-                <span style={{ fontSize: "14px" }}>🇲🇦</span>
-                <span>عربي</span>
+                عربي
               </div>
             </div>
+
             <button 
               className="theme-toggle-desktop"
               onClick={toggleTheme}
               style={{
-                padding: "8px 12px",
-                fontSize: "13px",
-                fontWeight: "600",
-                borderRadius: "8px",
+                width: "38px",
+                height: "38px",
+                padding: 0,
+                fontSize: "16px",
+                borderRadius: "12px",
                 cursor: "pointer",
                 display: "inline-flex",
                 alignItems: "center",
-                gap: "5px",
-                background: "rgba(255,255,255,0.06)",
+                justifyContent: "center",
+                background: "var(--surface)",
                 border: "1px solid var(--border)",
-                color: "var(--text)"
+                color: "var(--text)",
+                boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
+                transition: "all 0.2s ease"
               }}
+              onMouseEnter={e => e.currentTarget.style.borderColor = "var(--primary)"}
+              onMouseLeave={e => e.currentTarget.style.borderColor = "var(--border)"}
               title={lang === "ar" ? "تغيير المظهر" : "Changer le thème"}
             >
               {theme === "dark" ? "☀️" : "🌙"}

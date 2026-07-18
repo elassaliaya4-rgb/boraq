@@ -422,7 +422,7 @@ export default function AdminPanel() {
                 padding: "9px 18px",
                 fontSize: "13px",
                 fontWeight: "700",
-                borderRadius: "12px",
+                borderRadius: "50px",
                 cursor: "pointer",
                 background: "linear-gradient(135deg, #0ea5e9, #6366f1)",
                 border: "1px solid rgba(99,102,241,0.4)",
@@ -451,14 +451,14 @@ export default function AdminPanel() {
                 position: "relative",
                 display: "inline-flex",
                 alignItems: "center",
-                borderRadius: "12px",
+                borderRadius: "30px",
                 border: "1px solid var(--border)",
                 background: "var(--surface-2)",
                 padding: "2px",
                 cursor: "pointer",
                 userSelect: "none",
-                height: "38px",
-                width: "125px",
+                height: "34px",
+                width: "105px",
                 boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
                 overflow: "hidden"
               }}
@@ -472,8 +472,8 @@ export default function AdminPanel() {
                 left: lang === "fr" ? "2px" : "calc(50% + 1px)",
                 width: "calc(50% - 3px)",
                 background: "linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%)",
-                borderRadius: "9px",
-                boxShadow: "0 2px 8px rgba(37, 99, 235, 0.4)",
+                borderRadius: "30px",
+                boxShadow: "0 2px 8px rgba(37, 99, 235, 0.3)",
                 transition: "left 0.25s cubic-bezier(0.4, 0, 0.2, 1)",
                 zIndex: 1
               }} />
@@ -484,15 +484,13 @@ export default function AdminPanel() {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                gap: "4px",
-                fontSize: "11px",
-                fontWeight: "700",
+                fontSize: "12px",
+                fontWeight: "800",
                 color: lang === "fr" ? "#fff" : "var(--text-dim)",
                 zIndex: 2,
                 transition: "color 0.2s"
               }}>
-                <span style={{ fontSize: "14px" }}>🇫🇷</span>
-                <span>FR</span>
+                FR
               </div>
 
               {/* AR Option */}
@@ -501,15 +499,13 @@ export default function AdminPanel() {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                gap: "4px",
-                fontSize: "11px",
-                fontWeight: "700",
+                fontSize: "12px",
+                fontWeight: "800",
                 color: lang === "ar" ? "#fff" : "var(--text-dim)",
                 zIndex: 2,
                 transition: "color 0.2s"
               }}>
-                <span style={{ fontSize: "14px" }}>🇲🇦</span>
-                <span>عربي</span>
+                عربي
               </div>
             </div>
 
