@@ -48,7 +48,17 @@ export default function AgencyPanel() {
     try { return JSON.parse(localStorage.getItem("boraq_scan_session_agency") || "[]"); }
     catch { return []; }
   });
-  // Removed scanFilterAgency state
+  const [valTab, setValTab] = useState("pending"); // 'pending' or 'validated'
+
+  async function validatePackage(pkg) {
+    if (!pkg) return;
+    setScannedSessionPkgs((prev) => {
+      if (prev.some((s) => s.id === pkg.id)) return prev;
+      return [pkg, ...prev];
+    });
+    await supabase.from("packages").update({ status: "arrived" }).eq("id", pkg.id);
+    loadData();
+  }
 
   // Auto-save scan session to localStorage so it survives refresh
   useEffect(() => {
@@ -794,97 +804,170 @@ export default function AgencyPanel() {
               })()}
             </div>
 
-            {/* Validation Checklist Grid */}
+            {/* Sub-tabs: Pending vs Validated */}
             {(() => {
-              const filteredPkgs = packages;
-              
-              if (filteredPkgs.length === 0) {
-                return (
-                  <div style={{ padding: 40, textAlign: "center", background: "var(--surface)", border: "1px dashed var(--border)", borderRadius: 16, color: "var(--text-dim)" }}>
-                    📭 {lang === "ar" ? "لا توجد طرود لهذه الوكالة حالياً" : "Aucun colis trouvé pour cette origine"}
-                  </div>
-                );
-              }
+              const pendingPkgs = packages.filter(p => !scannedSessionPkgs.some(s => s.id === p.id) && p.status !== "arrived" && p.status !== "delivered");
+              const validatedPkgs = packages.filter(p => scannedSessionPkgs.some(s => s.id === p.id) || p.status === "arrived" || p.status === "delivered");
+              const displayPkgs = valTab === "pending" ? pendingPkgs : validatedPkgs;
 
               return (
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: 12 }}>
-                  {filteredPkgs.map((p) => {
-                    const isValidated = scannedSessionPkgs.some(s => s.id === p.id);
-                    return (
-                      <div 
-                        key={p.id} 
-                        style={{
-                          background: isValidated ? "rgba(16, 185, 129, 0.08)" : "var(--surface)",
-                          border: isValidated ? "1px solid rgba(16, 185, 129, 0.3)" : "1px solid var(--border)",
-                          borderInlineStart: isValidated ? "4px solid #10b981" : "4px solid var(--text-dim)",
-                          borderRadius: 12,
-                          padding: 14,
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "space-between",
-                          gap: 12,
-                          boxShadow: isValidated ? "0 4px 15px rgba(16, 185, 129, 0.08)" : "none",
-                          transition: "all 0.25s ease"
-                        }}
-                      >
-                        <div style={{ display: "flex", alignItems: "center", gap: 12, minWidth: 0 }}>
-                          <div style={{
-                            width: 38,
-                            height: 38,
-                            borderRadius: "50%",
-                            background: isValidated ? "rgba(16, 185, 129, 0.15)" : "rgba(255,255,255,0.05)",
-                            color: isValidated ? "#10b981" : "var(--text-dim)",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            fontSize: 16,
-                            fontWeight: "bold",
-                            flexShrink: 0
-                          }}>
-                            {isValidated ? "✓" : "⏳"}
-                          </div>
-                          
-                          <div style={{ minWidth: 0 }}>
-                            <div style={{ fontSize: 13, fontWeight: 700, display: "flex", alignItems: "center", gap: 6, color: isValidated ? "#10b981" : "var(--text)" }}>
-                              <span>{p.tracking_number}</span>
-                              <span style={{ 
-                                fontSize: 9, 
-                                background: isValidated ? "rgba(16,185,129,0.15)" : "rgba(255,255,255,0.08)", 
-                                color: isValidated ? "#10b981" : "var(--text-dim)", 
-                                padding: "1px 6px", 
-                                borderRadius: 4 
-                              }}>
-                                {isValidated ? (lang === "ar" ? "مقبول" : "Valide") : (lang === "ar" ? "في الانتظار" : "En attente")}
-                              </span>
-                            </div>
-                            <div className="card-meta-row" style={{ fontSize: 11, marginTop: 3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                              {p.sender_name} ({p.origin}) ➔ {p.receiver_name}
-                            </div>
-                          </div>
-                        </div>
+                <>
+                  <div style={{ display: "flex", gap: 10, marginBottom: 16 }}>
+                    <button
+                      onClick={() => setValTab("pending")}
+                      style={{
+                        padding: "8px 16px",
+                        borderRadius: 12,
+                        fontSize: 12,
+                        fontWeight: "700",
+                        background: valTab === "pending" ? "linear-gradient(135deg, #f59e0b, #d97706)" : "var(--surface)",
+                        color: valTab === "pending" ? "#fff" : "var(--text-dim)",
+                        border: "1px solid var(--border)",
+                        cursor: "pointer",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 6
+                      }}
+                    >
+                      <span>⏳ {lang === "ar" ? "في انتظار التحقق" : "En attente"}</span>
+                      <span style={{ fontSize: 10, background: "rgba(255,255,255,0.2)", padding: "1px 6px", borderRadius: 8 }}>
+                        {pendingPkgs.length}
+                      </span>
+                    </button>
 
-                        <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
-                          <button 
-                            className="btn-manage" 
-                            onClick={() => setDetailPkg(p)}
-                            style={{ 
-                              padding: "6px 10px", 
-                              fontSize: 11, 
-                              borderRadius: 8, 
-                              background: "rgba(255,255,255,0.05)", 
-                              border: "1px solid rgba(255,255,255,0.08)",
-                              color: "#fff",
-                              cursor: "pointer",
-                              fontWeight: "600"
+                    <button
+                      onClick={() => setValTab("validated")}
+                      style={{
+                        padding: "8px 16px",
+                        borderRadius: 12,
+                        fontSize: 12,
+                        fontWeight: "700",
+                        background: valTab === "validated" ? "linear-gradient(135deg, #10b981, #059669)" : "var(--surface)",
+                        color: valTab === "validated" ? "#fff" : "var(--text-dim)",
+                        border: "1px solid var(--border)",
+                        cursor: "pointer",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 6
+                      }}
+                    >
+                      <span>✅ {lang === "ar" ? "الطرود المقبولة" : "Colis validés"}</span>
+                      <span style={{ fontSize: 10, background: "rgba(255,255,255,0.2)", padding: "1px 6px", borderRadius: 8 }}>
+                        {validatedPkgs.length}
+                      </span>
+                    </button>
+                  </div>
+
+                  {displayPkgs.length === 0 ? (
+                    <div style={{ padding: 40, textAlign: "center", background: "var(--surface)", border: "1px dashed var(--border)", borderRadius: 16, color: "var(--text-dim)" }}>
+                      {valTab === "pending"
+                        ? (lang === "ar" ? "🎉 تم التحقق من جميع الطرود بنجاح!" : "🎉 Tous les colis sont validés !")
+                        : (lang === "ar" ? "📭 لا توجد طرود ممسوحة حالياً" : "📭 Aucun colis validé pour le moment")}
+                    </div>
+                  ) : (
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: 12 }}>
+                      {displayPkgs.map((p) => {
+                        const isValidated = scannedSessionPkgs.some(s => s.id === p.id) || p.status === "arrived" || p.status === "delivered";
+                        return (
+                          <div 
+                            key={p.id} 
+                            style={{
+                              background: "var(--surface)",
+                              border: isValidated ? "1px solid rgba(16, 185, 129, 0.3)" : "1px solid var(--border)",
+                              borderInlineStart: isValidated ? "4px solid #10b981" : "4px solid #f59e0b",
+                              borderRadius: 12,
+                              padding: 14,
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "space-between",
+                              gap: 12,
+                              transition: "all 0.25s ease"
                             }}
                           >
-                            ⚙️
-                          </button>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
+                            <div style={{ display: "flex", alignItems: "center", gap: 12, minWidth: 0 }}>
+                              <div style={{
+                                width: 38,
+                                height: 38,
+                                borderRadius: "50%",
+                                background: isValidated ? "rgba(16, 185, 129, 0.15)" : "rgba(245, 158, 11, 0.15)",
+                                color: isValidated ? "#10b981" : "#f59e0b",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                fontSize: 16,
+                                fontWeight: "bold",
+                                flexShrink: 0
+                              }}>
+                                {isValidated ? "✓" : "⏳"}
+                              </div>
+                              
+                              <div style={{ minWidth: 0 }}>
+                                <div style={{ fontSize: 13, fontWeight: 700, display: "flex", alignItems: "center", gap: 6, color: isValidated ? "#10b981" : "var(--text)" }}>
+                                  <span>{p.tracking_number}</span>
+                                  <span style={{ 
+                                    fontSize: 9, 
+                                    background: isValidated ? "rgba(16,185,129,0.15)" : "rgba(245,158,11,0.15)", 
+                                    color: isValidated ? "#10b981" : "#f59e0b", 
+                                    padding: "1px 6px", 
+                                    borderRadius: 4 
+                                  }}>
+                                    {isValidated ? (lang === "ar" ? "مقبول" : "Valide") : (lang === "ar" ? "في الانتظار" : "En attente")}
+                                  </span>
+                                </div>
+                                <div className="card-meta-row" style={{ fontSize: 11, marginTop: 3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                                  {p.sender_name} ({p.origin}) ➔ {p.receiver_name}
+                                </div>
+                              </div>
+                            </div>
+
+                            <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
+                              {!isValidated && (
+                                <button
+                                  onClick={() => validatePackage(p)}
+                                  style={{
+                                    padding: "6px 12px",
+                                    fontSize: 11,
+                                    fontWeight: "700",
+                                    borderRadius: 8,
+                                    background: "linear-gradient(135deg, #10b981, #059669)",
+                                    color: "#fff",
+                                    border: "none",
+                                    cursor: "pointer",
+                                    boxShadow: "0 2px 8px rgba(16,185,129,0.3)",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: 4
+                                  }}
+                                >
+                                  ✓ {lang === "ar" ? "تأكيد" : "Valider"}
+                                </button>
+                              )}
+                              <button 
+                                className="btn-manage" 
+                                onClick={() => setDetailPkg(p)}
+                                style={{ 
+                                  padding: "6px 10px", 
+                                  fontSize: 11, 
+                                  borderRadius: 8, 
+                                  background: "var(--surface-2)", 
+                                  border: "1px solid var(--border)",
+                                  color: "var(--text)",
+                                  cursor: "pointer",
+                                  fontWeight: "600",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  justifyContent: "center"
+                                }}
+                              >
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                              </button>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </>
               );
             })()}
           </>
