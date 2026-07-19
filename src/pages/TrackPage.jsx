@@ -3,10 +3,10 @@ import { supabase } from "../lib/supabase";
 
 const STATUS_STEPS = ["pending", "inTransit", "arrived", "delivered"];
 
-// Premium Vector SVG Icons
-function IconPending({ size = 22, color = "currentColor" }) {
+// Vector SVG Icons
+function IconPending({ size = 20, color = "currentColor" }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z" />
       <path d="m3.3 7 8.7 5 8.7-5" />
       <path d="M12 22V12" />
@@ -14,9 +14,9 @@ function IconPending({ size = 22, color = "currentColor" }) {
   );
 }
 
-function IconTransit({ size = 22, color = "currentColor" }) {
+function IconTransit({ size = 20, color = "currentColor" }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2" />
       <path d="M15 18H9" />
       <path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14v10Z" />
@@ -26,16 +26,16 @@ function IconTransit({ size = 22, color = "currentColor" }) {
   );
 }
 
-function IconArrived({ size = 22, color = "currentColor" }) {
+function IconArrived({ size = 20, color = "currentColor" }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0" />
       <circle cx="12" cy="10" r="3" />
     </svg>
   );
 }
 
-function IconDelivered({ size = 22, color = "currentColor" }) {
+function IconDelivered({ size = 20, color = "currentColor" }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
@@ -44,11 +44,85 @@ function IconDelivered({ size = 22, color = "currentColor" }) {
   );
 }
 
-const STATUS_LABELS = {
-  pending:   { fr: "En attente", ar: "في الانتظار", renderIcon: (c, s) => <IconPending size={s} color={c} /> },
-  inTransit: { fr: "En transit",  ar: "في الطريق",   renderIcon: (c, s) => <IconTransit size={s} color={c} /> },
-  arrived:   { fr: "Arrivé",      ar: "وصل للوكالة", renderIcon: (c, s) => <IconArrived size={s} color={c} /> },
-  delivered: { fr: "Livré",       ar: "تم التسليم",  renderIcon: (c, s) => <IconDelivered size={s} color={c} /> },
+const LANGUAGES = [
+  { code: "ar", label: "العربية", flag: "🇲🇦" },
+  { code: "fr", label: "Français", flag: "🇫🇷" },
+  { code: "en", label: "English", flag: "🇬🇧" },
+  { code: "es", label: "Español", flag: "🇪🇸" },
+];
+
+const I18N_TRACK = {
+  ar: {
+    title: "تتبع الطرود",
+    suivre: "تتبع حالة الطرد",
+    hint: "أدخل رقم التتبع الخاص بك",
+    placeholder: "مثال: BRQ-6590828",
+    dest: "📍 الوجهة / Destination",
+    date: "📅 التاريخ / Date",
+    notfound: "الطرد غير موجود / Colis introuvable",
+    retour: "← الرجوع للرئيسية",
+    steps: {
+      pending: "في الانتظار",
+      inTransit: "في الطريق",
+      arrived: "وصل للوكالة",
+      delivered: "تم التسليم",
+    }
+  },
+  fr: {
+    title: "Suivi de colis",
+    suivre: "Suivre mon colis",
+    hint: "Entrez votre numéro de suivi",
+    placeholder: "Ex: BRQ-6590828",
+    dest: "📍 Destination",
+    date: "📅 Date d'envoi",
+    notfound: "Colis introuvable",
+    retour: "← Retour à l'accueil",
+    steps: {
+      pending: "En attente",
+      inTransit: "En transit",
+      arrived: "Arrivé à l'agence",
+      delivered: "Livré",
+    }
+  },
+  en: {
+    title: "Parcel Tracking",
+    suivre: "Track my parcel",
+    hint: "Enter your tracking number",
+    placeholder: "Ex: BRQ-6590828",
+    dest: "📍 Destination",
+    date: "📅 Date sent",
+    notfound: "Parcel not found",
+    retour: "← Back to Home",
+    steps: {
+      pending: "Pending",
+      inTransit: "In Transit",
+      arrived: "Arrived at Agency",
+      delivered: "Delivered",
+    }
+  },
+  es: {
+    title: "Seguimiento de paquetes",
+    suivre: "Rastrear mi paquete",
+    hint: "Ingrese su número de seguimiento",
+    placeholder: "Ej: BRQ-6590828",
+    dest: "📍 Destino",
+    date: "📅 Fecha de envío",
+    notfound: "Paquete no encontrado",
+    retour: "← Volver al inicio",
+    steps: {
+      pending: "En espera",
+      inTransit: "En tránsito",
+      arrived: "Llegó a la agencia",
+      delivered: "Entregado",
+    }
+  }
+};
+
+const STEP_ICONS = {
+  pending: (c, s) => <IconPending size={s} color={c} />,
+  inTransit: (c, s) => <IconTransit size={s} color={c} />,
+  arrived: (c, s) => <IconArrived size={s} color={c} />,
+  delivered: (c, s) => <IconDelivered size={s} color={c} />,
 };
 
 export default function TrackPage() {
@@ -56,6 +130,9 @@ export default function TrackPage() {
   const [pkg, setPkg]         = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError]     = useState("");
+  const [trackLang, setTrackLang] = useState("fr"); // default FR
+
+  const txt = I18N_TRACK[trackLang] || I18N_TRACK.fr;
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -79,7 +156,7 @@ export default function TrackPage() {
         .maybeSingle();
 
       if (err) throw err;
-      if (!data) { setError("Colis introuvable / الطرد غير موجود"); }
+      if (!data) { setError(txt.notfound); }
       else setPkg(data);
     } catch (e) {
       setError("Erreur: " + e.message);
@@ -103,19 +180,46 @@ export default function TrackPage() {
       flexDirection: "column",
       alignItems: "center",
       justifyContent: "flex-start",
-      padding: "40px 16px",
+      padding: "32px 16px",
       fontFamily: "'Inter', sans-serif"
     }}>
-      {/* Header */}
-      <div style={{ textAlign: "center", marginBottom: 32 }}>
+      {/* ── Keyframe Animations inline ── */}
+      <style>{`
+        @keyframes lineGlowStream {
+          0% { background-position: 0% 50%; }
+          100% { background-position: 200% 50%; }
+        }
+      `}</style>
+
+      {/* Top Header & Language Bar */}
+      <div style={{ width: "100%", maxWidth: 480, display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
         <div style={{
-          fontSize: 38, fontWeight: 800,
+          fontSize: 32, fontWeight: 800,
           background: "linear-gradient(135deg, #3b82f6, #f59e0b)",
-          WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
-          marginBottom: 6
+          WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent"
         }}>⚡ Boraq</div>
-        <div style={{ color: "#94a3b8", fontSize: 13, letterSpacing: 2, fontWeight: 600 }}>
-          SUIVI DE COLIS / تتبع الطرود
+
+        {/* European Language Switcher Capsule */}
+        <div style={{
+          display: "flex", gap: 3, background: "rgba(15, 23, 41, 0.75)",
+          padding: 3, borderRadius: 30, border: "1px solid rgba(255, 255, 255, 0.1)"
+        }}>
+          {LANGUAGES.map(l => (
+            <button
+              key={l.code}
+              onClick={() => setTrackLang(l.code)}
+              style={{
+                padding: "4px 8px", borderRadius: 20, fontSize: 11, fontWeight: "700",
+                background: trackLang === l.code ? "#3b82f6" : "transparent",
+                color: trackLang === l.code ? "#fff" : "rgba(255, 255, 255, 0.6)",
+                border: "none", cursor: "pointer", transition: "all 0.2s ease",
+                display: "flex", alignItems: "center", gap: 3
+              }}
+            >
+              <span>{l.flag}</span>
+              <span>{l.code.toUpperCase()}</span>
+            </button>
+          ))}
         </div>
       </div>
 
@@ -124,17 +228,17 @@ export default function TrackPage() {
         background: "rgba(26, 36, 64, 0.85)",
         border: "1px solid rgba(59, 130, 246, 0.25)",
         borderRadius: 24,
-        padding: "32px 24px",
+        padding: "28px 20px",
         width: "100%",
         maxWidth: 480,
         boxShadow: "0 20px 50px rgba(0, 0, 0, 0.4)",
         backdropFilter: "blur(16px)"
       }}>
         <h2 style={{ color: "#e8edf7", fontSize: 18, fontWeight: 700, marginBottom: 4, textAlign: "center" }}>
-          🔎 Suivre un colis
+          📦 {txt.suivre}
         </h2>
         <p style={{ color: "#94a3b8", fontSize: 12, marginBottom: 20, textAlign: "center" }}>
-          أدخل رقم التتبع الخاص بك
+          {txt.hint}
         </p>
 
         {/* Form */}
@@ -142,15 +246,15 @@ export default function TrackPage() {
           <input
             value={input}
             onChange={e => setInput(e.target.value)}
-            placeholder="Ex: BRQ-6590828"
+            placeholder={txt.placeholder}
             style={{
-              flex: 1, padding: "14px 16px", borderRadius: 14, fontSize: 15, fontWeight: "600",
+              flex: 1, padding: "13px 16px", borderRadius: 14, fontSize: 14, fontWeight: "600",
               background: "rgba(15, 23, 41, 0.7)", border: "1.5px solid rgba(59, 130, 246, 0.35)",
               color: "#fff", outline: "none", letterSpacing: 1
             }}
           />
           <button type="submit" disabled={loading} style={{
-            padding: "14px 22px", borderRadius: 14, fontWeight: 800, fontSize: 16,
+            padding: "13px 20px", borderRadius: 14, fontWeight: 800, fontSize: 16,
             background: "linear-gradient(135deg, #3b82f6, #2563eb)",
             color: "#fff", border: "none", cursor: "pointer",
             boxShadow: "0 4px 16px rgba(59, 130, 246, 0.4)",
@@ -163,7 +267,7 @@ export default function TrackPage() {
         {/* Error message */}
         {error && (
           <div style={{
-            padding: "14px", borderRadius: 14,
+            padding: "12px", borderRadius: 14,
             background: "rgba(239, 68, 68, 0.12)", border: "1px solid rgba(239, 68, 68, 0.3)",
             color: "#fca5a5", fontSize: 13, textAlign: "center", fontWeight: "600"
           }}>
@@ -173,57 +277,61 @@ export default function TrackPage() {
 
         {/* Result Package */}
         {pkg && (
-          <div style={{ marginTop: 24, animation: "fade-in 0.3s ease" }}>
+          <div style={{ marginTop: 24 }}>
             {/* Tracking Header Pill */}
             <div style={{
-              textAlign: "center", fontSize: 20, fontWeight: 800,
+              textAlign: "center", fontSize: 19, fontWeight: 800,
               color: "#3b82f6", letterSpacing: 2, marginBottom: 28,
-              padding: "14px 18px", background: "rgba(59, 130, 246, 0.08)",
+              padding: "12px 16px", background: "rgba(59, 130, 246, 0.08)",
               borderRadius: 16, border: "1px solid rgba(59, 130, 246, 0.3)",
               boxShadow: "0 4px 20px rgba(59, 130, 246, 0.12)"
             }}>
               {pkg.tracking_number}
             </div>
 
-            {/* Pro Big Emoji Progress Tracker */}
+            {/* Pro Step Progress Bar */}
             <div style={{ display: "flex", alignItems: "flex-start", marginBottom: 32, position: "relative" }}>
               {STATUS_STEPS.map((s, i) => {
                 const isPassed  = i <= stepIdx;
                 const isCurrent = i === stepIdx;
-                const info      = STATUS_LABELS[s];
+                const renderFn  = STEP_ICONS[s];
+                const labelText = txt.steps[s];
 
                 return (
-                  <div key={s} style={{ flex: 1, textAlign: "center", position: "relative", zIndex: 1 }}>
-                    {/* Connecting Line */}
+                  <div key={s} style={{ flex: 1, textAlign: "center", position: "relative" }}>
+                    {/* Animated Stream Connecting Line */}
                     {i > 0 && (
                       <div style={{
                         position: "absolute",
                         top: 23,
                         right: "50%",
                         width: "100%",
-                        height: 3,
+                        height: 4,
                         background: i <= stepIdx
-                          ? "linear-gradient(90deg, #3b82f6, #22c55e)"
-                          : "rgba(255, 255, 255, 0.1)",
-                        zIndex: -1,
-                        borderRadius: 2,
-                        transition: "all 0.4s ease"
+                          ? "linear-gradient(90deg, #3b82f6 0%, #22c55e 50%, #3b82f6 100%)"
+                          : "rgba(255, 255, 255, 0.08)",
+                        backgroundSize: "200% 100%",
+                        animation: i <= stepIdx ? "lineGlowStream 2s linear infinite" : "none",
+                        zIndex: 1, // Line sits behind circles
+                        borderRadius: 2
                       }} />
                     )}
 
-                    {/* Pro Circle with Vector Icon */}
+                    {/* Solid Opaque Circle Container — Line NEVER intersects icon */}
                     <div style={{
-                      width: 50,
-                      height: 50,
+                      position: "relative",
+                      zIndex: 2, // Sits IN FRONT of the connecting line
+                      width: 48,
+                      height: 48,
                       borderRadius: "50%",
                       margin: "0 auto 10px",
                       background: isCurrent
-                        ? "linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)"
+                        ? "linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)"
                         : isPassed
-                          ? "linear-gradient(135deg, #22c55e 0%, #16a34a 100%)"
-                          : "rgba(15, 23, 42, 0.6)",
+                          ? "linear-gradient(135deg, #16a34a 0%, #15803d 100%)"
+                          : "#141c30", // Solid dark fill blocks connecting line
                       border: isCurrent
-                        ? "3px solid #93c5fd"
+                        ? "3px solid #60a5fa"
                         : isPassed
                           ? "2.5px solid #4ade80"
                           : "2px solid rgba(255, 255, 255, 0.12)",
@@ -231,15 +339,15 @@ export default function TrackPage() {
                       alignItems: "center",
                       justifyContent: "center",
                       boxShadow: isCurrent
-                        ? "0 0 25px rgba(59, 130, 246, 0.75), 0 0 10px rgba(59, 130, 246, 0.5)"
+                        ? "0 0 24px rgba(59, 130, 246, 0.8), 0 0 10px rgba(59, 130, 246, 0.5)"
                         : isPassed
-                          ? "0 0 16px rgba(34, 197, 94, 0.35)"
+                          ? "0 0 14px rgba(34, 197, 94, 0.35)"
                           : "none",
                       transform: isCurrent ? "scale(1.15)" : "scale(1)",
                       transition: "all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)",
-                      opacity: isPassed ? 1 : 0.4
+                      opacity: isPassed ? 1 : 0.45
                     }}>
-                      {info.renderIcon(isPassed ? "#ffffff" : "#94a3b8", isCurrent ? 24 : 20)}
+                      {renderFn(isPassed ? "#ffffff" : "#94a3b8", isCurrent ? 22 : 18)}
                     </div>
 
                     {/* Text Label */}
@@ -249,17 +357,16 @@ export default function TrackPage() {
                       color: isCurrent ? "#93c5fd" : isPassed ? "#e8edf7" : "#64748b",
                       lineHeight: 1.3
                     }}>
-                      {info.fr}<br/>
-                      <span style={{ fontSize: 10, opacity: 0.85 }}>{info.ar}</span>
+                      {labelText}
                     </div>
                   </div>
                 );
               })}
             </div>
 
-            {/* Clean Details Info (No Names - Minimal & Private) */}
+            {/* Clean Details Info (Destination & Date Only) */}
             <div style={{
-              background: "rgba(15, 23, 41, 0.5)",
+              background: "rgba(15, 23, 41, 0.65)",
               borderRadius: 16,
               padding: "16px 20px",
               border: "1px solid rgba(255, 255, 255, 0.08)"
@@ -268,7 +375,7 @@ export default function TrackPage() {
                 display: "flex", justifyContent: "space-between", alignItems: "center",
                 padding: "10px 0", borderBottom: "1px solid rgba(255, 255, 255, 0.08)", fontSize: 14
               }}>
-                <span style={{ color: "#94a3b8" }}>📍 الوجهة / Destination</span>
+                <span style={{ color: "#94a3b8" }}>{txt.dest}</span>
                 <span style={{ color: "#fff", fontWeight: "700" }}>{pkg.destination || "—"}</span>
               </div>
 
@@ -276,9 +383,9 @@ export default function TrackPage() {
                 display: "flex", justifyContent: "space-between", alignItems: "center",
                 padding: "10px 0", fontSize: 14
               }}>
-                <span style={{ color: "#94a3b8" }}>📅 التاريخ / Date</span>
+                <span style={{ color: "#94a3b8" }}>{txt.date}</span>
                 <span style={{ color: "#fff", fontWeight: "700" }}>
-                  {new Date(pkg.created_at).toLocaleDateString("fr-MA")}
+                  {new Date(pkg.created_at).toLocaleDateString(trackLang === "ar" ? "ar-MA" : "fr-MA")}
                 </span>
               </div>
             </div>
@@ -291,7 +398,7 @@ export default function TrackPage() {
         marginTop: 28, color: "#94a3b8", fontSize: 13, textDecoration: "none",
         fontWeight: "600", opacity: 0.8, transition: "opacity 0.2s"
       }}>
-        ← Retour à l'accueil / الرجوع للرئيسية
+        {txt.retour}
       </a>
     </div>
   );
