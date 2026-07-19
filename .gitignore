@@ -7,3 +7,5 @@ dist-desktop
 *.log
 electron-main.cjs
 scratch/
+
+.vercel
