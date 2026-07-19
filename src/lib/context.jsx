@@ -118,8 +118,24 @@ export function AppProvider({ children }) {
       }
     }
 
+    // Play Web Audio API chime sound on Web/PC/Mobile
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(587.33, ctx.currentTime); // D5
+      osc.frequency.setValueAtTime(880, ctx.currentTime + 0.12); // A5
+      gain.gain.setValueAtTime(0.3, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.5);
+    } catch (e) {}
+
     if (navigator.vibrate) {
-      navigator.vibrate([100, 50, 100]);
+      try { navigator.vibrate([200, 100, 200, 100, 300]); } catch (e) {}
     }
   }
 

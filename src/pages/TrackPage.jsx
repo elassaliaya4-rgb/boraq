@@ -134,17 +134,31 @@ export default function TrackPage() {
 
   const txt = I18N_TRACK[trackLang] || I18N_TRACK.fr;
 
+  const [recentCodes, setRecentCodes] = useState([]);
+
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const n = params.get("n");
-    if (n) {
-      setInput(n.toUpperCase());
-      searchPackage(n.toUpperCase());
-    }
+    try {
+      const savedRecent = JSON.parse(localStorage.getItem("boraq_recent_tracked") || "[]");
+      setRecentCodes(savedRecent);
+
+      const params = new URLSearchParams(window.location.search);
+      const n = params.get("n");
+      if (n) {
+        setInput(n.toUpperCase());
+        searchPackage(n.toUpperCase());
+      } else {
+        const lastCode = localStorage.getItem("boraq_last_tracked");
+        if (lastCode) {
+          setInput(lastCode);
+          searchPackage(lastCode);
+        }
+      }
+    } catch (e) {}
   }, []);
 
   async function searchPackage(num) {
     if (!num) return;
+    const cleanNum = num.trim().toUpperCase();
     setLoading(true);
     setError("");
     setPkg(null);
@@ -152,12 +166,23 @@ export default function TrackPage() {
       const { data, error: err } = await supabase
         .from("packages")
         .select("tracking_number, destination, status, created_at")
-        .eq("tracking_number", num.trim().toUpperCase())
+        .eq("tracking_number", cleanNum)
         .maybeSingle();
 
       if (err) throw err;
-      if (!data) { setError(txt.notfound); }
-      else setPkg(data);
+      if (!data) {
+        setError(txt.notfound);
+      } else {
+        setPkg(data);
+        // Persist last code
+        try {
+          localStorage.setItem("boraq_last_tracked", cleanNum);
+          const currentRecent = JSON.parse(localStorage.getItem("boraq_recent_tracked") || "[]");
+          const updatedRecent = [cleanNum, ...currentRecent.filter(c => c !== cleanNum)].slice(0, 3);
+          localStorage.setItem("boraq_recent_tracked", JSON.stringify(updatedRecent));
+          setRecentCodes(updatedRecent);
+        } catch (e) {}
+      }
     } catch (e) {
       setError("Erreur: " + e.message);
     } finally {
@@ -242,7 +267,7 @@ export default function TrackPage() {
         </p>
 
         {/* Form */}
-        <form onSubmit={handleSearch} style={{ display: "flex", gap: 10, marginBottom: 20 }}>
+        <form onSubmit={handleSearch} style={{ display: "flex", gap: 10, marginBottom: 12 }}>
           <input
             value={input}
             onChange={e => setInput(e.target.value)}
@@ -263,6 +288,30 @@ export default function TrackPage() {
             {loading ? "⏳" : "🔍"}
           </button>
         </form>
+
+        {/* Recent Search History Chips */}
+        {recentCodes.length > 0 && (
+          <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap", marginBottom: 16 }}>
+            <span style={{ fontSize: 10, color: "#64748b", fontWeight: "600" }}>🕒 Récents / السجلات:</span>
+            {recentCodes.map(code => (
+              <button
+                key={code}
+                onClick={() => {
+                  setInput(code);
+                  searchPackage(code);
+                }}
+                style={{
+                  padding: "3px 9px", borderRadius: 20, fontSize: 11, fontWeight: "700",
+                  background: "rgba(59, 130, 246, 0.12)", color: "#93c5fd",
+                  border: "1px solid rgba(59, 130, 246, 0.3)", cursor: "pointer",
+                  transition: "all 0.2s"
+                }}
+              >
+                📦 {code}
+              </button>
+            ))}
+          </div>
+        )}
 
         {/* Error message */}
         {error && (
