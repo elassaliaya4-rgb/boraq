@@ -20,6 +20,7 @@ export function buildWhatsAppLink(pkg, who, agencyName, lang, t) {
   const phone = (rawPhone || "").replace(/[^0-9]/g, "");
 
   const arrived = pkg.status === "arrived" || pkg.status === "delivered";
+  const trackLink = `https://boraq.online/track?n=${pkg.tracking_number}`;
   let msg;
   if (lang === "ar") {
     msg =
@@ -28,7 +29,8 @@ export function buildWhatsAppLink(pkg, who, agencyName, lang, t) {
       (arrived
         ? `وصل لـ ${agencyName} ✅\nتقدر تجي تاخدو.`
         : `راه ${t[pkg.status]}.`) +
-      `\nتاريخ الإرسال: ${pkg.date_sent}\n\nشكرا — Boraq ⚡`;
+      `\n📍 يمكنك تتبع الطرد عبر الرابط:\n${trackLink}` +
+      `\n\nشكرا — Boraq ⚡`;
   } else {
     msg =
       `Bonjour ${name},\n` +
@@ -36,7 +38,8 @@ export function buildWhatsAppLink(pkg, who, agencyName, lang, t) {
       (arrived
         ? `est arrivé à ${agencyName} ✅\nVous pouvez venir le récupérer.`
         : `est ${t[pkg.status]}.`) +
-      `\nDate d'envoi: ${pkg.date_sent}\n\nMerci — Boraq ⚡`;
+      `\n📍 Suivez votre colis ici:\n${trackLink}` +
+      `\n\nMerci — Boraq ⚡`;
   }
 
   return {
