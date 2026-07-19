@@ -271,6 +271,7 @@ export default function AgencyPanel() {
 
   async function deletePackage(pkg) {
     setDetailPkg(null);
+    if (!pkg?.id) return;
     const { error } = await supabase.from("packages").delete().eq("id", pkg.id);
     if (error) {
       alert("Error: " + error.message);

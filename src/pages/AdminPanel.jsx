@@ -350,13 +350,14 @@ export default function AdminPanel() {
 
   async function deletePackage(p) {
     setDetailPkg(null);
+    if (!p?.id) return;
     const { error } = await supabase.from("packages").delete().eq("id", p.id);
     if (error) {
       alert("Error deleting: " + error.message);
     } else {
       triggerToast(lang === "ar" ? "تم حذف الطرد بنجاح" : "Colis supprimé avec succès");
+      loadData();
     }
-    loadData();
   }
 
   function handleScanResult(text) {

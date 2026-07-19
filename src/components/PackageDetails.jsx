@@ -12,7 +12,13 @@ export default function PackageDetails({ pkg, agencies, onClose, onUpdated, onDe
   const [busy, setBusy] = useState(false);
   const [siblings, setSiblings] = useState([]);
 
-  function handleDelete() {
+  function handleDelete(e) {
+    if (e) {
+      try {
+        e.preventDefault();
+        e.stopPropagation();
+      } catch (_) {}
+    }
     if (onClose) onClose();
     if (onDelete) onDelete(pkg);
   }
