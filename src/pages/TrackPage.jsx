@@ -216,7 +216,7 @@ export default function TrackPage() {
               })}
             </div>
 
-            {/* Clean Details Info (No Names - Clean & Private) */}
+            {/* Clean Details Info (No Names - Minimal & Private) */}
             <div style={{
               background: "rgba(15, 23, 41, 0.5)",
               borderRadius: 16,
@@ -229,16 +229,6 @@ export default function TrackPage() {
               }}>
                 <span style={{ color: "#94a3b8" }}>📍 الوجهة / Destination</span>
                 <span style={{ color: "#fff", fontWeight: "700" }}>{pkg.destination || "—"}</span>
-              </div>
-
-              <div style={{
-                display: "flex", justifyContent: "space-between", alignItems: "center",
-                padding: "10px 0", borderBottom: "1px solid rgba(255, 255, 255, 0.08)", fontSize: 14
-              }}>
-                <span style={{ color: "#94a3b8" }}>📊 الحالة / Statut</span>
-                <span style={{ color: "#3b82f6", fontWeight: "800", display: "flex", alignItems: "center", gap: 6 }}>
-                  {STATUS_LABELS[pkg.status]?.icon} {STATUS_LABELS[pkg.status]?.fr} ({STATUS_LABELS[pkg.status]?.ar})
-                </span>
               </div>
 
               <div style={{
