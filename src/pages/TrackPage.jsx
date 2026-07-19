@@ -2,11 +2,53 @@ import { useState, useEffect } from "react";
 import { supabase } from "../lib/supabase";
 
 const STATUS_STEPS = ["pending", "inTransit", "arrived", "delivered"];
+
+// Premium Vector SVG Icons
+function IconPending({ size = 22, color = "currentColor" }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z" />
+      <path d="m3.3 7 8.7 5 8.7-5" />
+      <path d="M12 22V12" />
+    </svg>
+  );
+}
+
+function IconTransit({ size = 22, color = "currentColor" }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2" />
+      <path d="M15 18H9" />
+      <path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14v10Z" />
+      <circle cx="6.5" cy="18.5" r="2.5" />
+      <circle cx="16.5" cy="18.5" r="2.5" />
+    </svg>
+  );
+}
+
+function IconArrived({ size = 22, color = "currentColor" }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0" />
+      <circle cx="12" cy="10" r="3" />
+    </svg>
+  );
+}
+
+function IconDelivered({ size = 22, color = "currentColor" }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+      <polyline points="22 4 12 14.01 9 11.01" />
+    </svg>
+  );
+}
+
 const STATUS_LABELS = {
-  pending:   { fr: "En attente", ar: "في الانتظار", icon: "📦" },
-  inTransit: { fr: "En transit",  ar: "في الطريق",   icon: "🚚" },
-  arrived:   { fr: "Arrivé",      ar: "وصل للوكالة", icon: "📍" },
-  delivered: { fr: "Livré",       ar: "تم التسليم",  icon: "✅" },
+  pending:   { fr: "En attente", ar: "في الانتظار", renderIcon: (c, s) => <IconPending size={s} color={c} /> },
+  inTransit: { fr: "En transit",  ar: "في الطريق",   renderIcon: (c, s) => <IconTransit size={s} color={c} /> },
+  arrived:   { fr: "Arrivé",      ar: "وصل للوكالة", renderIcon: (c, s) => <IconArrived size={s} color={c} /> },
+  delivered: { fr: "Livré",       ar: "تم التسليم",  renderIcon: (c, s) => <IconDelivered size={s} color={c} /> },
 };
 
 export default function TrackPage() {
@@ -169,36 +211,35 @@ export default function TrackPage() {
                       }} />
                     )}
 
-                    {/* Pro Circle with Big Emoji */}
+                    {/* Pro Circle with Vector Icon */}
                     <div style={{
-                      width: 48,
-                      height: 48,
+                      width: 50,
+                      height: 50,
                       borderRadius: "50%",
                       margin: "0 auto 10px",
                       background: isCurrent
                         ? "linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)"
                         : isPassed
-                          ? "#16a34a"
-                          : "rgba(255, 255, 255, 0.06)",
+                          ? "linear-gradient(135deg, #22c55e 0%, #16a34a 100%)"
+                          : "rgba(15, 23, 42, 0.6)",
                       border: isCurrent
                         ? "3px solid #93c5fd"
                         : isPassed
-                          ? "3px solid #4ade80"
-                          : "2px solid rgba(255, 255, 255, 0.15)",
+                          ? "2.5px solid #4ade80"
+                          : "2px solid rgba(255, 255, 255, 0.12)",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      fontSize: isCurrent ? 24 : 20,
                       boxShadow: isCurrent
-                        ? "0 0 24px rgba(59, 130, 246, 0.7), 0 0 12px rgba(59, 130, 246, 0.4)"
+                        ? "0 0 25px rgba(59, 130, 246, 0.75), 0 0 10px rgba(59, 130, 246, 0.5)"
                         : isPassed
-                          ? "0 0 14px rgba(34, 197, 94, 0.3)"
+                          ? "0 0 16px rgba(34, 197, 94, 0.35)"
                           : "none",
-                      transform: isCurrent ? "scale(1.12)" : "scale(1)",
+                      transform: isCurrent ? "scale(1.15)" : "scale(1)",
                       transition: "all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)",
-                      opacity: isPassed ? 1 : 0.45
+                      opacity: isPassed ? 1 : 0.4
                     }}>
-                      {info.icon}
+                      {info.renderIcon(isPassed ? "#ffffff" : "#94a3b8", isCurrent ? 24 : 20)}
                     </div>
 
                     {/* Text Label */}
