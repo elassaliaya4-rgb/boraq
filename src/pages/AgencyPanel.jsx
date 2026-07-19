@@ -627,15 +627,13 @@ export default function AgencyPanel() {
 
         {/* Session Scanned Packages Tray */}
         {scannedSessionPkgs.length > 0 && (
-          <div style={{
-            background: "rgba(15, 23, 42, 0.4)",
-            backdropFilter: "blur(12px)",
-            WebkitBackdropFilter: "blur(12px)",
-            border: "1px solid rgba(16, 185, 129, 0.25)",
+          <div className="scanned-tray" style={{
+            background: "var(--surface)",
+            border: "1px solid rgba(16, 185, 129, 0.3)",
             borderRadius: 16,
             padding: 16,
             marginBottom: 20,
-            boxShadow: "0 8px 32px 0 rgba(0, 0, 0, 0.3)"
+            boxShadow: "0 8px 32px 0 rgba(0, 0, 0, 0.1)"
           }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -667,16 +665,16 @@ export default function AgencyPanel() {
 
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 10 }}>
               {scannedSessionPkgs.map((p) => (
-                <div key={p.id} style={{
-                  background: "rgba(30, 41, 59, 0.45)",
-                  border: "1px solid rgba(255, 255, 255, 0.05)",
+                <div key={p.id} className="scanned-tray-card" style={{
+                  background: "var(--surface-2)",
+                  border: "1px solid var(--border)",
                   borderRadius: 12,
                   padding: 12,
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "space-between",
                   gap: 12,
-                  boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)"
+                  boxShadow: "0 2px 8px rgba(0, 0, 0, 0.05)"
                 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0 }}>
                     <div style={{ 
@@ -695,7 +693,7 @@ export default function AgencyPanel() {
                       ✓
                     </div>
                     <div style={{ minWidth: 0 }}>
-                      <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", display: "flex", alignItems: "center", gap: 6 }}>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: "var(--text)", display: "flex", alignItems: "center", gap: 6 }}>
                         <span>{p.tracking_number}</span>
                         <span style={{ fontSize: 9, background: "rgba(16,185,129,0.12)", color: "#10b981", padding: "1px 6px", borderRadius: 4 }}>
                           {t[p.status] || p.status}
@@ -713,9 +711,9 @@ export default function AgencyPanel() {
                       padding: "6px 10px", 
                       fontSize: 11, 
                       borderRadius: 8, 
-                      background: "rgba(255,255,255,0.05)", 
-                      border: "1px solid rgba(255,255,255,0.08)",
-                      color: "#fff",
+                      background: "var(--surface)", 
+                      border: "1px solid var(--border)",
+                      color: "var(--text)",
                       cursor: "pointer",
                       fontWeight: "600",
                       flexShrink: 0

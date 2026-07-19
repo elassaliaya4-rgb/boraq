@@ -133,9 +133,22 @@ body.light-theme .mobile-bottom-nav {
 }
 body.light-theme .mobile-nav-item { color: #64748b !important; }
 body.light-theme .mobile-nav-item.active { color: #2563eb !important; }
-body.light-theme .mobile-nav-item.active .mobile-nav-icon-wrap {
-  background: rgba(37, 99, 235, 0.10) !important;
-  color: #2563eb !important;
+/* ── Scanned Session Tray ── */
+body.light-theme .scanned-tray {
+  background: #ffffff !important;
+  border-color: rgba(16, 185, 129, 0.35) !important;
+  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.06) !important;
+}
+body.light-theme .scanned-tray-card {
+  background: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.04) !important;
+}
+body.light-theme .scanned-tray-card * {
+  color: #0f172a !important;
+}
+body.light-theme .scanned-tray-card .status {
+  color: #15803d !important;
 }
 
 /* ── Mobile header ── */
