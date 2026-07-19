@@ -44,6 +44,17 @@ function IconDelivered({ size = 20, color = "currentColor" }) {
   );
 }
 
+function IconCalendar({ size = 18, color = "currentColor" }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+      <line x1="16" y1="2" x2="16" y2="6" />
+      <line x1="8" y1="2" x2="8" y2="6" />
+      <line x1="3" y1="10" x2="21" y2="10" />
+    </svg>
+  );
+}
+
 const LANGUAGES = [
   { code: "ar", label: "العربية", flag: "🇲🇦" },
   { code: "fr", label: "Français", flag: "🇫🇷" },
@@ -57,8 +68,8 @@ const I18N_TRACK = {
     suivre: "تتبع حالة الطرد",
     hint: "أدخل رقم التتبع الخاص بك",
     placeholder: "مثال: BRQ-6590828",
-    dest: "📍 الوجهة / Destination",
-    date: "📅 التاريخ / Date",
+    dest: "الوجهة / Destination",
+    date: "التاريخ / Date",
     notfound: "الطرد غير موجود / Colis introuvable",
     retour: "← الرجوع للرئيسية",
     steps: {
@@ -73,8 +84,8 @@ const I18N_TRACK = {
     suivre: "Suivre mon colis",
     hint: "Entrez votre numéro de suivi",
     placeholder: "Ex: BRQ-6590828",
-    dest: "📍 Destination",
-    date: "📅 Date d'envoi",
+    dest: "Destination",
+    date: "Date d'envoi",
     notfound: "Colis introuvable",
     retour: "← Retour à l'accueil",
     steps: {
@@ -89,8 +100,8 @@ const I18N_TRACK = {
     suivre: "Track my parcel",
     hint: "Enter your tracking number",
     placeholder: "Ex: BRQ-6590828",
-    dest: "📍 Destination",
-    date: "📅 Date sent",
+    dest: "Destination",
+    date: "Date sent",
     notfound: "Parcel not found",
     retour: "← Back to Home",
     steps: {
@@ -105,8 +116,8 @@ const I18N_TRACK = {
     suivre: "Rastrear mi paquete",
     hint: "Ingrese su número de seguimiento",
     placeholder: "Ej: BRQ-6590828",
-    dest: "📍 Destino",
-    date: "📅 Fecha de envío",
+    dest: "Destino",
+    date: "Fecha de envío",
     notfound: "Paquete no encontrado",
     retour: "← Volver al inicio",
     steps: {
@@ -413,7 +424,7 @@ export default function TrackPage() {
               })}
             </div>
 
-            {/* Clean Details Info (Destination & Date Only) */}
+            {/* Clean Details Info (Destination & Date Only) with Vector SVG Icons */}
             <div style={{
               background: "rgba(15, 23, 41, 0.65)",
               borderRadius: 16,
@@ -424,7 +435,9 @@ export default function TrackPage() {
                 display: "flex", justifyContent: "space-between", alignItems: "center",
                 padding: "10px 0", borderBottom: "1px solid rgba(255, 255, 255, 0.08)", fontSize: 14
               }}>
-                <span style={{ color: "#94a3b8" }}>{txt.dest}</span>
+                <span style={{ color: "#94a3b8", display: "flex", alignItems: "center", gap: 8 }}>
+                  <IconArrived size={16} color="#3b82f6" /> {txt.dest}
+                </span>
                 <span style={{ color: "#fff", fontWeight: "700" }}>{pkg.destination || "—"}</span>
               </div>
 
@@ -432,7 +445,9 @@ export default function TrackPage() {
                 display: "flex", justifyContent: "space-between", alignItems: "center",
                 padding: "10px 0", fontSize: 14
               }}>
-                <span style={{ color: "#94a3b8" }}>{txt.date}</span>
+                <span style={{ color: "#94a3b8", display: "flex", alignItems: "center", gap: 8 }}>
+                  <IconCalendar size={16} color="#3b82f6" /> {txt.date}
+                </span>
                 <span style={{ color: "#fff", fontWeight: "700" }}>
                   {new Date(pkg.created_at).toLocaleDateString(trackLang === "ar" ? "ar-MA" : "fr-MA")}
                 </span>
