@@ -13,6 +13,10 @@ export default function PackageDetails({ pkg, agencies, onClose, onUpdated, onDe
   const [siblings, setSiblings] = useState([]);
   const [deleted, setDeleted] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [touchStartX, setTouchStartX] = useState(0);
+  const [touchStartY, setTouchStartY] = useState(0);
+  const [touchEndX, setTouchEndX] = useState(0);
+  const [touchEndY, setTouchEndY] = useState(0);
 
   function executeDelete() {
     setConfirmDelete(false);
@@ -40,11 +44,6 @@ export default function PackageDetails({ pkg, agencies, onClose, onUpdated, onDe
       console.error(e);
     }
   }
-
-  const [touchStartX, setTouchStartX] = useState(0);
-  const [touchStartY, setTouchStartY] = useState(0);
-  const [touchEndX, setTouchEndX] = useState(0);
-  const [touchEndY, setTouchEndY] = useState(0);
 
   if (!pkg || deleted) return null;
 

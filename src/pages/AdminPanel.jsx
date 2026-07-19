@@ -15,28 +15,10 @@ import { Capacitor } from "@capacitor/core";
 export default function AdminPanel() {
   const { t, lang, setLang, signOut, profile, user, triggerToast, theme, toggleTheme } = useApp();
   const isMobileAPK = Capacitor.getPlatform() === "android" || Capacitor.getPlatform() === "ios";
-  const [tabHistory, setTabHistory] = useState(["dashboard"]);
-  const [tab, setTabState] = useState("dashboard");
-  const setTab = (newTab) => {
-    setTabState((prevTab) => {
-      if (prevTab !== newTab) {
-        setTabHistory((prevHist) => [...prevHist, prevTab]);
-      }
-      return newTab;
-    });
-  };
+  const [tabHistory, setTabHistory] = useState(["packages"]);
+  const [tab, setTabState] = useState("packages");
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
-  useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth <= 768);
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
-
-  function confirmSignOut() {
-    setShowLogoutConfirm(true);
-  }
   const [packages, setPackages] = useState([]);
   const [agencies, setAgencies] = useState([]);
   const [notifs, setNotifs] = useState([]);
@@ -52,6 +34,25 @@ export default function AdminPanel() {
     catch { return []; }
   });
   const [scanFilterAgency, setScanFilterAgency] = useState("");
+
+  const setTab = (newTab) => {
+    setTabState((prevTab) => {
+      if (prevTab !== newTab) {
+        setTabHistory((prevHist) => [...prevHist, prevTab]);
+      }
+      return newTab;
+    });
+  };
+
+  function confirmSignOut() {
+    setShowLogoutConfirm(true);
+  }
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   // Auto-save scan session to localStorage so it survives refresh
   useEffect(() => {
