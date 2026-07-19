@@ -101,19 +101,30 @@ export default function PackageForm({ agencies, onClose, onSaved }) {
   const { t, profile, lang } = useApp();
   const isAdmin = profile?.role === "admin";
 
+  // Determine current agency info & currency (€ for Europe/France, DH for Morocco)
+  const currentAgency = agencies.find((a) => a.id === profile?.agency_id);
+  const agencyCity = currentAgency?.city || currentAgency?.name || "";
+  
+  // Dynamic currency detection
+  const isEuropeAgency = /paris|france|madrid|espagne|bruxelles|belgique|roma|italie|berlin|allemagne|london/i.test(agencyCity + " " + (currentAgency?.name || ""));
+  const currency = isEuropeAgency ? "€" : "DH";
+
+  // Available destination agencies (excluding current agency)
+  const availableAgencies = agencies.filter((a) => a.id !== profile?.agency_id);
+
   const [form, setForm] = useState({
     sender_name: "",
     sender_phone_local: "",
-    sender_country_prefix: "33", // default France
+    sender_country_prefix: isEuropeAgency ? "33" : "212",
     receiver_name: "",
     receiver_phone_local: "",
-    receiver_country_prefix: "212", // default Maroc
-    origin: "",
+    receiver_country_prefix: isEuropeAgency ? "212" : "33",
+    origin: agencyCity || "Maroc",
     destination: "",
     weight: "",
     date_sent: new Date().toISOString().slice(0, 10),
     agency_id: "",
-    price_per_kg: 20,
+    price_per_kg: isEuropeAgency ? 2 : 20,
     payer: "receiver",
   });
   const [busy, setBusy] = useState(false);
@@ -123,18 +134,12 @@ export default function PackageForm({ agencies, onClose, onSaved }) {
     setForm((f) => ({ ...f, [k]: v }));
   }
 
-  // Prefill Origin automatically for Agency profiles
+  // Prefill Origin automatically from creator agency
   useEffect(() => {
-    if (profile?.role === "agency" && profile?.agency_id) {
-      const userAgency = agencies.find((a) => a.id === profile.agency_id);
-      if (userAgency) {
-        setForm((f) => ({
-          ...f,
-          origin: userAgency.city || userAgency.name,
-        }));
-      }
+    if (agencyCity) {
+      setForm((f) => ({ ...f, origin: agencyCity }));
     }
-  }, [profile, agencies]);
+  }, [agencyCity]);
 
   function handleAgencyChange(agencyId) {
     set("agency_id", agencyId);
@@ -162,7 +167,7 @@ export default function PackageForm({ agencies, onClose, onSaved }) {
     const tracking = genTracking();
     const createdByName = isAdmin
       ? "Admin"
-      : agencies.find((a) => a.id === profile.agency_id)?.name || "Agence";
+      : currentAgency?.name || "Agence";
 
     // Clean up local phone inputs (strip leading zeros)
     const cleanSenderLocal = form.sender_phone_local.replace(/^0+/, "");
@@ -179,7 +184,7 @@ export default function PackageForm({ agencies, onClose, onSaved }) {
         sender_phone: senderPhone,
         receiver_name: form.receiver_name || "—",
         receiver_phone: receiverPhone,
-        origin: form.origin || "—",
+        origin: form.origin || agencyCity || "—",
         destination: form.destination || "—",
         weight: parseFloat(form.weight) || 0,
         date_sent: form.date_sent,
@@ -187,7 +192,7 @@ export default function PackageForm({ agencies, onClose, onSaved }) {
         status: "pending",
         created_by: isAdmin ? "admin" : "agency",
         created_by_name: createdByName,
-        price_per_kg: parseFloat(form.price_per_kg) || 20,
+        price_per_kg: parseFloat(form.price_per_kg) || (isEuropeAgency ? 2 : 20),
         payer: form.payer || "receiver",
         payment_status: "unpaid",
       })
@@ -225,7 +230,10 @@ export default function PackageForm({ agencies, onClose, onSaved }) {
   return (
     <div className="modal-bg" onClick={onClose}>
       <div className="modal" onClick={(e) => e.stopPropagation()}>
-        <h2>{t.addPackage}</h2>
+        <h2 style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          <span>{t.addPackage}</span>
+        </h2>
         {err && <div className="error">{err}</div>}
 
         <div className="field">
@@ -234,7 +242,10 @@ export default function PackageForm({ agencies, onClose, onSaved }) {
         </div>
 
         <div className="field">
-          <label>📱 {t.senderPhone}</label>
+          <label style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            <span>{t.senderPhone}</span>
+          </label>
           <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
             <CountrySelector 
               value={form.sender_country_prefix} 
@@ -256,7 +267,10 @@ export default function PackageForm({ agencies, onClose, onSaved }) {
         </div>
 
         <div className="field">
-          <label>📱 {t.receiverPhone}</label>
+          <label style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            <span>{t.receiverPhone}</span>
+          </label>
           <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
             <CountrySelector 
               value={form.receiver_country_prefix} 
@@ -272,48 +286,36 @@ export default function PackageForm({ agencies, onClose, onSaved }) {
           </div>
         </div>
 
-        <div className="field">
-          <label>{t.origin}</label>
-          {profile?.role === "agency" ? (
-            <input 
-              value={form.origin} 
-              disabled={true} 
-              style={{ opacity: 0.75, cursor: "not-allowed", background: "var(--surface)", color: "var(--text-dim)" }} 
-            />
-          ) : (
-            <select value={form.origin} onChange={(e) => set("origin", e.target.value)}>
-              <option value="">— {lang === "ar" ? "اختر بلد المنشأ" : "Choisir l'origine"} —</option>
-              <option value="France">🇫🇷 France</option>
-              <option value="Espagne">🇪🇸 Espagne</option>
-              <option value="Belgique">🇧🇪 Belgique</option>
-              <option value="Italie">🇮🇹 Italie</option>
-              <option value="Allemagne">🇩🇪 Allemagne</option>
-              <option value="Pays-Bas">🇳🇱 Pays-Bas</option>
-              <option value="Maroc">🇲🇦 Maroc</option>
-            </select>
-          )}
-        </div>
-
-
-
         <div style={{ display: "flex", gap: 10 }}>
           <div style={{ flex: 1 }} className="field">
-            <label>⚖️ {t.weight} ({t.kg})</label>
+            <label style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+              <span>{t.weight} ({t.kg})</span>
+            </label>
             <input type="number" value={form.weight} onChange={(e) => set("weight", e.target.value)} placeholder="10" />
           </div>
           <div style={{ flex: 1 }} className="field">
-            <label>📅 {t.dateSent}</label>
+            <label style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              <span>{t.dateSent}</span>
+            </label>
             <input type="date" value={form.date_sent} onChange={(e) => set("date_sent", e.target.value)} />
           </div>
         </div>
 
         <div style={{ display: "flex", gap: 10 }}>
           <div style={{ flex: 1 }} className="field">
-            <label>💰 {t.pricePerKg} (DH)</label>
-            <input type="number" value={form.price_per_kg} onChange={(e) => set("price_per_kg", e.target.value)} placeholder="20" />
+            <label style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+              <span>{t.pricePerKg} ({currency})</span>
+            </label>
+            <input type="number" value={form.price_per_kg} onChange={(e) => set("price_per_kg", e.target.value)} placeholder={isEuropeAgency ? "2" : "20"} />
           </div>
           <div style={{ flex: 1 }} className="field">
-            <label>👤 {t.payer}</label>
+            <label style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              <span>{t.payer}</span>
+            </label>
             <select value={form.payer} onChange={(e) => set("payer", e.target.value)}>
               <option value="receiver">{t.receiver}</option>
               <option value="sender">{t.sender}</option>
@@ -322,12 +324,15 @@ export default function PackageForm({ agencies, onClose, onSaved }) {
         </div>
 
         <div className="field">
-          <label>📍 {t.destAgency}</label>
+          <label style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            <span>{t.destAgency}</span>
+          </label>
           <select value={form.agency_id} onChange={(e) => handleAgencyChange(e.target.value)}>
             <option value="">— {t.chooseAgency} —</option>
-            {agencies.map((a) => (
+            {availableAgencies.map((a) => (
               <option key={a.id} value={a.id}>
-                🏢 {a.name} ({a.city})
+                {a.name} ({a.city})
               </option>
             ))}
           </select>
