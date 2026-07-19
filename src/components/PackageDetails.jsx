@@ -11,6 +11,7 @@ export default function PackageDetails({ pkg, agencies, onClose, onUpdated, onDe
   const [wa, setWa] = useState(null);
   const [busy, setBusy] = useState(false);
   const [siblings, setSiblings] = useState([]);
+  const [deleted, setDeleted] = useState(false);
 
   function handleDelete(e) {
     if (e) {
@@ -19,6 +20,7 @@ export default function PackageDetails({ pkg, agencies, onClose, onUpdated, onDe
         e.stopPropagation();
       } catch (_) {}
     }
+    setDeleted(true);
     if (onClose) onClose();
     if (onDelete) onDelete(pkg);
   }
@@ -43,7 +45,7 @@ export default function PackageDetails({ pkg, agencies, onClose, onUpdated, onDe
     }
   }
 
-  if (!pkg) return null;
+  if (!pkg || deleted) return null;
 
   const agencyName =
     agencies.find((a) => a.id === pkg.agency_id)?.name || "—";
