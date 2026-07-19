@@ -28,7 +28,6 @@ export function buildWhatsAppLink(pkg, who, agencyInfo, lang, t) {
 
   const arrived = pkg.status === "arrived" || pkg.status === "delivered";
   const trackLink = `https://boraq.online/track?n=${pkg.tracking_number}`;
-  const mapsText = mapsLink ? `\n🗺️ Localisation Agence / موقع الوكالة (Google Maps):\n${mapsLink}` : "";
 
   let isSpain = phone.startsWith("34");
   let isFrance = phone.startsWith("33");
@@ -40,37 +39,41 @@ export function buildWhatsAppLink(pkg, who, agencyInfo, lang, t) {
     // Spanish + Arabic
     msg =
       `Hola ${name} 👋\n` +
-      `Su paquete N° ${pkg.tracking_number} (${pkg.weight || 0} kg) ` +
+      `Su paquete N. ${pkg.tracking_number} (${pkg.weight || 0} kg) ` +
       (arrived ? `ha llegado a la agencia ${agencyName} ✅\nPuede pasar a recogerlo.` : `está en camino.`) +
       `\n\n📍 Rastrear su paquete:\n${trackLink}` +
-      (mapsLink ? `\n🗺️ Ubicación de la agencia (Google Maps):\n${mapsLink}` : "") +
+      (mapsLink ? `\n\n🗺️ Ubicación de la agencia (Google Maps):\n${mapsLink}` : "") +
+      `\n\n🪪 Por favor presente su Carte Nationale / DNI (CIN) al recogerlo.` +
       `\n\nGracias — Boraq ⚡`;
   } else if (isFrance) {
     // French + Arabic
     msg =
       `Bonjour ${name} 👋\n` +
-      `Votre colis N° ${pkg.tracking_number} (${pkg.weight || 0} kg) ` +
+      `Votre colis N. ${pkg.tracking_number} (${pkg.weight || 0} kg) ` +
       (arrived ? `est arrivé à l'agence ${agencyName} ✅\nVous pouvez venir le récupérer.` : `est en cours d'acheminement.`) +
-      `\n\n📍 Suivez votre colis:\n${trackLink}` +
-      (mapsLink ? `\n🗺️ Localisation Agence (Google Maps):\n${mapsLink}` : "") +
+      `\n\n📍 Suivez votre colis en temps réel:\n${trackLink}` +
+      (mapsLink ? `\n\n🗺️ Localisation Agence (Google Maps):\n${mapsLink}` : "") +
+      `\n\n🪪 Veuillez vous munir de votre Carte Nationale (CIN) lors du retrait.` +
       `\n\nMerci — Boraq ⚡`;
   } else if (isUK) {
     // English + Arabic
     msg =
       `Hello ${name} 👋\n` +
-      `Your parcel N° ${pkg.tracking_number} (${pkg.weight || 0} kg) ` +
+      `Your parcel N. ${pkg.tracking_number} (${pkg.weight || 0} kg) ` +
       (arrived ? `has arrived at ${agencyName} agency ✅\nYou can pick it up.` : `is on its way.`) +
       `\n\n📍 Track your parcel:\n${trackLink}` +
-      (mapsLink ? `\n🗺️ Agency Location (Google Maps):\n${mapsLink}` : "") +
+      (mapsLink ? `\n\n🗺️ Agency Location (Google Maps):\n${mapsLink}` : "") +
+      `\n\n🪪 Please bring your National ID Card (CIN) upon pickup.` +
       `\n\nThank you — Boraq ⚡`;
   } else {
     // Morocco / Default: Arabic + French
     msg =
       `السلام عليكم ${name} 👋\n` +
-      `طردك رقم ${pkg.tracking_number} (${pkg.weight || 0} كغ) ` +
-      (arrived ? `وصل لـ ${agencyName} ✅\nتقدر تجي تاخدو.` : `راه فـ الطريق إليك.`) +
+      `طردك رقم ${pkg.tracking_number} (${pkg.weight || 0} kg) ` +
+      (arrived ? `وصل لـ ${agencyName} ✅\nتقدر تجي تاخدو.` : `راه في الطريق إليك.`) +
       `\n\n📍 يمكنك تتبع الطرد عبر الرابط:\n${trackLink}` +
-      (mapsLink ? `\n🗺️ موقع الوكالة (Google Maps):\n${mapsLink}` : "") +
+      (mapsLink ? `\n\n🗺️ موقع الوكالة (Google Maps):\n${mapsLink}` : "") +
+      `\n\n🪪 المرجو إحضار البطاقة الوطنية (CIN / Carte Nationale) عند الاستلام.` +
       `\n\nشكرا — Boraq ⚡`;
   }
 
