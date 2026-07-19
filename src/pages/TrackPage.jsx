@@ -198,10 +198,10 @@ export default function TrackPage() {
                     {i > 0 && (
                       <div style={{
                         position: "absolute",
-                        top: 22,
+                        top: 23,
                         right: "50%",
                         width: "100%",
-                        height: 4,
+                        height: 3,
                         background: i <= stepIdx
                           ? "linear-gradient(90deg, #3b82f6, #22c55e)"
                           : "rgba(255, 255, 255, 0.1)",
