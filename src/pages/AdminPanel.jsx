@@ -32,11 +32,10 @@ export default function AdminPanel() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+
   function confirmSignOut() {
-    const msg = lang === "ar" ? "هل تريد تسجيل الخروج؟" : "Voulez-vous vous déconnecter ?";
-    if (window.confirm(msg)) {
-      signOut();
-    }
+    setShowLogoutConfirm(true);
   }
   const [packages, setPackages] = useState([]);
   const [agencies, setAgencies] = useState([]);
@@ -231,14 +230,21 @@ export default function AdminPanel() {
         }).addTo(mapInstance);
 
         const deliveryIcon = window.L.divIcon({
-          html: '<div style="font-size: 32px; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.4)); animation: map-pulse 1.8s infinite ease-in-out;">🚚</div>',
+          html: `<div style="display:flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg, #3b82f6, #2563eb);box-shadow:0 0 16px rgba(59,130,246,0.6);border:2px solid #ffffff;color:#ffffff;animation:map-pulse 1.8s infinite ease-in-out;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 17h4V5H2v12h3"/><path d="M20 17h2v-3.34a4 4 0 0 0-1.17-2.83L19 9h-5v8h1"/><circle cx="7.5" cy="17.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg>
+          </div>`,
           className: "custom-leaflet-icon",
-          iconSize: [40, 40],
-          iconAnchor: [20, 20]
+          iconSize: [42, 42],
+          iconAnchor: [21, 21]
         });
 
         const marker = window.L.marker([mapDriver.latitude, mapDriver.longitude], { icon: deliveryIcon }).addTo(mapInstance);
-        marker.bindPopup(`<b>${mapDriver.name}</b><br>🛰️ GPS Live Position`).openPopup();
+        marker.bindPopup(`
+          <div style="font-family:system-ui,-apple-system,sans-serif;padding:4px;text-align:center;">
+            <div style="font-weight:700;font-size:14px;color:#0f172a;">${mapDriver.name}</div>
+            <div style="font-size:11px;color:#2563eb;font-weight:600;margin-top:2px;">🛰️ Position GPS en direct</div>
+          </div>
+        `).openPopup();
       } catch (err) {
         console.warn("Map error:", err);
       }
@@ -298,7 +304,9 @@ export default function AdminPanel() {
   }
 
   async function openNotif(n) {
+    if (!n) return;
     await supabase.from("notifications").update({ is_read: true }).eq("id", n.id);
+    setNotifs((prev) => prev.map((item) => item.id === n.id ? { ...item, is_read: true } : item));
     const pkg = packages.find((p) => p.id === n.package_id);
     if (pkg) setDetailPkg(pkg);
     loadData();
@@ -1227,6 +1235,55 @@ export default function AdminPanel() {
           }
         ]}
       />
+      {/* Custom React Déconnexion Confirm Modal */}
+      {showLogoutConfirm && (
+        <div className="modal-bg" onClick={() => setShowLogoutConfirm(false)} style={{ zIndex: 300 }}>
+          <div className="modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 360, textAlign: "center", padding: "28px 24px" }}>
+            <div style={{ fontSize: 44, marginBottom: 12 }}>🚪</div>
+            <h3 style={{ margin: "0 0 8px 0", fontSize: 18, color: "var(--text)", fontWeight: "800" }}>
+              {lang === "ar" ? "تسجيل الخروج؟" : "Se déconnecter ?"}
+            </h3>
+            <p style={{ fontSize: 13, color: "var(--text-dim)", margin: "0 0 24px 0", lineHeight: 1.5 }}>
+              {lang === "ar" ? "هل أنت متأكد من الخروج من حسابك فـ Boraq Logistics؟" : "Voulez-vous vraiment vous déconnecter de votre compte Boraq ?"}
+            </p>
+            <div style={{ display: "flex", gap: 12 }}>
+              <button
+                onClick={() => { setShowLogoutConfirm(false); signOut(); }}
+                style={{
+                  flex: 1,
+                  padding: "12px 16px",
+                  borderRadius: 12,
+                  background: "linear-gradient(135deg, #ef4444, #dc2626)",
+                  border: "none",
+                  color: "#fff",
+                  fontWeight: "700",
+                  fontSize: 13,
+                  cursor: "pointer",
+                  boxShadow: "0 4px 14px rgba(239,68,68,0.3)"
+                }}
+              >
+                ✅ {lang === "ar" ? "نعم، خروج" : "Oui, Déconnexion"}
+              </button>
+              <button
+                onClick={() => setShowLogoutConfirm(false)}
+                style={{
+                  flex: 1,
+                  padding: "12px 16px",
+                  borderRadius: 12,
+                  background: "var(--surface-2)",
+                  border: "1px solid var(--border)",
+                  color: "var(--text)",
+                  fontWeight: "600",
+                  fontSize: 13,
+                  cursor: "pointer"
+                }}
+              >
+                ✕ {lang === "ar" ? "إلغاء" : "Annuler"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

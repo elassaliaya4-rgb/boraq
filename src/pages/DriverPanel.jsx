@@ -14,11 +14,10 @@ export default function DriverPanel() {
   const isMobileAPK = Capacitor.getPlatform() === "android" || Capacitor.getPlatform() === "ios";
   const [packages, setPackages] = useState([]);
 
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+
   function confirmSignOut() {
-    const msg = lang === "ar" ? "هل تريد تسجيل الخروج؟" : "Voulez-vous vous déconnecter ?";
-    if (window.confirm(msg)) {
-      signOut();
-    }
+    setShowLogoutConfirm(true);
   }
   const [agencies, setAgencies] = useState([]);
   const [driverInfo, setDriverInfo] = useState(null);
@@ -784,6 +783,55 @@ export default function DriverPanel() {
           }
         ]}
       />
+      {/* Custom React Déconnexion Confirm Modal */}
+      {showLogoutConfirm && (
+        <div className="modal-bg" onClick={() => setShowLogoutConfirm(false)} style={{ zIndex: 300 }}>
+          <div className="modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 360, textAlign: "center", padding: "28px 24px" }}>
+            <div style={{ fontSize: 44, marginBottom: 12 }}>🚪</div>
+            <h3 style={{ margin: "0 0 8px 0", fontSize: 18, color: "var(--text)", fontWeight: "800" }}>
+              {lang === "ar" ? "تسجيل الخروج؟" : "Se déconnecter ?"}
+            </h3>
+            <p style={{ fontSize: 13, color: "var(--text-dim)", margin: "0 0 24px 0", lineHeight: 1.5 }}>
+              {lang === "ar" ? "هل أنت متأكد من الخروج من حسابك فـ Boraq Logistics؟" : "Voulez-vous vraiment vous déconnecter de votre compte Boraq ?"}
+            </p>
+            <div style={{ display: "flex", gap: 12 }}>
+              <button
+                onClick={() => { setShowLogoutConfirm(false); signOut(); }}
+                style={{
+                  flex: 1,
+                  padding: "12px 16px",
+                  borderRadius: 12,
+                  background: "linear-gradient(135deg, #ef4444, #dc2626)",
+                  border: "none",
+                  color: "#fff",
+                  fontWeight: "700",
+                  fontSize: 13,
+                  cursor: "pointer",
+                  boxShadow: "0 4px 14px rgba(239,68,68,0.3)"
+                }}
+              >
+                ✅ {lang === "ar" ? "نعم، خروج" : "Oui, Déconnexion"}
+              </button>
+              <button
+                onClick={() => setShowLogoutConfirm(false)}
+                style={{
+                  flex: 1,
+                  padding: "12px 16px",
+                  borderRadius: 12,
+                  background: "var(--surface-2)",
+                  border: "1px solid var(--border)",
+                  color: "var(--text)",
+                  fontWeight: "600",
+                  fontSize: 13,
+                  cursor: "pointer"
+                }}
+              >
+                ✕ {lang === "ar" ? "إلغاء" : "Annuler"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

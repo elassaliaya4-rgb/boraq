@@ -29,11 +29,10 @@ export default function AgencyPanel() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+
   function confirmSignOut() {
-    const msg = lang === "ar" ? "هل تريد تسجيل الخروج؟" : "Voulez-vous vous déconnecter ?";
-    if (window.confirm(msg)) {
-      signOut();
-    }
+    setShowLogoutConfirm(true);
   }
   const [packages, setPackages] = useState([]);
   const [agencies, setAgencies] = useState([]);
@@ -220,9 +219,13 @@ export default function AgencyPanel() {
     const { data: allAg } = await supabase.from("agencies").select("*");
     setAgencies(allAg || []);
 
+    // Query packages where this agency is the destination OR the origin/creator
+    const agencyCity = ag?.city || "";
+    const agencyName = ag?.name || "";
     const { data: pkgs } = await supabase
-      .from("packages").select("*")
-      .eq("agency_id", profile.agency_id)
+      .from("packages")
+      .select("*")
+      .or(`agency_id.eq.${profile.agency_id},created_by_name.eq.${agencyName},origin.eq.${agencyCity}`)
       .order("created_at", { ascending: false });
     setPackages(pkgs || []);
 
@@ -263,7 +266,9 @@ export default function AgencyPanel() {
   }
 
   async function openNotif(n) {
+    if (!n) return;
     await supabase.from("notifications").update({ is_read: true }).eq("id", n.id);
+    setNotifs((prev) => prev.map((item) => item.id === n.id ? { ...item, is_read: true } : item));
     const pkg = packages.find((p) => p.id === n.package_id);
     if (pkg) setDetailPkg(pkg);
     loadData();
@@ -1005,6 +1010,55 @@ export default function AgencyPanel() {
           }
         ]}
       />
+      {/* Custom React Déconnexion Confirm Modal */}
+      {showLogoutConfirm && (
+        <div className="modal-bg" onClick={() => setShowLogoutConfirm(false)} style={{ zIndex: 300 }}>
+          <div className="modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 360, textAlign: "center", padding: "28px 24px" }}>
+            <div style={{ fontSize: 44, marginBottom: 12 }}>🚪</div>
+            <h3 style={{ margin: "0 0 8px 0", fontSize: 18, color: "var(--text)", fontWeight: "800" }}>
+              {lang === "ar" ? "تسجيل الخروج؟" : "Se déconnecter ?"}
+            </h3>
+            <p style={{ fontSize: 13, color: "var(--text-dim)", margin: "0 0 24px 0", lineHeight: 1.5 }}>
+              {lang === "ar" ? "هل أنت متأكد من الخروج من حسابك فـ Boraq Logistics؟" : "Voulez-vous vraiment vous déconnecter de votre compte Boraq ?"}
+            </p>
+            <div style={{ display: "flex", gap: 12 }}>
+              <button
+                onClick={() => { setShowLogoutConfirm(false); signOut(); }}
+                style={{
+                  flex: 1,
+                  padding: "12px 16px",
+                  borderRadius: 12,
+                  background: "linear-gradient(135deg, #ef4444, #dc2626)",
+                  border: "none",
+                  color: "#fff",
+                  fontWeight: "700",
+                  fontSize: 13,
+                  cursor: "pointer",
+                  boxShadow: "0 4px 14px rgba(239,68,68,0.3)"
+                }}
+              >
+                ✅ {lang === "ar" ? "نعم، خروج" : "Oui, Déconnexion"}
+              </button>
+              <button
+                onClick={() => setShowLogoutConfirm(false)}
+                style={{
+                  flex: 1,
+                  padding: "12px 16px",
+                  borderRadius: 12,
+                  background: "var(--surface-2)",
+                  border: "1px solid var(--border)",
+                  color: "var(--text)",
+                  fontWeight: "600",
+                  fontSize: 13,
+                  cursor: "pointer"
+                }}
+              >
+                ✕ {lang === "ar" ? "إلغاء" : "Annuler"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

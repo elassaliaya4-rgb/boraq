@@ -1607,13 +1607,17 @@ input, select, textarea {
 [dir="rtl"] .form-row label {
   text-align: right;
 }
-[dir="rtl"] .topbar {
-  flex-direction: row-reverse;
+/* High contrast light mode override for scanned tray and cards */
+[data-theme="light"] .scanned-tray {
+  background: var(--surface-2) !important;
+  border: 1px solid var(--border) !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06) !important;
 }
-[dir="rtl"] .mobile-header-row {
-  flex-direction: row-reverse;
-}
-[dir="rtl"] .mobile-bottom-nav {
-  flex-direction: row-reverse;
+
+[data-theme="light"] .scanned-tray-card {
+  background: #ffffff !important;
+  border: 1px solid var(--border) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+  color: var(--text) !important;
 }
 
