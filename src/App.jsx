@@ -84,9 +84,11 @@ export default function App() {
     }
   }, [theme]);
 
-  // ضبط اتجاه الصفحة حسب اللغة
-  document.documentElement.dir = dir;
-  document.documentElement.lang = lang;
+  // Dynamic document direction & language
+  useEffect(() => {
+    document.documentElement.dir = dir;
+    document.documentElement.lang = lang;
+  }, [dir, lang]);
 
   if (loading) {
     return (
