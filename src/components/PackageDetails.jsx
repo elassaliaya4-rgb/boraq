@@ -14,9 +14,7 @@ export default function PackageDetails({ pkg, agencies, onClose, onUpdated, onDe
 
   function handleDelete() {
     if (onClose) onClose();
-    setTimeout(() => {
-      if (onDelete) onDelete(pkg);
-    }, 50);
+    if (onDelete) onDelete(pkg);
   }
 
   useEffect(() => {

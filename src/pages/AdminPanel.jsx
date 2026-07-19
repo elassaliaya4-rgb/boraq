@@ -348,17 +348,14 @@ export default function AdminPanel() {
     loadData();
   }
 
-  async function deletePackage(p, skipConfirm = true) {
+  async function deletePackage(p) {
     setDetailPkg(null);
-    if (!skipConfirm) {
-      const msg =
-        lang === "ar"
-          ? `واش متأكد بغيتي تمسح الطرد "${p.tracking_number}"؟`
-          : `Supprimer le colis "${p.tracking_number}" ?`;
-      if (!window.confirm(msg)) return;
+    const { error } = await supabase.from("packages").delete().eq("id", p.id);
+    if (error) {
+      alert("Error deleting: " + error.message);
+    } else {
+      triggerToast(lang === "ar" ? "تم حذف الطرد بنجاح" : "Colis supprimé avec succès");
     }
-    await supabase.from("packages").delete().eq("id", p.id);
-    triggerToast(lang === "ar" ? "تم حذف الطرد بنجاح" : "Colis supprimé");
     loadData();
   }
 
