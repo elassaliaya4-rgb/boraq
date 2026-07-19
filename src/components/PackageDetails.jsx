@@ -81,7 +81,8 @@ export default function PackageDetails({ pkg, agencies, onClose, onUpdated, onDe
   }
 
   function openWhatsApp(who) {
-    setWa(buildWhatsAppLink(pkg, who, agencyName, lang, t));
+    const agObj = agencies.find((a) => a.id === pkg.agency_id);
+    setWa(buildWhatsAppLink(pkg, who, agObj || agencyName, lang, t));
   }
 
   function Row({ k, v, highlight }) {
