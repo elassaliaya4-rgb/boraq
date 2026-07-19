@@ -9,6 +9,7 @@ export default function PackagesTable({ packages, onManage, onRefresh }) {
   const [hoveredIdx, setHoveredIdx]       = useState(null);
   const [busy, setBusy]                   = useState(false);
   const [isPressing, setIsPressing]       = useState(false); // true during long-press countdown
+  const [statusFilter, setStatusFilter]   = useState("active"); // 'active' or 'delivered'
 
   // refs
   const pressTimerRef  = useRef(null);
@@ -175,8 +176,6 @@ export default function PackagesTable({ packages, onManage, onRefresh }) {
     } catch (e) { alert("Error: " + e.message); }
     finally { setBusy(false); }
   }
-
-  const [statusFilter, setStatusFilter] = useState("active"); // 'active' or 'delivered'
 
   const activePackages    = packages?.filter(p => p.status !== "delivered") || [];
   const deliveredPackages = packages?.filter(p => p.status === "delivered") || [];

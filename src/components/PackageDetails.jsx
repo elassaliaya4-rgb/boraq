@@ -41,6 +41,11 @@ export default function PackageDetails({ pkg, agencies, onClose, onUpdated, onDe
     }
   }
 
+  const [touchStartX, setTouchStartX] = useState(0);
+  const [touchStartY, setTouchStartY] = useState(0);
+  const [touchEndX, setTouchEndX] = useState(0);
+  const [touchEndY, setTouchEndY] = useState(0);
+
   if (!pkg || deleted) return null;
 
   const agencyName =
@@ -97,11 +102,7 @@ export default function PackageDetails({ pkg, agencies, onClose, onUpdated, onDe
     );
   }
 
-  // State to track swipe gestures (swipe-to-back from screen edges)
-  const [touchStartX, setTouchStartX] = useState(0);
-  const [touchStartY, setTouchStartY] = useState(0);
-  const [touchEndX, setTouchEndX] = useState(0);
-  const [touchEndY, setTouchEndY] = useState(0);
+  // Touch handlers for swipe gesture
 
   function handleTouchStart(e) {
     const x = e.targetTouches[0].clientX;
