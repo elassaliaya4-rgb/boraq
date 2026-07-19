@@ -164,7 +164,7 @@ export default function PackagesTable({ packages, onManage, onRefresh }) {
     const msg = lang === "ar"
       ? `هل أنت متأكد من حذف ${selectedIds.length} طرود؟`
       : `Supprimer les ${selectedIds.length} colis ?`;
-    if (!confirm(msg)) return;
+    if (!window.confirm(msg)) return;
     setBusy(true);
     try {
       const { error } = await supabase.from("packages").delete().in("id", selectedIds);

@@ -62,6 +62,26 @@ export default class ErrorBoundary extends React.Component {
             >
               🔄 تحديث الصفحة / Actualiser
             </button>
+            <button
+              onClick={() => {
+                try { localStorage.clear(); } catch(e){}
+                window.location.href = "/";
+              }}
+              style={{
+                width: "100%",
+                padding: "12px 20px",
+                borderRadius: "14px",
+                border: "1px solid rgba(255,255,255,0.15)",
+                background: "rgba(255,255,255,0.05)",
+                color: "#94a3b8",
+                fontSize: "13px",
+                fontWeight: "600",
+                cursor: "pointer",
+                marginTop: "10px"
+              }}
+            >
+              🧹 مسح التخزين المؤقت والدخول / Reconnexion
+            </button>
           </div>
         </div>
       );
