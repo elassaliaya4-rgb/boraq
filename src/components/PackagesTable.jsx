@@ -176,10 +176,54 @@ export default function PackagesTable({ packages, onManage, onRefresh }) {
     finally { setBusy(false); }
   }
 
+  const [statusFilter, setStatusFilter] = useState("active"); // 'active' or 'delivered'
+
+  const activePackages    = packages?.filter(p => p.status !== "delivered") || [];
+  const deliveredPackages = packages?.filter(p => p.status === "delivered") || [];
+  const displayedPackages = statusFilter === "active" ? activePackages : deliveredPackages;
+
   const dir = lang === "ar" ? "rtl" : "ltr";
 
   return (
     <div className="table-wrap" dir={dir} style={{ background: "none", border: "none", position: "relative" }}>
+
+      {/* ── Active vs Delivered Archives Filter Tabs ── */}
+      <div style={{
+        display: "flex", gap: 8, marginBottom: 16, background: "var(--surface)",
+        padding: 4, borderRadius: 14, border: "1px solid var(--border)", width: "fit-content"
+      }}>
+        <button
+          onClick={() => setStatusFilter("active")}
+          style={{
+            padding: "7px 14px", borderRadius: 10, fontSize: 12, fontWeight: "700",
+            background: statusFilter === "active" ? "linear-gradient(135deg, #3b82f6, #2563eb)" : "transparent",
+            color: statusFilter === "active" ? "#fff" : "var(--text-dim)",
+            border: "none", cursor: "pointer", transition: "all 0.2s", display: "flex", alignItems: "center", gap: 6,
+            boxShadow: statusFilter === "active" ? "0 2px 10px rgba(59,130,246,0.3)" : "none"
+          }}
+        >
+          <span>📦 {lang === "ar" ? "الطرود النشطة" : "Colis en cours"}</span>
+          <span style={{ fontSize: 10, background: statusFilter === "active" ? "rgba(255,255,255,0.25)" : "rgba(255,255,255,0.1)", padding: "1px 6px", borderRadius: 10 }}>
+            {activePackages.length}
+          </span>
+        </button>
+
+        <button
+          onClick={() => setStatusFilter("delivered")}
+          style={{
+            padding: "7px 14px", borderRadius: 10, fontSize: 12, fontWeight: "700",
+            background: statusFilter === "delivered" ? "linear-gradient(135deg, #22c55e, #16a34a)" : "transparent",
+            color: statusFilter === "delivered" ? "#fff" : "var(--text-dim)",
+            border: "none", cursor: "pointer", transition: "all 0.2s", display: "flex", alignItems: "center", gap: 6,
+            boxShadow: statusFilter === "delivered" ? "0 2px 10px rgba(34,197,94,0.3)" : "none"
+          }}
+        >
+          <span>✅ {lang === "ar" ? "الطرود المسلمة (الأرشيف)" : "Colis livrés (Archives)"}</span>
+          <span style={{ fontSize: 10, background: statusFilter === "delivered" ? "rgba(255,255,255,0.25)" : "rgba(255,255,255,0.1)", padding: "1px 6px", borderRadius: 10 }}>
+            {deliveredPackages.length}
+          </span>
+        </button>
+      </div>
 
       {/* ── Selection Action Bar ── */}
       {selectionMode && (
@@ -238,41 +282,51 @@ export default function PackagesTable({ packages, onManage, onRefresh }) {
           </tr>
         </thead>
         <tbody>
-          {packages?.map((p) => {
-            const isSelected = selectedIds.includes(p.id);
-            return (
-              <tr
-                key={p.id}
-                onClick={() => handleRowClick(p)}
-                onMouseDown={() => {
-                  if (!selectionMode) {
-                    if (pressTimerRef.current) clearTimeout(pressTimerRef.current);
-                    pressTimerRef.current = setTimeout(() => {
-                      pressTimerRef.current = null;
-                      setSelectionMode(true);
-                      setSelectedIds([p.id]);
-                    }, 600);
-                  }
-                }}
-                onMouseUp={() => {
-                  if (pressTimerRef.current) { clearTimeout(pressTimerRef.current); pressTimerRef.current = null; }
-                }}
-                className={`clickable-row ${isSelected ? "selected-row" : ""}`}
-                style={{ cursor: "pointer", transition: "all 0.2s ease", background: isSelected ? "rgba(59,130,246,0.08)" : "", userSelect: "none" }}
-              >
-                {selectionMode && (
-                  <td>
-                    <input type="checkbox" checked={isSelected} onChange={() => toggleSelect(p.id)}
-                      onClick={(e) => e.stopPropagation()} style={{ transform: "scale(1.2)", cursor: "pointer" }} />
-                  </td>
-                )}
-                <td><b>{p.tracking_number}</b></td>
-                <td>{p.receiver_name}</td>
-                <td>{p.destination}</td>
-                <td><span className={`status ${p.status}`}>{t?.[p.status] || p.status}</span></td>
-              </tr>
-            );
-          })}
+          {displayedPackages?.length === 0 ? (
+            <tr>
+              <td colSpan={selectionMode ? 5 : 4} style={{ textAlign: "center", padding: "24px", color: "var(--text-dim)" }}>
+                {statusFilter === "active"
+                  ? (lang === "ar" ? "لا توجد طرود نشطة حالياً" : "Aucun colis en cours")
+                  : (lang === "ar" ? "لا توجد طرود مسلمة فـ الأرشيف" : "Aucun colis livré dans les archives")}
+              </td>
+            </tr>
+          ) : (
+            displayedPackages?.map((p) => {
+              const isSelected = selectedIds.includes(p.id);
+              return (
+                <tr
+                  key={p.id}
+                  onClick={() => handleRowClick(p)}
+                  onMouseDown={() => {
+                    if (!selectionMode) {
+                      if (pressTimerRef.current) clearTimeout(pressTimerRef.current);
+                      pressTimerRef.current = setTimeout(() => {
+                        pressTimerRef.current = null;
+                        setSelectionMode(true);
+                        setSelectedIds([p.id]);
+                      }, 600);
+                    }
+                  }}
+                  onMouseUp={() => {
+                    if (pressTimerRef.current) { clearTimeout(pressTimerRef.current); pressTimerRef.current = null; }
+                  }}
+                  className={`clickable-row ${isSelected ? "selected-row" : ""}`}
+                  style={{ cursor: "pointer", transition: "all 0.2s ease", background: isSelected ? "rgba(59,130,246,0.08)" : "", userSelect: "none" }}
+                >
+                  {selectionMode && (
+                    <td>
+                      <input type="checkbox" checked={isSelected} onChange={() => toggleSelect(p.id)}
+                        onClick={(e) => e.stopPropagation()} style={{ transform: "scale(1.2)", cursor: "pointer" }} />
+                    </td>
+                  )}
+                  <td><b>{p.tracking_number}</b></td>
+                  <td>{p.receiver_name}</td>
+                  <td>{p.destination}</td>
+                  <td><span className={`status ${p.status}`}>{t?.[p.status] || p.status}</span></td>
+                </tr>
+              );
+            })
+          )}
         </tbody>
       </table>
 
@@ -285,12 +339,17 @@ export default function PackagesTable({ packages, onManage, onRefresh }) {
           display: "flex",
           flexDirection: "column",
           gap: 8,
-          // Block zoom when pressing (long-press countdown) OR in selection mode
-          // Allow pan+zoom only when user is just scrolling normally
           touchAction: (selectionMode || isPressing) ? "none" : "pan-y pinch-zoom"
         }}
       >
-        {packages?.map((p, idx) => {
+        {displayedPackages?.length === 0 ? (
+          <div style={{ textAlign: "center", padding: "24px 16px", color: "var(--text-dim)", fontSize: 13, background: "var(--surface)", borderRadius: 14 }}>
+            {statusFilter === "active"
+              ? (lang === "ar" ? "لا توجد طرود نشطة حالياً" : "Aucun colis en cours")
+              : (lang === "ar" ? "لا توجد طرود مسلمة فـ الأرشيف" : "Aucun colis livré dans les archives")}
+          </div>
+        ) : (
+          displayedPackages?.map((p, idx) => {
           const isSelected = selectedIds.includes(p.id);
           const scale      = getScale(idx);
           const isActive   = scale > 1.08; // directly under finger
