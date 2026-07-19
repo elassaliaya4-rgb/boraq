@@ -21,6 +21,8 @@
     "@capacitor/local-notifications": "^8.2.0",
     "@capacitor/status-bar": "^8.0.2",
     "@supabase/supabase-js": "^2.45.0",
+    "@vercel/analytics": "^2.0.1",
+    "@vercel/speed-insights": "^2.0.0",
     "html5-qrcode": "^2.3.8",
     "jspdf": "^4.2.1",
     "jsqr": "^1.4.0",

@@ -6,6 +6,8 @@ import AgencyPanel from "./pages/AgencyPanel";
 import DriverPanel from "./pages/DriverPanel";
 import TrackPage from "./pages/TrackPage";
 import { Capacitor } from "@capacitor/core";
+import { SpeedInsights } from "@vercel/speed-insights/react";
+import { Analytics } from "@vercel/analytics/react";
 
 // Force Vercel redeploy stable morning state
 export default function App() {
@@ -13,7 +15,13 @@ export default function App() {
 
   // Public tracking page — accessible without login
   const isTrackPage = window.location.pathname === "/track";
-  if (isTrackPage) return <TrackPage />;
+  if (isTrackPage) return (
+    <>
+      <TrackPage />
+      <SpeedInsights />
+      <Analytics />
+    </>
+  );
 
   // Request Location & Notification Permissions natively on mobile startup with sound channels & fullscreen overlays
   useEffect(() => {
@@ -108,6 +116,8 @@ export default function App() {
 
   return (
     <>
+      <SpeedInsights />
+      <Analytics />
       {toast && (
         <div className="global-toast">
           <div className="toast-icon">🔔</div>
