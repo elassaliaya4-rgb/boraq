@@ -269,12 +269,15 @@ export default function AgencyPanel() {
     loadData();
   }
 
-  async function deletePackage(pkg) {
+  async function deletePackage(pkg, skipConfirm = true) {
     setDetailPkg(null);
-    if (!window.confirm(lang === "ar" ? "هل أنت متأكد من حذف هذا الطرد؟" : "Supprimer ce colis ?")) return;
+    if (!skipConfirm) {
+      if (!window.confirm(lang === "ar" ? "هل أنت متأكد من حذف هذا الطرد؟" : "Supprimer ce colis ?")) return;
+    }
     const { error } = await supabase.from("packages").delete().eq("id", pkg.id);
     if (error) alert(error.message);
     else {
+      triggerToast(lang === "ar" ? "تم حذف الطرد بنجاح" : "Colis supprimé");
       loadData();
     }
   }
