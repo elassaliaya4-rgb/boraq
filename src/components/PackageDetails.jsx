@@ -12,11 +12,11 @@ export default function PackageDetails({ pkg, agencies, onClose, onUpdated, onDe
   const [busy, setBusy] = useState(false);
   const [siblings, setSiblings] = useState([]);
 
-  async function handleDelete() {
-    onClose && onClose();
-    if (onDelete) {
-      await onDelete(pkg);
-    }
+  function handleDelete() {
+    if (onClose) onClose();
+    setTimeout(() => {
+      if (onDelete) onDelete(pkg);
+    }, 50);
   }
 
   useEffect(() => {

@@ -349,13 +349,13 @@ export default function AdminPanel() {
   }
 
   async function deletePackage(p) {
+    setDetailPkg(null);
     const msg =
       lang === "ar"
         ? `واش متأكد بغيتي تمسح الطرد "${p.tracking_number}"؟`
         : `Supprimer le colis "${p.tracking_number}" ?`;
     if (!window.confirm(msg)) return;
     await supabase.from("packages").delete().eq("id", p.id);
-    setDetailPkg(null);
     loadData();
   }
 

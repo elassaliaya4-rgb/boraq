@@ -270,11 +270,11 @@ export default function AgencyPanel() {
   }
 
   async function deletePackage(pkg) {
+    setDetailPkg(null);
     if (!window.confirm(lang === "ar" ? "هل أنت متأكد من حذف هذا الطرد؟" : "Supprimer ce colis ?")) return;
     const { error } = await supabase.from("packages").delete().eq("id", pkg.id);
     if (error) alert(error.message);
     else {
-      setDetailPkg(null);
       loadData();
     }
   }

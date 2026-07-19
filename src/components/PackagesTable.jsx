@@ -441,7 +441,7 @@ export default function PackagesTable({ packages, onManage, onRefresh }) {
               </div>
             </div>
           );
-        })}
+        }))}
       </div>
     </div>
   );
