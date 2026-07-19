@@ -23,11 +23,36 @@ export default function AgencyPanel() {
     });
   };
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+  const [packages, setPackages] = useState([]);
+  const [agencies, setAgencies] = useState([]);
+  const [drivers, setDrivers] = useState([]);
+  const [mapDriver, setMapDriver] = useState(null);
+  const [notifs, setNotifs] = useState([]);
+  const [agencyInfo, setAgencyInfo] = useState(null);
+  const [showSettings, setShowSettings] = useState(false);
+  const [editCity, setEditCity] = useState("");
+  const [editMapsLink, setEditMapsLink] = useState("");
+  const [showPkgForm, setShowPkgForm] = useState(false);
+  const [detailPkg, setDetailPkg] = useState(null);
+  const [showScanner, setShowScanner] = useState(false);
+  const [scannedSessionPkgs, setScannedSessionPkgs] = useState(() => {
+    try { return JSON.parse(localStorage.getItem("boraq_scan_session_agency") || "[]"); }
+    catch { return []; }
+  });
+  const [valTab, setValTab] = useState("pending");
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+
+  function confirmSignOut() {
+    setShowLogoutConfirm(true);
+  }
+
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 768);
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
+
   // Leaflet Live Map Loader for Driver tracking
   useEffect(() => {
     let mapInstance = null;
@@ -82,29 +107,6 @@ export default function AgencyPanel() {
       }
     }
   }, [mapDriver]);
-
-  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
-
-  function confirmSignOut() {
-    setShowLogoutConfirm(true);
-  }
-  const [packages, setPackages] = useState([]);
-  const [agencies, setAgencies] = useState([]);
-  const [drivers, setDrivers] = useState([]);
-  const [mapDriver, setMapDriver] = useState(null);
-  const [notifs, setNotifs] = useState([]);
-  const [agencyInfo, setAgencyInfo] = useState(null);
-  const [showSettings, setShowSettings] = useState(false);
-  const [editCity, setEditCity] = useState("");
-  const [editMapsLink, setEditMapsLink] = useState("");
-  const [showPkgForm, setShowPkgForm] = useState(false);
-  const [detailPkg, setDetailPkg] = useState(null);
-  const [showScanner, setShowScanner] = useState(false);
-  const [scannedSessionPkgs, setScannedSessionPkgs] = useState(() => {
-    try { return JSON.parse(localStorage.getItem("boraq_scan_session_agency") || "[]"); }
-    catch { return []; }
-  });
-  const [valTab, setValTab] = useState("pending"); // 'pending' or 'validated'
 
   async function validatePackage(pkg) {
     if (!pkg) return;
