@@ -144,6 +144,43 @@ export default function Login() {
         <div className="logo">⚡ {t.appName}</div>
         <div className="tagline">{t.tagline}</div>
 
+        {/* 📦 Saved Last Package Quick Tracker Banner on Home Page */}
+        {(() => {
+          const lastCode = typeof localStorage !== "undefined" ? localStorage.getItem("boraq_last_tracked") : null;
+          return (
+            <div style={{ marginBottom: 20 }}>
+              {lastCode && (
+                <a
+                  href={`/track?n=${lastCode}`}
+                  style={{
+                    display: "flex", alignItems: "center", justifyContent: "space-between",
+                    padding: "10px 14px", borderRadius: 12, marginBottom: 10,
+                    background: "rgba(59, 130, 246, 0.12)", border: "1px solid rgba(59, 130, 246, 0.3)",
+                    color: "#93c5fd", textDecoration: "none", fontSize: 12, fontWeight: "700"
+                  }}
+                >
+                  <span>📦 {lang === "ar" ? `تتبع طردك الأخير:` : `Dernier colis:`} <b>{lastCode}</b></span>
+                  <span>➔</span>
+                </a>
+              )}
+
+              {/* Public Tracking Direct Button */}
+              <a
+                href="/track"
+                style={{
+                  display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+                  padding: "11px", borderRadius: 12,
+                  background: "rgba(255, 255, 255, 0.05)", border: "1px solid var(--border)",
+                  color: "var(--text)", textDecoration: "none", fontSize: 13, fontWeight: "700",
+                  transition: "all 0.2s"
+                }}
+              >
+                📦 {lang === "ar" ? "تتبع طرد بدون تسجيل دخول" : "Suivre un colis sans connexion"}
+              </a>
+            </div>
+          );
+        })()}
+
         {error && <div className="error">{error}</div>}
 
         {loginMode === "code" ? (
