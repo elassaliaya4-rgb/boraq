@@ -12,10 +12,10 @@ export default function PackageDetails({ pkg, agencies, onClose, onUpdated, onDe
   const [busy, setBusy] = useState(false);
   const [siblings, setSiblings] = useState([]);
 
-  function handleDelete() {
+  async function handleDelete() {
+    onClose && onClose();
     if (onDelete) {
-      onDelete(pkg);
-      onClose && onClose();
+      await onDelete(pkg);
     }
   }
 
