@@ -219,15 +219,6 @@ export default function PackageForm({ agencies, onClose, onSaved }) {
     }
 
     setBusy(false);
-    
-    // Automatically trigger WhatsApp share with receiver in their language + direct tracking link
-    try {
-      const wa = buildWhatsAppLink(pkg, "receiver", createdByName, lang, t);
-      if (wa && wa.link) {
-        window.open(wa.link, "_blank");
-      }
-    } catch (e) {}
-
     onSaved();
   }
 
