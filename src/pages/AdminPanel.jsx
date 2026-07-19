@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } from "recharts";
+import * as XLSX from "xlsx";
 import { useApp } from "../lib/context";
 import { supabase, SUPABASE_URL, SUPABASE_ANON_KEY } from "../lib/supabase";
 import { createClient } from "@supabase/supabase-js";
@@ -275,6 +277,24 @@ export default function AdminPanel() {
     if (ags && ags.length > 0 && !scanFilterAgency) {
       setScanFilterAgency(ags[0].name);
     }
+  }
+
+  // ─── Export packages to Excel ──────────────────────────────────────────────
+  function exportToExcel(data, filename) {
+    const rows = data.map(p => ({
+      [lang === "ar" ? "رقم التتبع" : "N° Tracking"]: p.tracking_number,
+      [lang === "ar" ? "المرسل"     : "Expéditeur"]:  p.sender_name,
+      [lang === "ar" ? "المستلم"    : "Destinataire"]: p.receiver_name,
+      [lang === "ar" ? "الوجهة"     : "Destination"]: p.destination,
+      [lang === "ar" ? "الحالة"     : "Statut"]:      p.status,
+      [lang === "ar" ? "الوزن"      : "Poids (kg)"]:  p.weight || "",
+      [lang === "ar" ? "الثمن"      : "Prix (MAD)"]:  p.price || "",
+      [lang === "ar" ? "التاريخ"    : "Date"]:         new Date(p.created_at).toLocaleDateString("fr-MA"),
+    }));
+    const ws = XLSX.utils.json_to_sheet(rows);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Colis");
+    XLSX.writeFile(wb, `${filename}_${new Date().toISOString().slice(0,10)}.xlsx`);
   }
 
   async function openNotif(n) {
@@ -867,6 +887,69 @@ export default function AdminPanel() {
               <Stat val={agencies?.length || 0} lbl={t.totalAgencies} onClick={() => setTab("agencies")} />
               <Stat val={packages?.filter((p) => p?.status === "arrived")?.length || 0} lbl={t.newArrivals} onClick={() => setTab("packages")} />
             </div>
+
+            {/* ── Charts Section ── */}
+            {packages.length > 0 && (() => {
+              // Status distribution data
+              const statusColors = { pending: "#94a3b8", inTransit: "#3b82f6", arrived: "#f59e0b", delivered: "#22c55e" };
+              const statusLabels = { pending: lang==="ar"?"انتظار":"En attente", inTransit: lang==="ar"?"في الطريق":"Transit", arrived: lang==="ar"?"وصل":"Arrivé", delivered: lang==="ar"?"مسلم":"Livré" };
+              const pieData = ["pending","inTransit","arrived","delivered"].map(s => ({
+                name: statusLabels[s],
+                value: packages.filter(p => p.status === s).length,
+                color: statusColors[s]
+              })).filter(d => d.value > 0);
+
+              // Last 7 days bar chart
+              const last7 = Array.from({length:7}, (_,i) => {
+                const d = new Date(); d.setDate(d.getDate() - (6-i));
+                const key = d.toISOString().slice(0,10);
+                const label = d.toLocaleDateString(lang==="ar"?"ar-MA":"fr-FR", {weekday:"short"});
+                return { label, count: packages.filter(p => p.created_at?.slice(0,10) === key).length };
+              });
+
+              return (
+                <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(280px,1fr))", gap:16, marginBottom:24 }}>
+                  {/* Donut chart */}
+                  <div style={{ background:"var(--surface)", border:"1px solid var(--border)", borderRadius:16, padding:"20px 16px" }}>
+                    <div style={{ fontSize:13, fontWeight:700, color:"var(--text)", marginBottom:12 }}>
+                      📊 {lang==="ar" ? "توزيع الحالات" : "Répartition des statuts"}
+                    </div>
+                    <ResponsiveContainer width="100%" height={180}>
+                      <PieChart>
+                        <Pie data={pieData} cx="50%" cy="50%" innerRadius={50} outerRadius={80}
+                          dataKey="value" paddingAngle={3}>
+                          {pieData.map((e,i) => <Cell key={i} fill={e.color} />)}
+                        </Pie>
+                        <Tooltip formatter={(v,n) => [v, n]} contentStyle={{ background:"var(--surface)", border:"1px solid var(--border)", borderRadius:8, fontSize:12 }} />
+                        <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize:11 }} />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+
+                  {/* Bar chart */}
+                  <div style={{ background:"var(--surface)", border:"1px solid var(--border)", borderRadius:16, padding:"20px 16px" }}>
+                    <div style={{ fontSize:13, fontWeight:700, color:"var(--text)", marginBottom:12 }}>
+                      📈 {lang==="ar" ? "الطرود - آخر 7 أيام" : "Colis — 7 derniers jours"}
+                    </div>
+                    <ResponsiveContainer width="100%" height={180}>
+                      <BarChart data={last7} margin={{ top:4, right:8, left:-20, bottom:0 }}>
+                        <XAxis dataKey="label" tick={{ fontSize:10, fill:"var(--text-dim)" }} axisLine={false} tickLine={false} />
+                        <YAxis allowDecimals={false} tick={{ fontSize:10, fill:"var(--text-dim)" }} axisLine={false} tickLine={false} />
+                        <Tooltip contentStyle={{ background:"var(--surface)", border:"1px solid var(--border)", borderRadius:8, fontSize:12 }} cursor={{ fill:"rgba(59,130,246,0.06)" }} />
+                        <Bar dataKey="count" name={lang==="ar"?"طرود":"Colis"} fill="url(#barGrad)" radius={[6,6,0,0]} />
+                        <defs>
+                          <linearGradient id="barGrad" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor="#3b82f6" />
+                            <stop offset="100%" stopColor="#6366f1" />
+                          </linearGradient>
+                        </defs>
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+              );
+            })()}
+
             <PkgHeader t={t} onAdd={() => setShowPkgForm(true)} />
             <PackagesTable packages={packages} onManage={setDetailPkg} onRefresh={loadData} />
           </>
@@ -874,7 +957,20 @@ export default function AdminPanel() {
 
         {tab === "packages" && (
           <>
-            <PkgHeader t={t} onAdd={() => setShowPkgForm(true)} />
+            <div className="row-head">
+              <PkgHeader t={t} onAdd={() => setShowPkgForm(true)} />
+              <button
+                onClick={() => exportToExcel(packages, "boraq_colis")}
+                style={{
+                  padding: "8px 14px", borderRadius: 10, fontSize: 12, fontWeight: 700,
+                  background: "linear-gradient(135deg, #22c55e, #16a34a)",
+                  color: "#fff", border: "none", cursor: "pointer",
+                  boxShadow: "0 3px 10px rgba(34,197,94,0.3)", display:"flex", alignItems:"center", gap:6
+                }}
+              >
+                📥 {lang==="ar" ? "تصدير Excel" : "Exporter Excel"}
+              </button>
+            </div>
             <PackagesTable packages={packages} onManage={setDetailPkg} onRefresh={loadData} />
           </>
         )}

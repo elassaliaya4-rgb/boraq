@@ -4,11 +4,16 @@ import Login from "./pages/Login";
 import AdminPanel from "./pages/AdminPanel";
 import AgencyPanel from "./pages/AgencyPanel";
 import DriverPanel from "./pages/DriverPanel";
+import TrackPage from "./pages/TrackPage";
 import { Capacitor } from "@capacitor/core";
 
 // Force Vercel redeploy stable morning state
 export default function App() {
   const { user, profile, loading, dir, lang, signOut, t, toast, theme } = useApp();
+
+  // Public tracking page — accessible without login
+  const isTrackPage = window.location.pathname === "/track";
+  if (isTrackPage) return <TrackPage />;
 
   // Request Location & Notification Permissions natively on mobile startup with sound channels & fullscreen overlays
   useEffect(() => {
