@@ -19,7 +19,14 @@ export function AppProvider({ children }) {
   const [toast, setToast] = useState(null);
   const [theme, setTheme] = useState(() => {
     try {
-      return localStorage.getItem("theme") || "dark";
+      const saved = localStorage.getItem("theme") || "dark";
+      // Apply class immediately — before first render — to prevent dark flash
+      if (saved === "light") {
+        document.body.classList.add("light-theme");
+      } else {
+        document.body.classList.remove("light-theme");
+      }
+      return saved;
     } catch (e) {
       return "dark";
     }
