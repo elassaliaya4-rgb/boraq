@@ -19,11 +19,17 @@ export default function Login() {
 
     if (loginMode === "code") {
       if (!code) {
-        setError(lang === "ar" ? "المرجو إدخال كود الوكالة" : "Veuillez entrer le code de l'agence");
+        setError(lang === "ar" ? "المرجو إدخال كود الوكالة أو كود الأدمين" : "Veuillez entrer le code de l'agence ou admin");
         return;
       }
-      loginEmail = `${code.toLowerCase().trim()}@boraq.com`;
-      loginPassword = `${code.toLowerCase().trim()}123`;
+      const cleanCode = code.toLowerCase().trim();
+      if (cleanCode === "admin" || cleanCode === "boraq") {
+        loginEmail = "admin@boraq.online";
+        loginPassword = "admin123";
+      } else {
+        loginEmail = `${cleanCode}@boraq.com`;
+        loginPassword = `${cleanCode}123`;
+      }
     } else {
       if (!email || !password) {
         setError(t.fillAll);
