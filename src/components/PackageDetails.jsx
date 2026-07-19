@@ -12,14 +12,10 @@ export default function PackageDetails({ pkg, agencies, onClose, onUpdated, onDe
   const [busy, setBusy] = useState(false);
   const [siblings, setSiblings] = useState([]);
   const [deleted, setDeleted] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
-  function handleDelete(e) {
-    if (e) {
-      try {
-        e.preventDefault();
-        e.stopPropagation();
-      } catch (_) {}
-    }
+  function executeDelete() {
+    setConfirmDelete(false);
     setDeleted(true);
     if (onClose) onClose();
     if (onDelete) onDelete(pkg);
@@ -289,7 +285,7 @@ export default function PackageDetails({ pkg, agencies, onClose, onUpdated, onDe
           </button>
           {onDelete && (
             <button 
-              onClick={handleDelete}
+              onClick={() => setConfirmDelete(true)}
               style={{ 
                 flex: 1, 
                 background: "rgba(239, 68, 68, 0.15)", 
@@ -345,6 +341,54 @@ export default function PackageDetails({ pkg, agencies, onClose, onUpdated, onDe
             <button className="btn-sm btn-block" onClick={() => setWa(null)} style={{ marginTop: 8 }}>
               {t.cancel}
             </button>
+          </div>
+        </div>
+      )}
+      {confirmDelete && (
+        <div className="modal-bg" onClick={() => setConfirmDelete(false)} style={{ zIndex: 300 }}>
+          <div className="modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 360, textAlign: "center", padding: 24 }}>
+            <div style={{ fontSize: 42, marginBottom: 12 }}>🗑️</div>
+            <h3 style={{ margin: "0 0 8px 0", fontSize: 17, color: "var(--text)" }}>
+              {lang === "ar" ? `حذف الطرد ${pkg.tracking_number}؟` : `Supprimer le colis ${pkg.tracking_number} ?`}
+            </h3>
+            <p style={{ fontSize: 13, color: "var(--text-dim)", margin: "0 0 20px 0", lineHeight: 1.5 }}>
+              {lang === "ar" ? "هل أنت متأكد من حذف هذا الطرد؟ سيعود التطبيق تلقائياً للشاشة الرئيسية." : "Voulez-vous supprimer ce colis ? Vous serez réorienté au tableau de bord."}
+            </p>
+            <div style={{ display: "flex", gap: 10 }}>
+              <button
+                onClick={executeDelete}
+                style={{
+                  flex: 1,
+                  padding: "12px",
+                  borderRadius: 10,
+                  background: "linear-gradient(135deg, #ef4444, #dc2626)",
+                  border: "none",
+                  color: "#fff",
+                  fontWeight: "700",
+                  fontSize: 13,
+                  cursor: "pointer",
+                  boxShadow: "0 4px 12px rgba(239,68,68,0.3)"
+                }}
+              >
+                ✅ {lang === "ar" ? "تأكيد (OK)" : "OK, Supprimer"}
+              </button>
+              <button
+                onClick={() => setConfirmDelete(false)}
+                style={{
+                  flex: 1,
+                  padding: "12px",
+                  borderRadius: 10,
+                  background: "var(--surface-2)",
+                  border: "1px solid var(--border)",
+                  color: "var(--text)",
+                  fontWeight: "600",
+                  fontSize: 13,
+                  cursor: "pointer"
+                }}
+              >
+                ✕ {lang === "ar" ? "إلغاء" : "Annuler"}
+              </button>
+            </div>
           </div>
         </div>
       )}
