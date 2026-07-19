@@ -226,18 +226,18 @@ export default function PackageDetails({ pkg, agencies, onClose, onUpdated, onDe
         <div className="d-card">
           <div className="d-track">{pkg.tracking_number}</div>
           <Row k={t.senderName} v={pkg.sender_name} highlight={true} />
-          <Row k={"📱 " + t.senderPhone} v={pkg.sender_phone || "—"} />
+          <Row k={t.senderPhone} v={pkg.sender_phone || "—"} />
           <Row k={t.receiverName} v={pkg.receiver_name} highlight={true} />
-          <Row k={"📱 " + t.receiverPhone} v={pkg.receiver_phone || "—"} />
+          <Row k={t.receiverPhone} v={pkg.receiver_phone || "—"} />
           <Row k={t.origin} v={pkg.origin} highlight={true} />
           <Row k={t.destination} v={pkg.destination} highlight={true} />
           <Row k={t.destAgency} v={agencyName} />
-          <Row k={"⚖️ " + t.weight} v={pkg.weight + " " + t.kg} />
-          <Row k={"📅 " + t.dateSent} v={pkg.date_sent} />
-          <Row k={"💰 " + t.pricePerKg} v={(pkg.price_per_kg || 20) + " DH"} />
-          <Row k={"💳 " + t.totalPrice} v={(pkg.total_price || (pkg.weight * (pkg.price_per_kg || 20))) + " DH"} highlight={true} />
-          <Row k={"👤 " + t.payer} v={pkg.payer === "sender" ? t.sender : t.receiver} />
-          <Row k={"📊 " + t.paymentStatus} v={pkg.payment_status === "paid" ? `✅ ${t.paid}` : `❌ ${t.unpaid}`} highlight={true} />
+          <Row k={t.weight} v={pkg.weight + " " + t.kg} />
+          <Row k={t.dateSent} v={pkg.date_sent} />
+          <Row k={t.pricePerKg} v={(pkg.price_per_kg || 20) + " DH"} />
+          <Row k={t.totalPrice} v={(pkg.total_price || (pkg.weight * (pkg.price_per_kg || 20))) + " DH"} highlight={true} />
+          <Row k={t.payer} v={pkg.payer === "sender" ? t.sender : t.receiver} />
+          <Row k={t.paymentStatus} v={pkg.payment_status === "paid" ? t.paid : t.unpaid} highlight={true} />
         </div>
 
         {pkg.payment_status !== "paid" && (
@@ -250,39 +250,51 @@ export default function PackageDetails({ pkg, agencies, onClose, onUpdated, onDe
               padding: "12px 10px", 
               background: "linear-gradient(135deg, #10b981, #059669)", 
               boxShadow: "0 4px 12px rgba(16,185,129,0.3)",
-              marginBottom: 10
+              marginBottom: 10,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 8
             }}
           >
-            💵 {t.markAsPaid}
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            <span>{t.markAsPaid}</span>
           </button>
         )}
 
         {nextStatus ? (
-          <button className="btn-accent btn-block" onClick={advance} disabled={busy} style={{ fontSize: 13, padding: "12px 10px" }}>
-            {siblings.length > 1 ? (
-              lang === "ar" 
-                ? `➡️ مشّي المجموعة كاملة (${siblings.length} طرود): ${t[nextStatus]}`
-                : `➡️ Avancer tout le groupe (${siblings.length} colis) : ${t[nextStatus]}`
-            ) : (
-              `➡️ ${t.advance}: ${t[nextStatus]}`
-            )}
+          <button className="btn-accent btn-block" onClick={advance} disabled={busy} style={{ fontSize: 13, padding: "12px 10px", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+            <span>
+              {siblings.length > 1 ? (
+                lang === "ar" 
+                  ? `مشّي المجموعة كاملة (${siblings.length} طرود): ${t[nextStatus]}`
+                  : `Avancer tout le groupe (${siblings.length} colis) : ${t[nextStatus]}`
+              ) : (
+                `${t.advance}: ${t[nextStatus]}`
+              )}
+            </span>
           </button>
         ) : (
-          <div className="done-msg">✅ {t.delivered}</div>
+          <div className="done-msg" style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            <span>{t.delivered}</span>
+          </div>
         )}
 
         <div className="wa-row">
           <button className="btn-wa" onClick={() => openWhatsApp("receiver")}>
-            🟢 {t.waReceiver}
+            <span>{t.waReceiver}</span>
           </button>
           <button className="btn-wa" onClick={() => openWhatsApp("sender")}>
-            🟢 {t.waSender}
+            <span>{t.waSender}</span>
           </button>
         </div>
 
         <div className="modal-actions" style={{ display: "flex", gap: 8, marginTop: 16 }}>
-          <button className="btn-primary" onClick={() => setShowTicket(true)} style={{ flex: 1 }}>
-            🎫 {t.ticket}
+          <button className="btn-primary" onClick={() => setShowTicket(true)} style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2z"/></svg>
+            <span>{t.ticket}</span>
           </button>
           {onDelete && (
             <button 
@@ -296,22 +308,19 @@ export default function PackageDetails({ pkg, agencies, onClose, onUpdated, onDe
                 borderRadius: 8,
                 fontWeight: "600",
                 cursor: "pointer",
-                transition: "all 0.2s"
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = "rgba(239, 68, 68, 0.3)";
-                e.currentTarget.style.borderColor = "rgba(239, 68, 68, 0.8)";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = "rgba(239, 68, 68, 0.15)";
-                e.currentTarget.style.borderColor = "rgba(239, 68, 68, 0.4)";
+                transition: "all 0.2s",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 6
               }}
             >
-              🗑️ {lang === "ar" ? "حذف" : "Supprimer"}
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+              <span>{lang === "ar" ? "حذف" : "Supprimer"}</span>
             </button>
           )}
           <button className="btn-sm" onClick={onClose} style={{ flex: 1 }}>
-            ⬅️ {lang === "ar" ? "رجوع" : "Retour"}
+            {lang === "ar" ? "رجوع" : "Retour"}
           </button>
         </div>
       </div>

@@ -417,8 +417,11 @@ export default function DriverPanel() {
       {/* Main Content Area */}
       <main className="main" style={isMobileAPK ? { paddingTop: "10px", paddingBottom: "96px", width: "100%", overflowY: "auto" } : {}}>
         <header className="topbar" style={isMobileAPK ? { display: "none" } : {}}>
-          <div>
-            <h1>🚚 {lang === "ar" ? "مهام التوصيل" : "Feuille de Route"}</h1>
+          <div className="row-head" style={{ marginBottom: 16 }}>
+            <h1 style={{ display: "flex", alignItems: "center", gap: 10, margin: 0 }}>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M10 17h4V5H2v12h3"/><path d="M20 17h2v-3.34a4 4 0 0 0-1.17-2.83L19 9h-5v8h1"/><circle cx="7.5" cy="17.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg>
+              <span>{lang === "ar" ? "مهام التوصيل" : "Feuille de Route"}</span>
+            </h1>
             <p style={{ color: "var(--text-dim)", fontSize: 13, marginTop: 4 }}>
               {lang === "ar" ? "الطرود مرتبة حسب وجهة كل مدينة" : "Colis groupés par agence destinataire"}
             </p>
@@ -718,8 +721,8 @@ export default function DriverPanel() {
                               </span>
                             </div>
                             <div className="card-meta-row" style={{ display: "flex", justifyContent: "space-between", fontSize: 12 }}>
-                              <span style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "50%" }}>👤 {p.receiver_name}</span>
-                              <span style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "50%" }}>📍 De: {p.origin}</span>
+                              <span style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "50%" }}>{p.receiver_name}</span>
+                              <span style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "50%" }}>De: {p.origin}</span>
                             </div>
                           </div>
                         );
