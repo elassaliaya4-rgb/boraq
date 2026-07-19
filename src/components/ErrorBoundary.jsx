@@ -42,9 +42,25 @@ export default class ErrorBoundary extends React.Component {
             <h2 style={{ margin: "0 0 8px 0", fontSize: "20px", fontWeight: "800", color: "#60a5fa" }}>
               Boraq Logistics
             </h2>
-            <p style={{ color: "#94a3b8", fontSize: "14px", margin: "0 0 24px 0", lineHeight: 1.5 }}>
+            <p style={{ color: "#94a3b8", fontSize: "14px", margin: "0 0 16px 0", lineHeight: 1.5 }}>
               حدث خطأ بسيط في الاتصال أو تحديث البيانات. يرجى إعادة تحميل الصفحة.
             </p>
+            {this.state.error && (
+              <div style={{
+                marginBottom: "16px",
+                padding: "10px 12px",
+                borderRadius: "10px",
+                background: "rgba(239, 68, 68, 0.15)",
+                border: "1px solid rgba(239, 68, 68, 0.3)",
+                color: "#f87171",
+                fontSize: "11px",
+                textAlign: "left",
+                wordBreak: "break-all",
+                fontFamily: "monospace"
+              }}>
+                ⚠️ {String(this.state.error?.message || this.state.error)}
+              </div>
+            )}
             <button
               onClick={() => window.location.reload()}
               style={{
