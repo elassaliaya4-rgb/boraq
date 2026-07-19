@@ -28,6 +28,60 @@ export default function AgencyPanel() {
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
+  // Leaflet Live Map Loader for Driver tracking
+  useEffect(() => {
+    let mapInstance = null;
+    if (mapDriver) {
+      if (!document.getElementById("leaflet-css")) {
+        const css = document.createElement("link");
+        css.id = "leaflet-css";
+        css.rel = "stylesheet";
+        css.href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
+        document.head.appendChild(css);
+      }
+      if (!window.L) {
+        const script = document.createElement("script");
+        script.src = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";
+        script.onload = initMap;
+        document.body.appendChild(script);
+      } else {
+        setTimeout(initMap, 150);
+      }
+    }
+
+    function initMap() {
+      if (!mapDriver?.latitude || !mapDriver?.longitude) return;
+      const container = document.getElementById("live-map");
+      if (!container) return;
+
+      try {
+        mapInstance = window.L.map("live-map").setView([mapDriver.latitude, mapDriver.longitude], 15);
+        window.L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          maxZoom: 19,
+          attribution: "© OpenStreetMap"
+        }).addTo(mapInstance);
+
+        const deliveryIcon = window.L.divIcon({
+          html: `<div style="display:flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg, #3b82f6, #2563eb);box-shadow:0 0 16px rgba(59,130,246,0.6);border:2px solid #ffffff;color:#ffffff;animation:map-pulse 1.8s infinite ease-in-out;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 17h4V5H2v12h3"/><path d="M20 17h2v-3.34a4 4 0 0 0-1.17-2.83L19 9h-5v8h1"/><circle cx="7.5" cy="17.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg>
+          </div>`,
+          className: "custom-leaflet-icon",
+          iconSize: [42, 42],
+          iconAnchor: [21, 21]
+        });
+
+        const marker = window.L.marker([mapDriver.latitude, mapDriver.longitude], { icon: deliveryIcon }).addTo(mapInstance);
+        marker.bindPopup(`
+          <div style="font-family:system-ui,-apple-system,sans-serif;padding:4px;text-align:center;">
+            <div style="font-weight:700;font-size:14px;color:#0f172a;">${mapDriver.name}</div>
+            <div style="font-size:11px;color:#2563eb;font-weight:600;margin-top:2px;">🛰️ Position GPS en direct</div>
+          </div>
+        `).openPopup();
+      } catch (err) {
+        console.warn("Map error:", err);
+      }
+    }
+  }, [mapDriver]);
 
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
@@ -36,6 +90,8 @@ export default function AgencyPanel() {
   }
   const [packages, setPackages] = useState([]);
   const [agencies, setAgencies] = useState([]);
+  const [drivers, setDrivers] = useState([]);
+  const [mapDriver, setMapDriver] = useState(null);
   const [notifs, setNotifs] = useState([]);
   const [agencyInfo, setAgencyInfo] = useState(null);
   const [showSettings, setShowSettings] = useState(false);
@@ -245,6 +301,12 @@ export default function AgencyPanel() {
       .eq("target", "agency")
       .order("created_at", { ascending: false });
     setNotifs(nts || []);
+
+    const { data: drs } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("role", "driver");
+    setDrivers(drs || []);
   }
 
   function openSettings() {
@@ -432,6 +494,28 @@ export default function AgencyPanel() {
               </svg>
             </div>
             <span style={{ flex: 1 }}>{lang === "ar" ? "التحقق والمسح" : "Scan & Validation"}</span>
+          </button>
+
+          <button className={`nav-item ${tab === "drivers" ? "active" : ""}`} onClick={() => setTab("drivers")} style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+            <div style={{
+              width: 32, height: 32, borderRadius: 9,
+              background: tab === "drivers" ? "rgba(59,130,246,0.2)" : "rgba(255,255,255,0.06)",
+              color: tab === "drivers" ? "#3b82f6" : "var(--text-dim)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              flexShrink: 0, transition: "all 0.2s ease"
+            }}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 16, height: 16 }}>
+                <path d="M10 17h4V5H2v12h3" />
+                <path d="M20 17h2v-3.34a4 4 0 0 0-1.17-2.83L19 9h-5v8h1" />
+                <circle cx="7.5" cy="17.5" r="2.5" />
+                <circle cx="17.5" cy="17.5" r="2.5" />
+              </svg>
+            </div>
+            <span style={{ flex: 1 }}>{lang === "ar" ? "السائقين" : "Chauffeurs"}</span>
+            {(() => {
+              const onlineCount = drivers.filter(d => d.last_active && (new Date() - new Date(d.last_active)) < 300000).length;
+              return onlineCount > 0 ? <span className="badge" style={{ background: "#10b981" }}>{onlineCount}</span> : null;
+            })()}
           </button>
 
           <button className={`nav-item ${tab === "notifs" ? "active" : ""}`} onClick={() => setTab("notifs")} style={{ display: "flex", alignItems: "center", gap: "12px" }}>
@@ -973,6 +1057,85 @@ export default function AgencyPanel() {
           </>
         )}
 
+        {tab === "drivers" && (
+          <>
+            <div className="row-head" style={{ marginBottom: 16 }}>
+              <h2 style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M10 17h4V5H2v12h3"/><path d="M20 17h2v-3.34a4 4 0 0 0-1.17-2.83L19 9h-5v8h1"/><circle cx="7.5" cy="17.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg>
+                <span>{lang === "ar" ? "السائقين المتصلين والحالة" : "Chauffeurs en ligne & Statut"}</span>
+              </h2>
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 14 }}>
+              {drivers.map((d) => {
+                const isOnline = d.last_active && (new Date() - new Date(d.last_active)) < 300000;
+                return (
+                  <div
+                    key={d.id}
+                    style={{
+                      background: "var(--surface)",
+                      border: "1px solid var(--border)",
+                      borderInlineStart: isOnline ? "4px solid #10b981" : "4px solid var(--text-dim)",
+                      borderRadius: 14,
+                      padding: 16,
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: 12,
+                      boxShadow: "0 4px 16px rgba(0,0,0,0.05)"
+                    }}
+                  >
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <div>
+                        <div style={{ fontSize: 15, fontWeight: "700", color: "var(--text)" }}>{d.name}</div>
+                        <div style={{ fontSize: 11, color: "var(--text-dim)", marginTop: 2 }}>Code: <b>{d.code}</b></div>
+                      </div>
+                      <span style={{
+                        padding: "4px 10px",
+                        borderRadius: 12,
+                        fontSize: 11,
+                        fontWeight: "700",
+                        background: isOnline ? "rgba(16, 185, 129, 0.15)" : "rgba(148, 163, 184, 0.15)",
+                        color: isOnline ? "#10b981" : "var(--text-dim)",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: 4
+                      }}>
+                        <span style={{ width: 6, height: 6, borderRadius: "50%", background: isOnline ? "#10b981" : "#94a3b8" }}></span>
+                        {isOnline ? (lang === "ar" ? "متصل" : "En ligne") : (lang === "ar" ? "غير متصل" : "Hors ligne")}
+                      </span>
+                    </div>
+
+                    {d.latitude && d.longitude ? (
+                      <button
+                        onClick={() => setMapDriver(d)}
+                        className="btn-primary"
+                        style={{
+                          width: "100%",
+                          padding: "8px 12px",
+                          fontSize: 12,
+                          fontWeight: "700",
+                          borderRadius: 10,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          gap: 6
+                        }}
+                      >
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                        <span>{lang === "ar" ? "تحديد موقع GPS المباشر" : "Position GPS Live"}</span>
+                      </button>
+                    ) : (
+                      <div style={{ fontSize: 11, color: "var(--text-dim)", fontStyle: "italic", textAlign: "center" }}>
+                        {lang === "ar" ? "لا يوجد موقع GPS حالياً" : "GPS non disponible"}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </>
+        )}
+
         {tab === "packages" && (
           <>
             <div className="row-head">
@@ -1026,6 +1189,34 @@ export default function AgencyPanel() {
           onClose={() => setShowScanner(false)}
           onUpdated={loadData}
         />
+      )}
+      {mapDriver && (
+        <div className="modal-bg" onClick={() => setMapDriver(null)} style={{ zIndex: 250 }}>
+          <div className="modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 650, width: "95%" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+              <h2 style={{ fontSize: 16, margin: 0, display: "flex", alignItems: "center", gap: 8 }}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                <span>{lang === "ar" ? `موقع السائق: ${mapDriver.name}` : `Position de ${mapDriver.name}`}</span>
+              </h2>
+              <button className="btn-close" onClick={() => setMapDriver(null)}>✕</button>
+            </div>
+            <div id="live-map" style={{ width: "100%", height: 350, borderRadius: 12, overflow: "hidden", border: "1px solid var(--border)" }}></div>
+            <div style={{ marginTop: 12, display: "flex", gap: 10 }}>
+              <a
+                href={`https://www.google.com/maps/search/?api=1&query=${mapDriver.latitude},${mapDriver.longitude}`}
+                target="_blank"
+                rel="noreferrer"
+                className="btn-primary"
+                style={{ textDecoration: "none", textAlign: "center", flex: 1, padding: "10px", borderRadius: 10, fontSize: 13 }}
+              >
+                🗺️ {lang === "ar" ? "فتح في Google Maps" : "Ouvrir f Google Maps"}
+              </a>
+              <button className="btn-sm" onClick={() => setMapDriver(null)} style={{ flex: 1 }}>
+                {t.cancel}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
       {showSettings && (
         <div className="modal-bg" onClick={() => setShowSettings(false)}>
