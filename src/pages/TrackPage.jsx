@@ -33,7 +33,7 @@ export default function TrackPage() {
     try {
       const { data, error: err } = await supabase
         .from("packages")
-        .select("tracking_number, receiver_name, destination, status, created_at, notes")
+        .select("tracking_number, receiver_name, destination, status, created_at")
         .eq("tracking_number", num.trim().toUpperCase())
         .maybeSingle();
 
