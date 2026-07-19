@@ -140,13 +140,19 @@ export function AppProvider({ children }) {
   }
 
   useEffect(() => {
+    const safetyTimer = setTimeout(() => {
+      setLoading(false);
+    }, 2000);
+
     supabase.auth.getSession()
       .then(({ data: { session } }) => {
+        clearTimeout(safetyTimer);
         setUser(session?.user ?? null);
         if (session?.user) loadProfile(session.user.id);
         else setLoading(false);
       })
       .catch((err) => {
+        clearTimeout(safetyTimer);
         console.error("getSession error:", err);
         setLoading(false);
       });
@@ -162,10 +168,16 @@ export function AppProvider({ children }) {
       }
     );
 
-    return () => listener.subscription.unsubscribe();
+    return () => {
+      clearTimeout(safetyTimer);
+      listener.subscription.unsubscribe();
+    };
   }, []);
 
   async function loadProfile(userId) {
+    const profTimer = setTimeout(() => {
+      setLoading(false);
+    }, 2000);
     try {
       const { data, error } = await supabase
         .from("profiles")
@@ -192,6 +204,7 @@ export function AppProvider({ children }) {
       setUser(null);
       setProfile(null);
     } finally {
+      clearTimeout(profTimer);
       setLoading(false);
     }
   }
