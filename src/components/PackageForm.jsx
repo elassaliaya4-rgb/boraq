@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useApp } from "../lib/context";
 import { supabase } from "../lib/supabase";
-import { genTracking, buildWhatsAppLink } from "../lib/helpers";
+import { genTracking } from "../lib/helpers";
 
 const COUNTRIES = [
   { code: "FR", flag: "🇫🇷", prefix: "33", name: "France" },
