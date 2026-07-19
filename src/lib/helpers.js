@@ -13,14 +13,22 @@ export const statusBg = {
   delivered: "rgba(34,197,94,0.15)",
 };
 
-// صناعة رابط واتساب ذكي بتحديد دولة الهاتف تلقائياً ورابط التتبع المباشر
-export function buildWhatsAppLink(pkg, who, agencyName, lang, t) {
+// صناعة رابط واتساب ذكي بتحديد دولة الهاتف تلقائياً ورابط التتبع ورابط موقع الوكالة (Google Maps)
+export function buildWhatsAppLink(pkg, who, agencyInfo, lang, t) {
   const name = who === "sender" ? pkg.sender_name : pkg.receiver_name;
   const rawPhone = who === "sender" ? pkg.sender_phone : pkg.receiver_phone;
   const phone = (rawPhone || "").replace(/[^0-9]/g, "");
 
+  const agencyName = typeof agencyInfo === "object" ? agencyInfo?.name || "Boraq" : (agencyInfo || "Boraq");
+  let mapsLink = typeof agencyInfo === "object" ? agencyInfo?.google_maps_link : null;
+  if (!mapsLink && typeof agencyInfo === "object" && (agencyInfo?.city || agencyInfo?.name)) {
+    const searchQ = encodeURIComponent(`Agence ${agencyInfo.name || ""} ${agencyInfo.city || ""}`);
+    mapsLink = `https://www.google.com/maps/search/?api=1&query=${searchQ}`;
+  }
+
   const arrived = pkg.status === "arrived" || pkg.status === "delivered";
   const trackLink = `https://boraq.online/track?n=${pkg.tracking_number}`;
+  const mapsText = mapsLink ? `\n🗺️ Localisation Agence / موقع الوكالة (Google Maps):\n${mapsLink}` : "";
 
   let isSpain = phone.startsWith("34");
   let isFrance = phone.startsWith("33");
@@ -34,35 +42,36 @@ export function buildWhatsAppLink(pkg, who, agencyName, lang, t) {
       `Hola ${name} 👋\n` +
       `Su paquete N° ${pkg.tracking_number} (${pkg.weight || 0} kg) ` +
       (arrived ? `ha llegado a la agencia ${agencyName} ✅\nPuede pasar a recogerlo.` : `está en camino.`) +
-      `\n\n📍 Rastrear su paquete en tiempo real:\n${trackLink}\n\n` +
-      `السلام عليكم ${name}، طردك رقم ${pkg.tracking_number} في الطريق إليك.\n` +
-      `تتبع طردك مباشرة عبر الرابط:\n${trackLink}\n\nGracias — Boraq ⚡`;
+      `\n\n📍 Rastrear su paquete:\n${trackLink}` +
+      (mapsLink ? `\n🗺️ Ubicación de la agencia (Google Maps):\n${mapsLink}` : "") +
+      `\n\nGracias — Boraq ⚡`;
   } else if (isFrance) {
     // French + Arabic
     msg =
       `Bonjour ${name} 👋\n` +
       `Votre colis N° ${pkg.tracking_number} (${pkg.weight || 0} kg) ` +
       (arrived ? `est arrivé à l'agence ${agencyName} ✅\nVous pouvez venir le récupérer.` : `est en cours d'acheminement.`) +
-      `\n\n📍 Suivez votre colis en temps réel:\n${trackLink}\n\n` +
-      `السلام عليكم ${name}، طردك رقم ${pkg.tracking_number} في الطريق إليك.\n` +
-      `تتبع طردك مباشرة عبر الرابط:\n${trackLink}\n\nMerci — Boraq ⚡`;
+      `\n\n📍 Suivez votre colis:\n${trackLink}` +
+      (mapsLink ? `\n🗺️ Localisation Agence (Google Maps):\n${mapsLink}` : "") +
+      `\n\nMerci — Boraq ⚡`;
   } else if (isUK) {
     // English + Arabic
     msg =
       `Hello ${name} 👋\n` +
       `Your parcel N° ${pkg.tracking_number} (${pkg.weight || 0} kg) ` +
       (arrived ? `has arrived at ${agencyName} agency ✅\nYou can pick it up.` : `is on its way.`) +
-      `\n\n📍 Track your parcel in real-time:\n${trackLink}\n\n` +
-      `السلام عليكم ${name}، طردك رقم ${pkg.tracking_number} في الطريق إليك.\n` +
-      `تتبع طردك مباشرة عبر الرابط:\n${trackLink}\n\nThank you — Boraq ⚡`;
+      `\n\n📍 Track your parcel:\n${trackLink}` +
+      (mapsLink ? `\n🗺️ Agency Location (Google Maps):\n${mapsLink}` : "") +
+      `\n\nThank you — Boraq ⚡`;
   } else {
     // Morocco / Default: Arabic + French
     msg =
       `السلام عليكم ${name} 👋\n` +
       `طردك رقم ${pkg.tracking_number} (${pkg.weight || 0} كغ) ` +
       (arrived ? `وصل لـ ${agencyName} ✅\nتقدر تجي تاخدو.` : `راه فـ الطريق إليك.`) +
-      `\n\n📍 يمكنك تتبع الطرد مباشرة عبر الرابط:\n${trackLink}\n\n` +
-      `Bonjour ${name}, votre colis N° ${pkg.tracking_number} est en cours d'acheminement.\nSuivez-le ici: ${trackLink}\n\nشكرا — Boraq ⚡`;
+      `\n\n📍 يمكنك تتبع الطرد عبر الرابط:\n${trackLink}` +
+      (mapsLink ? `\n🗺️ موقع الوكالة (Google Maps):\n${mapsLink}` : "") +
+      `\n\nشكرا — Boraq ⚡`;
   }
 
   return {
