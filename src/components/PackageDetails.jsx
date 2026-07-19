@@ -15,6 +15,7 @@ export default function PackageDetails({ pkg, agencies, onClose, onUpdated, onDe
   function handleDelete() {
     if (onDelete) {
       onDelete(pkg);
+      onClose && onClose();
     }
   }
 
