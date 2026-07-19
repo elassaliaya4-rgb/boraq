@@ -299,20 +299,20 @@ export default function TrackPage() {
 
                 return (
                   <div key={s} style={{ flex: 1, textAlign: "center", position: "relative" }}>
-                    {/* Animated Stream Connecting Line */}
+                    {/* Animated Stream Connecting Line - Gap calculated so line stops at circle border */}
                     {i > 0 && (
                       <div style={{
                         position: "absolute",
-                        top: 23,
-                        right: "50%",
-                        width: "100%",
+                        top: 22,
+                        right: "calc(50% + 24px)",
+                        width: "calc(100% - 48px)",
                         height: 4,
                         background: i <= stepIdx
                           ? "linear-gradient(90deg, #3b82f6 0%, #22c55e 50%, #3b82f6 100%)"
-                          : "rgba(255, 255, 255, 0.08)",
+                          : "rgba(255, 255, 255, 0.1)",
                         backgroundSize: "200% 100%",
                         animation: i <= stepIdx ? "lineGlowStream 2s linear infinite" : "none",
-                        zIndex: 1, // Line sits behind circles
+                        zIndex: 1,
                         borderRadius: 2
                       }} />
                     )}
