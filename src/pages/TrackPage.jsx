@@ -424,33 +424,68 @@ export default function TrackPage() {
               })}
             </div>
 
-            {/* Clean Details Info (Destination & Date Only) with Vector SVG Icons */}
+            {/* Ultra-Pro Glassmorphism Details Cards */}
             <div style={{
-              background: "rgba(15, 23, 41, 0.65)",
-              borderRadius: 16,
-              padding: "16px 20px",
-              border: "1px solid rgba(255, 255, 255, 0.08)"
+              display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginTop: 24
             }}>
+              {/* Destination Card */}
               <div style={{
-                display: "flex", justifyContent: "space-between", alignItems: "center",
-                padding: "10px 0", borderBottom: "1px solid rgba(255, 255, 255, 0.08)", fontSize: 14
+                background: "linear-gradient(135deg, rgba(30, 41, 59, 0.7), rgba(15, 23, 42, 0.85))",
+                border: "1px solid rgba(59, 130, 246, 0.25)",
+                borderRadius: 16,
+                padding: "14px 16px",
+                display: "flex",
+                alignItems: "center",
+                gap: 12,
+                boxShadow: "0 4px 20px rgba(0,0,0,0.2)"
               }}>
-                <span style={{ color: "#94a3b8", display: "flex", alignItems: "center", gap: 8 }}>
-                  <IconArrived size={16} color="#3b82f6" /> {txt.dest}
-                </span>
-                <span style={{ color: "#fff", fontWeight: "700" }}>{pkg.destination || "—"}</span>
+                <div style={{
+                  width: 38, height: 38, borderRadius: 12,
+                  background: "rgba(59, 130, 246, 0.15)",
+                  border: "1px solid rgba(59, 130, 246, 0.3)",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  flexShrink: 0
+                }}>
+                  <IconArrived size={18} color="#60a5fa" />
+                </div>
+                <div style={{ minWidth: 0 }}>
+                  <div style={{ fontSize: 10, color: "#94a3b8", fontWeight: "700", textTransform: "uppercase", letterSpacing: 0.5 }}>
+                    {txt.dest}
+                  </div>
+                  <div style={{ fontSize: 14, color: "#fff", fontWeight: "800", marginTop: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                    {pkg.destination || "—"}
+                  </div>
+                </div>
               </div>
 
+              {/* Date Card */}
               <div style={{
-                display: "flex", justifyContent: "space-between", alignItems: "center",
-                padding: "10px 0", fontSize: 14
+                background: "linear-gradient(135deg, rgba(30, 41, 59, 0.7), rgba(15, 23, 42, 0.85))",
+                border: "1px solid rgba(245, 158, 11, 0.25)",
+                borderRadius: 16,
+                padding: "14px 16px",
+                display: "flex",
+                alignItems: "center",
+                gap: 12,
+                boxShadow: "0 4px 20px rgba(0,0,0,0.2)"
               }}>
-                <span style={{ color: "#94a3b8", display: "flex", alignItems: "center", gap: 8 }}>
-                  <IconCalendar size={16} color="#3b82f6" /> {txt.date}
-                </span>
-                <span style={{ color: "#fff", fontWeight: "700" }}>
-                  {new Date(pkg.created_at).toLocaleDateString(trackLang === "ar" ? "ar-MA" : "fr-MA")}
-                </span>
+                <div style={{
+                  width: 38, height: 38, borderRadius: 12,
+                  background: "rgba(245, 158, 11, 0.15)",
+                  border: "1px solid rgba(245, 158, 11, 0.3)",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  flexShrink: 0
+                }}>
+                  <IconCalendar size={18} color="#fbbf24" />
+                </div>
+                <div style={{ minWidth: 0 }}>
+                  <div style={{ fontSize: 10, color: "#94a3b8", fontWeight: "700", textTransform: "uppercase", letterSpacing: 0.5 }}>
+                    {txt.date}
+                  </div>
+                  <div style={{ fontSize: 14, color: "#fff", fontWeight: "800", marginTop: 2 }}>
+                    {new Date(pkg.created_at).toLocaleDateString(trackLang === "ar" ? "ar-MA" : "fr-MA")}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
