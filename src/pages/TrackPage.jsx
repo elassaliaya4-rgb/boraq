@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "../lib/supabase";
 
 const STATUS_STEPS = ["pending", "inTransit", "arrived", "delivered"];
@@ -10,14 +10,23 @@ const STATUS_LABELS = {
 };
 
 export default function TrackPage() {
-  const [input, setInput]   = useState("");
-  const [pkg, setPkg]       = useState(null);
+  const [input, setInput]     = useState("");
+  const [pkg, setPkg]         = useState(null);
   const [loading, setLoading] = useState(false);
-  const [error, setError]   = useState("");
+  const [error, setError]     = useState("");
 
-  async function handleSearch(e) {
-    e.preventDefault();
-    if (!input.trim()) return;
+  // Auto-search if tracking number is in URL: /track?n=BRQ-2026-XXXXX
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const n = params.get("n");
+    if (n) {
+      setInput(n.toUpperCase());
+      searchPackage(n.toUpperCase());
+    }
+  }, []);
+
+  async function searchPackage(num) {
+    if (!num) return;
     setLoading(true);
     setError("");
     setPkg(null);
@@ -25,7 +34,7 @@ export default function TrackPage() {
       const { data, error: err } = await supabase
         .from("packages")
         .select("tracking_number, receiver_name, destination, status, created_at, notes")
-        .eq("tracking_number", input.trim().toUpperCase())
+        .eq("tracking_number", num.trim().toUpperCase())
         .maybeSingle();
 
       if (err) throw err;
@@ -36,6 +45,11 @@ export default function TrackPage() {
     } finally {
       setLoading(false);
     }
+  }
+
+  function handleSearch(e) {
+    e.preventDefault();
+    searchPackage(input);
   }
 
   const stepIdx = pkg ? STATUS_STEPS.indexOf(pkg.status) : -1;
