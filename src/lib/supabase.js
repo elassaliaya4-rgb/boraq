@@ -1,13 +1,37 @@
 import { createClient } from "@supabase/supabase-js";
 
-// ⚠️ بدل هاد القيمتين بالقيم ديالك من Supabase
-// كاينين فـ: Project Settings > API
 export const SUPABASE_URL = "https://thmewwpsvdsrkvuawhhi.supabase.co";
 export const SUPABASE_ANON_KEY = "sb_publishable_bS00fApm1kOtGuJ7UNaBxw_TrIjXHil";
 
+// Tab-isolated session storage: Enables opening unlimited Chrome tabs for different agencies simultaneously
+const tabIsolatedStorage = {
+  getItem: (key) => {
+    try {
+      let val = sessionStorage.getItem(key);
+      if (!val) {
+        val = localStorage.getItem(key);
+        if (val) sessionStorage.setItem(key, val);
+      }
+      return val;
+    } catch {
+      return null;
+    }
+  },
+  setItem: (key, value) => {
+    try {
+      sessionStorage.setItem(key, value);
+    } catch (e) {}
+  },
+  removeItem: (key) => {
+    try {
+      sessionStorage.removeItem(key);
+    } catch (e) {}
+  }
+};
+
 export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
   auth: {
-    flowType: 'pkce',
+    storage: tabIsolatedStorage,
     autoRefreshToken: true,
     persistSession: true,
     detectSessionInUrl: true,
