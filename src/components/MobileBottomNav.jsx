@@ -15,7 +15,7 @@ export default function MobileBottomNav({ tabs, activeTab, onChange }) {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const { theme } = useApp();
+  const { theme, lang } = useApp();
   const isLight = theme === "light";
   const activeIndex = tabs.findIndex((t) => t.id === activeTab);
 
