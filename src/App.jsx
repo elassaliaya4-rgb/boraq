@@ -47,15 +47,17 @@ export default function App() {
           <div className="splash-sub">LOGISTICS & MERCHANDISE</div>
         </div>
 
-        {/* ── Ultra-Pro 3D Semi-Truck (Rmook) + 3D Highway Road (Chantii) Animation ── */}
+        {/* ── Real 3D Perspective Highway Road (Chantii 3D) + 3D Rmook Animation ── */}
         <div className="splash-3d-track">
-          {/* 3D Highway Road Surface (Chantii) */}
+          {/* Real 3D Perspective Highway Road Surface (Chantii 3D) */}
           <div className="splash-road-bed">
-            <svg width="260" height="18" viewBox="0 0 260 18" fill="none">
-              <rect x="0" y="0" width="260" height="18" fill="#1e293b" />
-              <line x1="0" y1="2" x2="260" y2="2" stroke="#f59e0b" strokeWidth="1.5" />
-              <line x1="0" y1="10" x2="260" y2="10" stroke="#ffffff" strokeWidth="2" strokeDasharray="14 10" className="road-dashed-line" opacity="0.9" />
-              <line x1="0" y1="17" x2="260" y2="17" stroke="#38bdf8" strokeWidth="1" opacity="0.4" />
+            <svg width="300" height="36" viewBox="0 0 300 36" fill="none">
+              <rect x="0" y="0" width="300" height="36" fill="#0f172a" />
+              <line x1="0" y1="2" x2="300" y2="2" stroke="#38bdf8" strokeWidth="2.5" opacity="0.8" />
+              <line x1="0" y1="6" x2="300" y2="6" stroke="#f59e0b" strokeWidth="2" />
+              <line x1="0" y1="18" x2="300" y2="18" stroke="#ffffff" strokeWidth="3" strokeDasharray="18 12" className="road-dashed-line" opacity="0.95" />
+              <line x1="0" y1="30" x2="300" y2="30" stroke="#f59e0b" strokeWidth="2" />
+              <line x1="0" y1="34" x2="300" y2="34" stroke="#38bdf8" strokeWidth="2.5" opacity="0.8" />
             </svg>
           </div>
 
