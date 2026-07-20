@@ -1019,38 +1019,38 @@ export default function AdminPanel() {
               });
 
               return (
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 16, marginBottom: 24 }}>
+                <div style={{ display: "grid", gridTemplateColumns: isMobile ? "repeat(2, 1fr)" : "repeat(auto-fit, minmax(300px, 1fr))", gap: isMobile ? 8 : 16, marginBottom: isMobile ? 12 : 24 }}>
                   {/* Pie Chart: Status Breakdown */}
-                  <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 16, padding: 18 }}>
-                    <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 12, color: "var(--text)", display: "flex", alignItems: "center", gap: 6 }}>
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2.5"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>
-                      <span>{lang==="ar"?"توزيع حالات الطرود":"Répartition par Statut"}</span>
+                  <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: isMobile ? 12 : 16, padding: isMobile ? 10 : 18 }}>
+                    <div style={{ fontSize: isMobile ? 11 : 14, fontWeight: 700, marginBottom: isMobile ? 6 : 12, color: "var(--text)", display: "flex", alignItems: "center", gap: 4, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                      <svg width={isMobile ? "12" : "16"} height={isMobile ? "12" : "16"} viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2.5"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>
+                      <span>{lang==="ar"?"توزيع الحالات":"Répartition Statut"}</span>
                     </div>
-                    <ResponsiveContainer width="100%" height={200}>
+                    <ResponsiveContainer width="100%" height={isMobile ? 110 : 200}>
                       <PieChart>
-                        <Pie data={pieData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={70} innerRadius={35} paddingAngle={4}>
+                        <Pie data={pieData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={isMobile ? 38 : 70} innerRadius={isMobile ? 18 : 35} paddingAngle={3}>
                           {pieData.map((entry, index) => (
                             <Cell key={`cell-${index}`} fill={entry.color} />
                           ))}
                         </Pie>
-                        <Tooltip contentStyle={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 8, color: "var(--text)" }} />
-                        <Legend wrapperStyle={{ fontSize: 12, color: "var(--text)" }} />
+                        <Tooltip contentStyle={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 8, color: "var(--text)", fontSize: 11 }} />
+                        <Legend wrapperStyle={{ fontSize: isMobile ? 9 : 12, color: "var(--text)" }} />
                       </PieChart>
                     </ResponsiveContainer>
                   </div>
 
                   {/* Bar Chart: Last 7 Days Activity */}
-                  <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 16, padding: 18 }}>
-                    <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 12, color: "var(--text)", display: "flex", alignItems: "center", gap: 6 }}>
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2.5"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-                      <span>{lang==="ar"?"نشاط 7 أيام الأخيرة":"Activité 7 Derniers Jours"}</span>
+                  <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: isMobile ? 12 : 16, padding: isMobile ? 10 : 18 }}>
+                    <div style={{ fontSize: isMobile ? 11 : 14, fontWeight: 700, marginBottom: isMobile ? 6 : 12, color: "var(--text)", display: "flex", alignItems: "center", gap: 4, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                      <svg width={isMobile ? "12" : "16"} height={isMobile ? "12" : "16"} viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2.5"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                      <span>{lang==="ar"?"نشاط 7 أيام":"Activité 7 Jours"}</span>
                     </div>
-                    <ResponsiveContainer width="100%" height={200}>
-                      <BarChart data={last7}>
-                        <XAxis dataKey="label" stroke="var(--text-dim)" fontSize={11} />
-                        <YAxis stroke="var(--text-dim)" fontSize={11} allowDecimals={false} />
-                        <Tooltip contentStyle={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 8, color: "var(--text)" }} />
-                        <Bar dataKey="count" fill="#3b82f6" radius={[6, 6, 0, 0]} />
+                    <ResponsiveContainer width="100%" height={isMobile ? 110 : 200}>
+                      <BarChart data={last7} margin={isMobile ? { top: 4, right: 4, left: -25, bottom: 0 } : {}}>
+                        <XAxis dataKey="label" stroke="var(--text-dim)" fontSize={isMobile ? 9 : 11} />
+                        <YAxis stroke="var(--text-dim)" fontSize={isMobile ? 9 : 11} allowDecimals={false} />
+                        <Tooltip contentStyle={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 8, color: "var(--text)", fontSize: 11 }} />
+                        <Bar dataKey="count" fill="#3b82f6" radius={[4, 4, 0, 0]} />
                       </BarChart>
                     </ResponsiveContainer>
                   </div>
