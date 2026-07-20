@@ -400,7 +400,11 @@ export default function DriverPanel() {
   return (
     <div className={`app ${isMobileAPK ? "native-apk" : ""}`} style={isMobileAPK ? { flexDirection: "column" } : {}}>
       <MobileHeader 
-        profileName={profile?.name || user?.email}
+        profileName={
+          driverInfo?.name
+            ? (driverInfo.code && driverInfo.code !== driverInfo.name ? `${driverInfo.name} (${driverInfo.code})` : driverInfo.name)
+            : (driverInfo?.code ? `${driverInfo.code}` : (profile?.name && !profile.name.includes("@") ? profile.name : (lang === "ar" ? "سائق البراق" : "Chauffeur Boraq")))
+        }
         onScanClick={() => setShowScanner(true)}
         onLocationUpdate={() => updateLocation(false)}
         onLogout={confirmSignOut}

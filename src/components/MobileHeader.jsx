@@ -304,7 +304,9 @@ export default function MobileHeader({ profileName, onScanClick, onLogout, onLoc
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2.5"><path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v5"/><path d="M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v6"/><path d="M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v8"/><path d="M18 8a2 2 0 0 1 2 2v4a6 6 0 0 1-6 6h-2a6 6 0 0 1-6-6v-1.5"/></svg>
           </div>
           <div style={{ fontSize: "15px", fontWeight: "700", color: "var(--text)" }}>
-            {profileName || "Utilisateur"}
+            {profileName && !profileName.includes("@") && !profileName.startsWith("driver_")
+              ? profileName
+              : (isAr ? "مستخدم البراق" : "Utilisateur Boraq")}
           </div>
         </div>
 
