@@ -1705,8 +1705,10 @@ function ChauffeurForm({ onClose, onSaved }) {
     setBusy(true); setErr("");
 
     const driverCode = form.code ? form.code.toUpperCase().trim() : `DRV-${Math.floor(100 + Math.random() * 900)}`;
-    const generatedEmail = `${driverCode.toLowerCase().replace(/[^a-z0-9]/g, "")}@boraq.com`;
-    const generatedPassword = `${driverCode.toLowerCase().replace(/[^a-z0-9]/g, "")}123`;
+    const rawSlug = driverCode.toLowerCase().replace(/[^a-z0-9]/g, "");
+    const safeSlug = rawSlug.length >= 2 ? rawSlug : `drv${Math.floor(100 + Math.random() * 900)}`;
+    const generatedEmail = `driver_${safeSlug}_${Date.now()}@boraq.com`;
+    const generatedPassword = `${safeSlug}123456`;
 
     try {
       const tempClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
