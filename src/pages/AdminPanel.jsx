@@ -999,64 +999,7 @@ export default function AdminPanel() {
               <Stat val={packages?.filter((p) => p?.status === "arrived")?.length || 0} lbl={t.newArrivals} onClick={() => setTab("packages")} />
             </div>
 
-            {/* ── Charts Section ── */}
-            {packages.length > 0 && (() => {
-              // Status distribution data
-              const statusColors = { pending: "#94a3b8", inTransit: "#3b82f6", arrived: "#f59e0b", delivered: "#22c55e" };
-              const statusLabels = { pending: lang==="ar"?"انتظار":"En attente", inTransit: lang==="ar"?"في الطريق":"Transit", arrived: lang==="ar"?"وصل":"Arrivé", delivered: lang==="ar"?"مسلم":"Livré" };
-              const pieData = ["pending","inTransit","arrived","delivered"].map(s => ({
-                name: statusLabels[s],
-                value: packages.filter(p => p.status === s).length,
-                color: statusColors[s]
-              })).filter(d => d.value > 0);
 
-              // Last 7 days bar chart
-              const last7 = Array.from({length:7}, (_,i) => {
-                const d = new Date(); d.setDate(d.getDate() - (6-i));
-                const key = d.toISOString().slice(0,10);
-                const label = d.toLocaleDateString(lang==="ar"?"ar-MA":"fr-FR", {weekday:"short"});
-                return { label, count: packages.filter(p => p.created_at?.slice(0,10) === key).length };
-              });
-
-              return (
-                <div style={{ display: "grid", gridTemplateColumns: isMobile ? "repeat(2, 1fr)" : "repeat(auto-fit, minmax(300px, 1fr))", gap: isMobile ? 8 : 16, marginBottom: isMobile ? 12 : 24 }}>
-                  {/* Pie Chart: Status Breakdown */}
-                  <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: isMobile ? 12 : 16, padding: isMobile ? 10 : 18 }}>
-                    <div style={{ fontSize: isMobile ? 11 : 14, fontWeight: 700, marginBottom: isMobile ? 6 : 12, color: "var(--text)", display: "flex", alignItems: "center", gap: 4, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                      <svg width={isMobile ? "12" : "16"} height={isMobile ? "12" : "16"} viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2.5"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>
-                      <span>{lang==="ar"?"توزيع الحالات":"Répartition Statut"}</span>
-                    </div>
-                    <ResponsiveContainer width="100%" height={isMobile ? 110 : 200}>
-                      <PieChart>
-                        <Pie data={pieData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={isMobile ? 38 : 70} innerRadius={isMobile ? 18 : 35} paddingAngle={3}>
-                          {pieData.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={entry.color} />
-                          ))}
-                        </Pie>
-                        <Tooltip contentStyle={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 8, color: "var(--text)", fontSize: 11 }} />
-                        <Legend wrapperStyle={{ fontSize: isMobile ? 9 : 12, color: "var(--text)" }} />
-                      </PieChart>
-                    </ResponsiveContainer>
-                  </div>
-
-                  {/* Bar Chart: Last 7 Days Activity */}
-                  <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: isMobile ? 12 : 16, padding: isMobile ? 10 : 18 }}>
-                    <div style={{ fontSize: isMobile ? 11 : 14, fontWeight: 700, marginBottom: isMobile ? 6 : 12, color: "var(--text)", display: "flex", alignItems: "center", gap: 4, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                      <svg width={isMobile ? "12" : "16"} height={isMobile ? "12" : "16"} viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2.5"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-                      <span>{lang==="ar"?"نشاط 7 أيام":"Activité 7 Jours"}</span>
-                    </div>
-                    <ResponsiveContainer width="100%" height={isMobile ? 110 : 200}>
-                      <BarChart data={last7} margin={isMobile ? { top: 4, right: 4, left: -25, bottom: 0 } : {}}>
-                        <XAxis dataKey="label" stroke="var(--text-dim)" fontSize={isMobile ? 9 : 11} />
-                        <YAxis stroke="var(--text-dim)" fontSize={isMobile ? 9 : 11} allowDecimals={false} />
-                        <Tooltip contentStyle={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 8, color: "var(--text)", fontSize: 11 }} />
-                        <Bar dataKey="count" fill="#3b82f6" radius={[4, 4, 0, 0]} />
-                      </BarChart>
-                    </ResponsiveContainer>
-                  </div>
-                </div>
-              );
-            })()}
 
             <PkgHeader t={t} onAdd={() => setShowPkgForm(true)} />
             <PackagesTable packages={packages} onManage={openPackageDetails} onRefresh={loadData} />

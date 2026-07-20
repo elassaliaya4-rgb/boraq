@@ -10,7 +10,7 @@ import MobileBottomNav from "../components/MobileBottomNav";
 import { Capacitor } from "@capacitor/core";
 
 export default function DriverPanel() {
-  const { t, lang, setLang, profile, user, signOut, theme, toggleTheme } = useApp();
+  const { t, lang, setLang, profile, user, signOut, theme, toggleTheme, triggerToast } = useApp();
   const isMobileAPK = Capacitor.getPlatform() === "android" || Capacitor.getPlatform() === "ios";
   const [packages, setPackages] = useState([]);
 
@@ -149,68 +149,99 @@ export default function DriverPanel() {
     };
   }, []);
 
-  useEffect(() => {
+  async function updateLocation(isAuto = true) {
     if (!profile?.driver_id) return;
+    try {
+      let lat = null;
+      let lng = null;
 
-    updateLocation();
-    const interval = setInterval(updateLocation, 30000);
-    return () => clearInterval(interval);
-
-    async function updateLocation() {
+      // 1. Try native Capacitor Geolocation
       try {
-        let lat = null;
-        let lng = null;
-
-        // 1. Try native Capacitor Geolocation
-        try {
-          const perm = await Geolocation.checkPermissions();
-          if (perm.location !== "granted") {
-            const req = await Geolocation.requestPermissions();
-            if (req.location !== "granted") {
-              throw new Error("Capacitor location permission denied.");
-            }
+        const perm = await Geolocation.checkPermissions();
+        if (perm.location !== "granted") {
+          const req = await Geolocation.requestPermissions();
+          if (req.location !== "granted") {
+            throw new Error("Capacitor location permission denied.");
           }
-          const position = await Geolocation.getCurrentPosition({
-            enableHighAccuracy: false,
-            timeout: 8000,
-            maximumAge: 30000
-          });
-          lat = position.coords.latitude;
-          lng = position.coords.longitude;
-        } catch (capErr) {
-          console.warn("Capacitor geolocation failed, trying HTML5 Web Geolocation fallback:", capErr);
-          
-          // 2. Try standard browser Web Geolocation fallback (100% reliable inside webviews / browsers)
-          if (navigator.geolocation) {
-            const webPos = await new Promise((resolve, reject) => {
-              navigator.geolocation.getCurrentPosition(resolve, reject, {
-                enableHighAccuracy: false,
-                timeout: 8000,
-                maximumAge: 30000
-              });
+        }
+        const position = await Geolocation.getCurrentPosition({
+          enableHighAccuracy: true,
+          timeout: 8000,
+          maximumAge: 10000
+        });
+        lat = position.coords.latitude;
+        lng = position.coords.longitude;
+      } catch (capErr) {
+        // 2. Try standard browser Web Geolocation fallback
+        if (navigator.geolocation) {
+          const webPos = await new Promise((resolve, reject) => {
+            navigator.geolocation.getCurrentPosition(resolve, reject, {
+              enableHighAccuracy: true,
+              timeout: 8000,
+              maximumAge: 10000
             });
-            lat = webPos.coords.latitude;
-            lng = webPos.coords.longitude;
-          } else {
-            throw new Error("No browser geolocation support.");
-          }
+          });
+          lat = webPos.coords.latitude;
+          lng = webPos.coords.longitude;
+        } else {
+          throw new Error("No browser geolocation support.");
+        }
+      }
+
+      if (lat && lng) {
+        const drvName = driverInfo?.name || profile?.name || "السائق";
+
+        // Update driver DB record
+        await supabase
+          .from("drivers")
+          .update({
+            latitude: lat,
+            longitude: lng,
+            last_active: new Date().toISOString()
+          })
+          .eq("id", profile.driver_id);
+
+        const notifMsg = lang === "ar"
+          ? `📍 السائق ${drvName} قام بتحديث موقعه الجغرافي على الخريطة`
+          : `📍 Le chauffeur ${drvName} a mis à jour sa position GPS en direct`;
+
+        // Send notification to Admin
+        await supabase.from("notifications").insert({
+          target: "admin",
+          agency_name: drvName,
+          message: notifMsg,
+          is_read: false
+        });
+
+        // Send notification to all agencies
+        if (agencies && agencies.length > 0) {
+          const agencyNotifs = agencies.map(a => ({
+            target: "agency",
+            agency_id: a.id,
+            message: notifMsg,
+            is_read: false
+          }));
+          await supabase.from("notifications").insert(agencyNotifs);
         }
 
-        if (lat && lng) {
-          await supabase
-            .from("drivers")
-            .update({
-              latitude: lat,
-              longitude: lng,
-              last_active: new Date().toISOString()
-            })
-            .eq("id", profile.driver_id);
+        if (!isAuto && triggerToast) {
+          triggerToast(lang === "ar" ? "تم تحديث موقعك وإرسال إشعار لجميع الوكالات والأدمين!" : "Position GPS mise à jour et envoyée à l'Admin et aux agences !");
         }
-      } catch (error) {
-        console.warn("Geolocation tracking error:", error);
+      }
+    } catch (error) {
+      console.warn("Geolocation tracking error:", error);
+      if (!isAuto) {
+        alert(lang === "ar" ? "المرجو تفعيل الـ GPS في الهاتف وتوفير صلاحية الموقع" : "Veuillez activer le GPS et autoriser l'accès à la localisation");
       }
     }
-  }, [profile]);
+  }
+
+  useEffect(() => {
+    if (!profile?.driver_id) return;
+    updateLocation(true);
+    const interval = setInterval(() => updateLocation(true), 30000);
+    return () => clearInterval(interval);
+  }, [profile, agencies, driverInfo]);
 
   async function loadData(silent = false) {
     if (!mountedRef.current) return;
@@ -288,6 +319,7 @@ export default function DriverPanel() {
       <MobileHeader 
         profileName={profile?.name || user?.email}
         onScanClick={() => setShowScanner(true)}
+        onLocationUpdate={() => updateLocation(false)}
         onLogout={confirmSignOut}
       />
       <div style={isMobileAPK ? { display: "flex", flex: 1, width: "100%", overflow: "hidden" } : { display: "contents" }}>
@@ -435,6 +467,35 @@ export default function DriverPanel() {
             </p>
           </div>
           <div className="topbar-actions">
+            {/* ── Premium GPS Update Button ── */}
+            <button
+              onClick={() => updateLocation(false)}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "8px",
+                padding: "9px 18px",
+                fontSize: "13px",
+                fontWeight: "700",
+                borderRadius: "50px",
+                cursor: "pointer",
+                background: "linear-gradient(135deg, #10b981, #059669)",
+                border: "1px solid rgba(16,185,129,0.4)",
+                color: "#fff",
+                boxShadow: "0 4px 16px rgba(16,185,129,0.35)",
+                letterSpacing: "0.02em",
+                transition: "all 0.2s ease"
+              }}
+              onMouseEnter={e => { e.currentTarget.style.boxShadow = "0 6px 24px rgba(16,185,129,0.55)"; e.currentTarget.style.transform = "translateY(-1px)"; }}
+              onMouseLeave={e => { e.currentTarget.style.boxShadow = "0 4px 16px rgba(16,185,129,0.35)"; e.currentTarget.style.transform = "translateY(0)"; }}
+            >
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                <circle cx="12" cy="10" r="3"/>
+              </svg>
+              <span>{lang === "ar" ? "إرسال موفعي المباشر" : "Partager Ma Position"}</span>
+            </button>
+
             {/* ── Premium Scan Button ── */}
             <button
               onClick={() => {

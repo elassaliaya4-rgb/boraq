@@ -92,7 +92,7 @@ function DrawerRow({ icon, label, onClick, rightContent, danger }) {
   );
 }
 
-export default function MobileHeader({ profileName, onScanClick, onLogout }) {
+export default function MobileHeader({ profileName, onScanClick, onLogout, onLocationUpdate }) {
   const { t, lang, setLang, theme, toggleTheme } = useApp();
   const [isOpen, setIsOpen] = useState(false);
 
@@ -115,6 +115,11 @@ export default function MobileHeader({ profileName, onScanClick, onLogout }) {
   function handleScanTap() {
     setIsOpen(false);
     if (onScanClick) onScanClick();
+  }
+
+  function handleLocationTap() {
+    setIsOpen(false);
+    if (onLocationUpdate) onLocationUpdate();
   }
 
   return (
@@ -313,6 +318,14 @@ export default function MobileHeader({ profileName, onScanClick, onLogout }) {
           overflowY: "auto"
         }}>
 
+
+          {onLocationUpdate && (
+            <DrawerRow
+              icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>}
+              label={isAr ? "تحديث وإرسال موقعي (GPS)" : "Partager Position Live"}
+              onClick={handleLocationTap}
+            />
+          )}
 
           {/* Section label */}
           <div style={{
