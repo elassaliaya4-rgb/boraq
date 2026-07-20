@@ -988,6 +988,11 @@ export default function AdminPanel() {
                 </div>
               );
             })()}
+          </>
+        )}
+
+        {tab === "dashboard" && (
+          <>
             <div className="stats">
               <Stat val={packages?.length || 0} lbl={t.totalPackages} onClick={() => setTab("packages")} />
               <Stat val={agencies?.length || 0} lbl={t.totalAgencies} onClick={() => setTab("agencies")} />
