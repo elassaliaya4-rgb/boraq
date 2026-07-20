@@ -287,18 +287,12 @@ export default function DriverPanel() {
     return (
       <div className="splash-container">
         <div className="splash-logo-wrap">
-          <div className="splash-logo-text" style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="#3b82f6"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-            <span>Boraq</span>
+          <div className="splash-logo-text">
+            ⚡ <span>Bora</span><span style={{ color: "#f59e0b" }}>q</span>
           </div>
           <div className="splash-sub">LOGISTICS & MERCHANDISE</div>
         </div>
-        <div className="splash-animation-box">
-          <div className="splash-speed-lines"></div>
-          <div className="splash-truck" style={{ color: "#3b82f6" }}>
-            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 17h4V5H2v12h3"/><path d="M20 17h2v-3.34a4 4 0 0 0-1.17-2.83L19 9h-5v8h1"/><circle cx="7.5" cy="17.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg>
-          </div>
-        </div>
+
         <div className="splash-loader-bar">
           <div className="splash-loader-fill"></div>
         </div>
