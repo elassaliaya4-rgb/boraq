@@ -197,13 +197,6 @@ export function AppProvider({ children }) {
       if (data) {
         setProfile(data);
       } else {
-        // User has no database profile. Force sign out.
-        try {
-          await supabase.auth.signOut();
-        } catch (e) {
-          console.warn("SignOut error:", e);
-        }
-        setUser(null);
         setProfile(null);
       }
     } catch (e) {
