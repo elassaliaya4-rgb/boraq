@@ -333,47 +333,47 @@ export default function DriverPanel() {
                 </filter>
               </defs>
 
-              {/* 3D Exhaust Trail */}
+              {/* 3D Exhaust Trail - 100% Strictly Behind the Truck (x < 22) */}
               <g className="rmook-exhaust">
-                <circle cx="2" cy="38" r="3" fill="#38bdf8" opacity="0.3" />
-                <circle cx="8" cy="38" r="4.5" fill="#38bdf8" opacity="0.5" />
-                <circle cx="15" cy="38" r="6" fill="#38bdf8" opacity="0.7" />
+                <circle cx="2" cy="39" r="2.5" fill="#38bdf8" opacity="0.25" />
+                <circle cx="8" cy="39" r="3.8" fill="#38bdf8" opacity="0.45" />
+                <circle cx="14" cy="39" r="5" fill="#38bdf8" opacity="0.65" />
               </g>
 
-              {/* 3D Long Semi Trailer (Rmook) Body */}
-              <rect x="18" y="10" width="65" height="30" rx="3" fill="url(#trailer3d_d)" stroke="rgba(56, 189, 248, 0.5)" strokeWidth="1.5" />
+              {/* 3D Long Semi Trailer (Rmook) Body (Starts at x=22) */}
+              <rect x="22" y="10" width="62" height="30" rx="3" fill="url(#trailer3d_d)" stroke="rgba(56, 189, 248, 0.5)" strokeWidth="1.5" />
               
               {/* Trailer 3D Lines & Branding */}
-              <line x1="18" y1="20" x2="83" y2="20" stroke="rgba(56, 189, 248, 0.3)" strokeWidth="1" />
-              <line x1="18" y1="30" x2="83" y2="30" stroke="rgba(56, 189, 248, 0.2)" strokeWidth="1" />
-              <rect x="24" y="21" width="48" height="8" rx="2" fill="rgba(56, 189, 248, 0.15)" stroke="#38bdf8" strokeWidth="0.8" />
-              <text x="48" y="27" fill="#38bdf8" fontSize="5.5" fontWeight="900" textAnchor="middle" letterSpacing="0.6">BORAQ LOGISTICS</text>
+              <line x1="22" y1="20" x2="84" y2="20" stroke="rgba(56, 189, 248, 0.3)" strokeWidth="1" />
+              <line x1="22" y1="30" x2="84" y2="30" stroke="rgba(56, 189, 248, 0.2)" strokeWidth="1" />
+              <rect x="27" y="21" width="46" height="8" rx="2" fill="rgba(56, 189, 248, 0.15)" stroke="#38bdf8" strokeWidth="0.8" />
+              <text x="50" y="27" fill="#38bdf8" fontSize="5.5" fontWeight="900" textAnchor="middle" letterSpacing="0.6">BORAQ LOGISTICS</text>
 
               {/* Cab Connector */}
-              <rect x="82" y="24" width="8" height="14" fill="#334155" />
+              <rect x="84" y="24" width="6" height="14" fill="#334155" />
 
               {/* 3D Heavy Cab (Tracteur) */}
-              <path d="M86 16 H104 C108 16 112 20 114 25 L118 32 C119 34 119 40 119 40 H86 V16 Z" fill="url(#cab3d_d)" stroke="#f59e0b" strokeWidth="1.2" />
+              <path d="M88 16 H106 C110 16 114 20 116 25 L120 32 C121 34 121 40 121 40 H88 V16 Z" fill="url(#cab3d_d)" stroke="#f59e0b" strokeWidth="1.2" />
               
               {/* 3D Windshield Glass */}
-              <path d="M96 19 H105 L110 27 H96 V19 Z" fill="#0f172a" stroke="#38bdf8" strokeWidth="1" opacity="0.9" />
+              <path d="M98 19 H107 L112 27 H98 V19 Z" fill="#0f172a" stroke="#38bdf8" strokeWidth="1" opacity="0.9" />
 
               {/* Glowing Headlight & Beam */}
-              <circle cx="117" cy="35" r="2.5" fill="#fef08a" filter="url(#headlightGlow_d)" />
-              <polygon points="117,33 135,28 135,42 117,37" fill="rgba(254, 240, 138, 0.2)" />
+              <circle cx="119" cy="35" r="2.5" fill="#fef08a" filter="url(#headlightGlow_d)" />
+              <polygon points="119,33 137,28 137,42 119,37" fill="rgba(254, 240, 138, 0.2)" />
 
               {/* 3D Wheels (Chrome Rims) */}
-              <circle cx="30" cy="42" r="6" fill="url(#wheel3d_d)" stroke="#38bdf8" strokeWidth="1.2" />
-              <circle cx="30" cy="42" r="2" fill="#38bdf8" />
+              <circle cx="34" cy="42" r="6" fill="url(#wheel3d_d)" stroke="#38bdf8" strokeWidth="1.2" />
+              <circle cx="34" cy="42" r="2" fill="#38bdf8" />
 
-              <circle cx="44" cy="42" r="6" fill="url(#wheel3d_d)" stroke="#38bdf8" strokeWidth="1.2" />
-              <circle cx="44" cy="42" r="2" fill="#38bdf8" />
+              <circle cx="48" cy="42" r="6" fill="url(#wheel3d_d)" stroke="#38bdf8" strokeWidth="1.2" />
+              <circle cx="48" cy="42" r="2" fill="#38bdf8" />
 
-              <circle cx="68" cy="42" r="6" fill="url(#wheel3d_d)" stroke="#f59e0b" strokeWidth="1.2" />
-              <circle cx="68" cy="42" r="2" fill="#f59e0b" />
+              <circle cx="70" cy="42" r="6" fill="url(#wheel3d_d)" stroke="#f59e0b" strokeWidth="1.2" />
+              <circle cx="70" cy="42" r="2" fill="#f59e0b" />
 
-              <circle cx="102" cy="42" r="6" fill="url(#wheel3d_d)" stroke="#f59e0b" strokeWidth="1.2" />
-              <circle cx="102" cy="42" r="2" fill="#f59e0b" />
+              <circle cx="104" cy="42" r="6" fill="url(#wheel3d_d)" stroke="#f59e0b" strokeWidth="1.2" />
+              <circle cx="104" cy="42" r="2" fill="#f59e0b" />
             </svg>
           </div>
         </div>
