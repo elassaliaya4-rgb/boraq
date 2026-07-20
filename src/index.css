@@ -1622,6 +1622,17 @@ input, select, textarea {
   .mobile-only-list {
     display: flex !important;
   }
+  input, select, textarea {
+    font-size: 16px !important; /* Prevents mobile Chrome auto-zoom on input focus */
+  }
+  .login-card {
+    padding: 24px 18px !important;
+    max-width: 100% !important;
+    border-radius: 16px !important;
+  }
+  .login-wrap {
+    padding: 12px !important;
+  }
 }
 
 /* Native APK layout overrides */

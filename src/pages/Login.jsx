@@ -168,6 +168,9 @@ export default function Login() {
               value={code}
               onChange={(e) => setCode(e.target.value)}
               placeholder="AG-001"
+              autoCapitalize="none"
+              autoCorrect="off"
+              spellCheck="false"
               onKeyDown={(e) => e.key === "Enter" && handleLogin()}
               style={{ textTransform: "uppercase" }}
             />
@@ -181,6 +184,9 @@ export default function Login() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="email@boraq.com"
+                autoCapitalize="none"
+                autoCorrect="off"
+                spellCheck="false"
                 onKeyDown={(e) => e.key === "Enter" && handleLogin()}
               />
             </div>
@@ -191,6 +197,9 @@ export default function Login() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
+                autoCapitalize="none"
+                autoCorrect="off"
+                spellCheck="false"
                 onKeyDown={(e) => e.key === "Enter" && handleLogin()}
               />
             </div>
