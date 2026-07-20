@@ -1226,19 +1226,7 @@ export default function AdminPanel() {
                         </td>
                         <td>
                           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                            <span style={{
-                              padding: "4px 8px",
-                              borderRadius: 8,
-                              fontSize: 12,
-                              background: d.current_city || d.city ? "rgba(59, 130, 246, 0.1)" : "var(--surface-2)",
-                              color: d.current_city || d.city ? "#3b82f6" : "var(--text-dim)",
-                              fontWeight: 600,
-                              display: "inline-flex",
-                              alignItems: "center",
-                              gap: 4
-                            }}>
-                              📍 {d.current_city || d.city || (lang === "ar" ? "غير محدد بعد" : "Non déterminé")}
-                            </span>
+                            <DriverCityBadge lat={d.latitude} lng={d.longitude} />
                             {d.latitude && d.longitude && (
                               <button
                                 onClick={() => setMapDriver(d)}
@@ -1637,9 +1625,73 @@ function AgencyForm({ onClose, onSaved }) {
   );
 }
 
+function DriverCityBadge({ lat, lng }) {
+  const { lang } = useApp();
+  const [city, setCity] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!lat || !lng) return;
+    let isMounted = true;
+    const cacheKey = `city_cache_${parseFloat(lat).toFixed(2)}_${parseFloat(lng).toFixed(2)}`;
+    const cached = sessionStorage.getItem(cacheKey);
+    if (cached) {
+      setCity(cached);
+      return;
+    }
+    setLoading(true);
+    fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&accept-language=${lang === 'ar' ? 'ar' : 'fr'}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (isMounted) {
+          const detected = data?.address?.city || data?.address?.town || data?.address?.municipality || data?.address?.county || data?.address?.state || "";
+          if (detected) {
+            sessionStorage.setItem(cacheKey, detected);
+            setCity(detected);
+          }
+        }
+      })
+      .catch(() => {})
+      .finally(() => { if (isMounted) setLoading(false); });
+
+    return () => { isMounted = false; };
+  }, [lat, lng, lang]);
+
+  if (!lat || !lng) {
+    return (
+      <span style={{
+        padding: "3px 8px",
+        borderRadius: 6,
+        background: "var(--surface-2)",
+        color: "var(--text-dim)",
+        fontSize: "11px",
+        fontWeight: "600"
+      }}>
+        📍 {lang === "ar" ? "غير محدد بعد" : "Non déterminé"}
+      </span>
+    );
+  }
+
+  return (
+    <span style={{
+      padding: "3px 8px",
+      borderRadius: 6,
+      background: "rgba(59, 130, 246, 0.1)",
+      color: "#3b82f6",
+      fontSize: "11px",
+      fontWeight: "700",
+      display: "inline-flex",
+      alignItems: "center",
+      gap: 4
+    }}>
+      📍 {loading ? (lang === "ar" ? "جاري التحديد..." : "Localisation...") : (city || `${parseFloat(lat).toFixed(2)}, ${parseFloat(lng).toFixed(2)}`)}
+    </span>
+  );
+}
+
 function ChauffeurForm({ onClose, onSaved }) {
   const { t, lang } = useApp();
-  const [form, setForm] = useState({ name: "", code: "", current_city: "" });
+  const [form, setForm] = useState({ name: "", code: "" });
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
 
@@ -1654,17 +1706,12 @@ function ChauffeurForm({ onClose, onSaved }) {
 
     const driverCode = form.code ? form.code.toUpperCase().trim() : `DRV-${Math.floor(100 + Math.random() * 900)}`;
 
-    const driverPayload = {
-      name: form.name.trim(),
-      code: driverCode
-    };
-    if (form.current_city.trim()) {
-      driverPayload.current_city = form.current_city.trim();
-    }
-
     const { error: drvErr } = await supabase
       .from("drivers")
-      .insert(driverPayload);
+      .insert({
+        name: form.name.trim(),
+        code: driverCode
+      });
 
     if (drvErr) { setErr(drvErr.message); setBusy(false); return; }
 
@@ -1684,10 +1731,6 @@ function ChauffeurForm({ onClose, onSaved }) {
         <div className="field">
           <label>{t.code}</label>
           <input value={form.code} onChange={(e) => set("code", e.target.value)} placeholder="مثال: DRV-001" style={{ textTransform: "uppercase" }} />
-        </div>
-        <div className="field">
-          <label>{lang === "ar" ? "الموقع الحالي / المدينة (اختياري)" : "Position actuelle / Ville (Optionnel)"}</label>
-          <input value={form.current_city} onChange={(e) => set("current_city", e.target.value)} placeholder="Mohammedia / المحمدية" />
         </div>
         <div className="modal-actions">
           <button className="btn-primary" onClick={save} disabled={busy}>{busy ? "..." : t.save}</button>

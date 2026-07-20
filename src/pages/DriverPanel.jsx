@@ -189,35 +189,20 @@ export default function DriverPanel() {
       }
 
       if (lat && lng) {
-        // Reverse geocode city name from GPS coordinates
-        let detectedCity = "";
-        try {
-          const geoRes = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`);
-          const geoData = await geoRes.json();
-          detectedCity = geoData?.address?.city || geoData?.address?.town || geoData?.address?.municipality || geoData?.address?.county || geoData?.address?.state || "";
-        } catch (e) {
-          console.warn("Reverse geocode failed:", e);
-        }
-
-        const updatePayload = {
-          latitude: lat,
-          longitude: lng,
-          last_active: new Date().toISOString()
-        };
-        if (detectedCity) {
-          updatePayload.current_city = detectedCity;
-        }
-
         // Update driver DB record silently for live map tracking
         if (profile?.driver_id) {
           await supabase
             .from("drivers")
-            .update(updatePayload)
+            .update({
+              latitude: lat,
+              longitude: lng,
+              last_active: new Date().toISOString()
+            })
             .eq("id", profile.driver_id);
         }
 
         if (!isAuto && triggerToast) {
-          triggerToast(lang === "ar" ? `تم تحديث موقعك (${detectedCity || "بنجاح"})` : `Position mise à jour (${detectedCity || "Succès"})`);
+          triggerToast(lang === "ar" ? "تم تحديث موقعك على الخريطة بنجاح!" : "Position GPS mise à jour !");
         }
       }
     } catch (error) {

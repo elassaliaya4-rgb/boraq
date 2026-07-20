@@ -1340,19 +1340,7 @@ export default function AgencyPanel() {
                         <div>
                           <div style={{ fontSize: 14, fontWeight: "700", color: "var(--text)" }}>{d.name}</div>
                           <div style={{ fontSize: 11, color: "var(--text-dim)", marginTop: 4 }}>
-                            <span style={{
-                              padding: "2px 8px",
-                              borderRadius: 6,
-                              background: d.current_city || d.city ? "rgba(59, 130, 246, 0.1)" : "var(--surface-2)",
-                              color: d.current_city || d.city ? "#3b82f6" : "var(--text-dim)",
-                              fontWeight: "600",
-                              fontSize: "11px",
-                              display: "inline-flex",
-                              alignItems: "center",
-                              gap: 4
-                            }}>
-                              📍 {d.current_city || d.city || (lang === "ar" ? "غير محدد بعد" : "Non déterminé")}
-                            </span>
+                            <DriverCityBadge lat={d.latitude} lng={d.longitude} />
                           </div>
                         </div>
                         <span style={{
@@ -1668,5 +1656,69 @@ export default function AgencyPanel() {
         </div>
       )}
     </div>
+  );
+}
+
+function DriverCityBadge({ lat, lng }) {
+  const { lang } = useApp();
+  const [city, setCity] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!lat || !lng) return;
+    let isMounted = true;
+    const cacheKey = `city_cache_${parseFloat(lat).toFixed(2)}_${parseFloat(lng).toFixed(2)}`;
+    const cached = sessionStorage.getItem(cacheKey);
+    if (cached) {
+      setCity(cached);
+      return;
+    }
+    setLoading(true);
+    fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&accept-language=${lang === 'ar' ? 'ar' : 'fr'}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (isMounted) {
+          const detected = data?.address?.city || data?.address?.town || data?.address?.municipality || data?.address?.county || data?.address?.state || "";
+          if (detected) {
+            sessionStorage.setItem(cacheKey, detected);
+            setCity(detected);
+          }
+        }
+      })
+      .catch(() => {})
+      .finally(() => { if (isMounted) setLoading(false); });
+
+    return () => { isMounted = false; };
+  }, [lat, lng, lang]);
+
+  if (!lat || !lng) {
+    return (
+      <span style={{
+        padding: "3px 8px",
+        borderRadius: 6,
+        background: "var(--surface-2)",
+        color: "var(--text-dim)",
+        fontSize: "11px",
+        fontWeight: "600"
+      }}>
+        📍 {lang === "ar" ? "غير محدد بعد" : "Non déterminé"}
+      </span>
+    );
+  }
+
+  return (
+    <span style={{
+      padding: "3px 8px",
+      borderRadius: 6,
+      background: "rgba(59, 130, 246, 0.1)",
+      color: "#3b82f6",
+      fontSize: "11px",
+      fontWeight: "700",
+      display: "inline-flex",
+      alignItems: "center",
+      gap: 4
+    }}>
+      📍 {loading ? (lang === "ar" ? "جاري التحديد..." : "Localisation...") : (city || `${parseFloat(lat).toFixed(2)}, ${parseFloat(lng).toFixed(2)}`)}
+    </span>
   );
 }
