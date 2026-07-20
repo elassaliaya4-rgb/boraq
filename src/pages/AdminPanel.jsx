@@ -1552,6 +1552,27 @@ function AgencyForm({ onClose, onSaved }) {
     setBusy(true); setErr("");
 
     const cleanCode = form.code.toUpperCase().trim();
+
+    if (cleanCode.toLowerCase() === "admin" || cleanCode.toLowerCase() === "boraq") {
+      setErr(lang === "ar" ? "هذا الكود محجوز للأدمين. المرجو اختيار كود آخر." : "Ce code est réservé à l'administrateur.");
+      setBusy(false);
+      return;
+    }
+
+    const { data: exAg } = await supabase.from("agencies").select("id").or(`code.eq.${cleanCode},code.eq.${cleanCode.toLowerCase()}`).maybeSingle();
+    if (exAg) {
+      setErr(lang === "ar" ? `الكود "${cleanCode}" مستعمل فـ وكالة أخرى. المرجو اختيار كود جديد.` : `Le code "${cleanCode}" est déjà utilisé par une agence.`);
+      setBusy(false);
+      return;
+    }
+
+    const { data: exDrv } = await supabase.from("drivers").select("id").or(`code.eq.${cleanCode},code.eq.${cleanCode.toLowerCase()}`).maybeSingle();
+    if (exDrv) {
+      setErr(lang === "ar" ? `الكود "${cleanCode}" مستعمل فـ سائق آخر. المرجو اختيار كود جديد.` : `Le code "${cleanCode}" est déjà utilisé par un chauffeur.`);
+      setBusy(false);
+      return;
+    }
+
     const rawSlug = cleanCode.toLowerCase().replace(/[^a-z0-9]/g, "");
     const safeSlug = rawSlug.length >= 1 ? rawSlug : `ag${Math.floor(100 + Math.random() * 900)}`;
     const generatedEmail = `${safeSlug}@boraq.com`;
@@ -1717,6 +1738,27 @@ function ChauffeurForm({ onClose, onSaved }) {
     setBusy(true); setErr("");
 
     const driverCode = form.code ? form.code.toUpperCase().trim() : `DRV-${Math.floor(100 + Math.random() * 900)}`;
+
+    if (driverCode.toLowerCase() === "admin" || driverCode.toLowerCase() === "boraq") {
+      setErr(lang === "ar" ? "هذا الكود محجوز للأدمين. المرجو اختيار كود آخر." : "Ce code est réservé à l'administrateur.");
+      setBusy(false);
+      return;
+    }
+
+    const { data: exAg } = await supabase.from("agencies").select("id").or(`code.eq.${driverCode},code.eq.${driverCode.toLowerCase()}`).maybeSingle();
+    if (exAg) {
+      setErr(lang === "ar" ? `الكود "${driverCode}" مستعمل فـ وكالة أخرى. المرجو اختيار كود جديد.` : `Le code "${driverCode}" est déjà utilisé par une agence.`);
+      setBusy(false);
+      return;
+    }
+
+    const { data: exDrv } = await supabase.from("drivers").select("id").or(`code.eq.${driverCode},code.eq.${driverCode.toLowerCase()}`).maybeSingle();
+    if (exDrv) {
+      setErr(lang === "ar" ? `الكود "${driverCode}" مستعمل فـ سائق آخر. المرجو اختيار كود جديد.` : `Le code "${driverCode}" est déjà utilisé par un chauffeur.`);
+      setBusy(false);
+      return;
+    }
+
     const rawSlug = driverCode.toLowerCase().replace(/[^a-z0-9]/g, "");
     const safeSlug = rawSlug.length >= 2 ? rawSlug : `drv${Math.floor(100 + Math.random() * 900)}`;
     const generatedEmail = `driver_${safeSlug}_${Date.now()}@boraq.com`;

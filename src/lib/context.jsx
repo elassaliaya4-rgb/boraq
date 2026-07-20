@@ -197,11 +197,23 @@ export function AppProvider({ children }) {
       if (data) {
         setProfile(data);
       } else {
+        // Auto-heal missing profile for drivers / agencies
+        const { data: { session } } = await supabase.auth.getSession();
+        const userEmail = session?.user?.email || "";
+        
+        if (userEmail.startsWith("driver_")) {
+          const { data: drv } = await supabase.from("drivers").select("id").eq("email", userEmail).maybeSingle();
+          if (drv?.id) {
+            const autoProf = { id: userId, role: "driver", driver_id: drv.id };
+            await supabase.from("profiles").upsert(autoProf);
+            setProfile(autoProf);
+            return;
+          }
+        }
         setProfile(null);
       }
     } catch (e) {
       console.error("loadProfile error:", e);
-      setUser(null);
       setProfile(null);
     } finally {
       clearTimeout(profTimer);
