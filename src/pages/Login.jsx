@@ -33,7 +33,7 @@ export default function Login() {
         const { data: ag } = await supabase
           .from("agencies")
           .select("code, email")
-          .or(`code.eq.${rawCode.toUpperCase()},code.eq.${rawCode}`)
+          .or(`code.eq.${rawCode.toUpperCase()},code.eq.${rawCode},code.eq.${cleanCode}`)
           .maybeSingle();
 
         if (ag && ag.email) {
@@ -41,9 +41,8 @@ export default function Login() {
           const codeSlug = (ag.code || rawCode).toLowerCase().trim();
           loginPassword = `${codeSlug}123`;
         } else {
-          const codeSlug = cleanCode.replace(/[^a-z0-9]/g, "");
-          loginEmail = `${codeSlug}@boraq.com`;
-          loginPassword = `${codeSlug}123`;
+          setError(lang === "ar" ? `كود الوكالة "${rawCode}" غير موجود في النظام. المرجو التأكد من الكود أو التواصل مع الأدمين.` : `Code d'agence "${rawCode}" non trouvé. Veuillez vérifier le code.`);
+          return;
         }
       }
     } else {
