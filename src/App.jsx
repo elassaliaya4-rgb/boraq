@@ -6,11 +6,16 @@ import AgencyPanel from "./pages/AgencyPanel";
 import DriverPanel from "./pages/DriverPanel";
 import TrackPage from "./pages/TrackPage";
 import { Capacitor } from "@capacitor/core";
+import { initPushNotifications } from "./lib/pushNotifications";
 
 // Force Vercel redeploy stable morning state
 export default function App() {
   const { user, profile, loading, dir, lang, signOut, t, toast, theme } = useApp();
   const [minSplashDone, setMinSplashDone] = useState(false);
+
+  useEffect(() => {
+    initPushNotifications();
+  }, []);
 
   // Guarantee the 3D Rmook completes its full journey (1.8s) before revealing panel to eliminate lag!
   useEffect(() => {

@@ -8,6 +8,7 @@ import PackageDetails from "../components/PackageDetails";
 import MobileHeader from "../components/MobileHeader";
 import MobileBottomNav from "../components/MobileBottomNav";
 import { Capacitor } from "@capacitor/core";
+import { sendPushNotification } from "../lib/pushNotifications";
 
 export default function DriverPanel() {
   const { t, lang, setLang, profile, user, signOut, theme, toggleTheme, triggerToast } = useApp();
@@ -104,8 +105,19 @@ export default function DriverPanel() {
         .on(
           "postgres_changes",
           { event: "*", schema: "public", table: "packages" },
-          () => {
+          (payload) => {
             loadData(true);
+            if (payload.eventType === "INSERT") {
+              sendPushNotification(
+                lang === "ar" ? "⚡ طرد جديد فـ القائمة!" : "⚡ Nouveau Colis !",
+                lang === "ar" ? "تم إضافة طرد جديد إلى شفرة مهامك." : "Un nouveau colis a été ajouté à votre liste."
+              );
+            } else if (payload.eventType === "UPDATE") {
+              sendPushNotification(
+                lang === "ar" ? "🔔 تحديث حالة طرد" : "🔔 Statut Colis Mis à Jour",
+                lang === "ar" ? `تم تحديث حالة الطرد ${payload.new?.tracking_number || ""}` : `Mise à jour du colis ${payload.new?.tracking_number || ""}`
+              );
+            }
           }
         )
         .subscribe();
