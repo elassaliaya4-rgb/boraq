@@ -201,7 +201,8 @@ export default function PackagesTable({ packages, onManage, onRefresh }) {
             boxShadow: statusFilter === "active" ? "0 2px 10px rgba(59,130,246,0.3)" : "none"
           }}
         >
-          <span>📦 {lang === "ar" ? "الطرود النشطة" : "Colis en cours"}</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+          <span>{lang === "ar" ? "الطرود النشطة" : "Colis en cours"}</span>
           <span style={{ fontSize: 10, background: statusFilter === "active" ? "rgba(255,255,255,0.25)" : "rgba(255,255,255,0.1)", padding: "1px 6px", borderRadius: 10 }}>
             {activePackages.length}
           </span>
@@ -217,7 +218,8 @@ export default function PackagesTable({ packages, onManage, onRefresh }) {
             boxShadow: statusFilter === "delivered" ? "0 2px 10px rgba(34,197,94,0.3)" : "none"
           }}
         >
-          <span>✅ {lang === "ar" ? "الطرود المسلمة (الأرشيف)" : "Colis livrés (Archives)"}</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          <span>{lang === "ar" ? "الطرود المسلمة (الأرشيف)" : "Colis livrés (Archives)"}</span>
           <span style={{ fontSize: 10, background: statusFilter === "delivered" ? "rgba(255,255,255,0.25)" : "rgba(255,255,255,0.1)", padding: "1px 6px", borderRadius: 10 }}>
             {deliveredPackages.length}
           </span>
@@ -241,8 +243,11 @@ export default function PackagesTable({ packages, onManage, onRefresh }) {
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
             <button onClick={cancelSelection} style={{
               background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.15)",
-              borderRadius: "8px", color: "var(--text)", cursor: "pointer", padding: "5px 10px", fontSize: "13px"
-            }}>✕</button>
+              borderRadius: "8px", color: "var(--text)", cursor: "pointer", padding: "5px 10px", fontSize: "13px",
+              display: "flex", alignItems: "center", justifyContent: "center"
+            }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
             <span style={{ fontWeight: "700", fontSize: "14px", color: "#93c5fd" }}>
               {selectedIds.length} {lang === "ar" ? "محدد" : "sélectionnés"}
             </span>
@@ -261,9 +266,10 @@ export default function PackagesTable({ packages, onManage, onRefresh }) {
               background: "linear-gradient(135deg, #ef4444, #dc2626)", border: "none",
               borderRadius: "8px", color: "#fff", cursor: "pointer", padding: "5px 12px",
               fontSize: "11px", fontWeight: "700", boxShadow: "0 2px 8px rgba(239,68,68,0.4)",
-              opacity: busy ? 0.6 : 1
+              opacity: busy ? 0.6 : 1, display: "flex", alignItems: "center", gap: 4
             }}>
-              🗑️ {lang === "ar" ? "حذف" : "Supprimer"}
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+              <span>{lang === "ar" ? "حذف" : "Supprimer"}</span>
             </button>
           </div>
         </div>

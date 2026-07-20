@@ -1271,7 +1271,11 @@ export default function AdminPanel() {
       {showLogoutConfirm && (
         <div className="modal-bg" onClick={() => setShowLogoutConfirm(false)} style={{ zIndex: 300 }}>
           <div className="modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 360, textAlign: "center", padding: "28px 24px" }}>
-            <div style={{ fontSize: 44, marginBottom: 12 }}>🚪</div>
+            <div style={{ display: "flex", justifyContent: "center", marginBottom: 16 }}>
+              <div style={{ width: 56, height: 56, borderRadius: "50%", background: "rgba(239, 68, 68, 0.12)", color: "#ef4444", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+              </div>
+            </div>
             <h3 style={{ margin: "0 0 8px 0", fontSize: 18, color: "var(--text)", fontWeight: "800" }}>
               {lang === "ar" ? "تسجيل الخروج؟" : "Se déconnecter ?"}
             </h3>
@@ -1291,10 +1295,15 @@ export default function AdminPanel() {
                   fontWeight: "700",
                   fontSize: 13,
                   cursor: "pointer",
-                  boxShadow: "0 4px 14px rgba(239,68,68,0.3)"
+                  boxShadow: "0 4px 14px rgba(239,68,68,0.3)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: 6
                 }}
               >
-                ✅ {lang === "ar" ? "نعم، خروج" : "Oui, Déconnexion"}
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                <span>{lang === "ar" ? "نعم، خروج" : "Oui, Déconnexion"}</span>
               </button>
               <button
                 onClick={() => setShowLogoutConfirm(false)}
@@ -1307,10 +1316,15 @@ export default function AdminPanel() {
                   color: "var(--text)",
                   fontWeight: "600",
                   fontSize: 13,
-                  cursor: "pointer"
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: 6
                 }}
               >
-                ✕ {lang === "ar" ? "إلغاء" : "Annuler"}
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                <span>{lang === "ar" ? "إلغاء" : "Annuler"}</span>
               </button>
             </div>
           </div>
