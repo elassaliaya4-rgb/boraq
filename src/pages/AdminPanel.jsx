@@ -1195,6 +1195,7 @@ export default function AdminPanel() {
                 <thead>
                   <tr>
                     <th>{t.name}</th>
+                    <th>{t.code}</th>
                     <th>{lang === "ar" ? "الحالة" : "Statut"}</th>
                     <th>{lang === "ar" ? "الموقع الحالي" : "Localisation"}</th>
                     <th>{t.actions}</th>
@@ -1206,6 +1207,7 @@ export default function AdminPanel() {
                     return (
                       <tr key={d.id}>
                         <td><b>{d.name}</b></td>
+                        <td><span style={{ fontSize: 12, fontWeight: 700, background: "var(--surface-2)", padding: "2px 8px", borderRadius: 6 }}>{d.code || "—"}</span></td>
                         <td>
                           <span style={{
                             padding: "4px 10px",
@@ -1637,7 +1639,7 @@ function AgencyForm({ onClose, onSaved }) {
 
 function ChauffeurForm({ onClose, onSaved }) {
   const { t, lang } = useApp();
-  const [form, setForm] = useState({ name: "", current_city: "" });
+  const [form, setForm] = useState({ name: "", code: "", current_city: "" });
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
 
@@ -1650,8 +1652,11 @@ function ChauffeurForm({ onClose, onSaved }) {
     }
     setBusy(true); setErr("");
 
+    const driverCode = form.code ? form.code.toUpperCase().trim() : `DRV-${Math.floor(100 + Math.random() * 900)}`;
+
     const driverPayload = {
-      name: form.name.trim()
+      name: form.name.trim(),
+      code: driverCode
     };
     if (form.current_city.trim()) {
       driverPayload.current_city = form.current_city.trim();
@@ -1677,7 +1682,11 @@ function ChauffeurForm({ onClose, onSaved }) {
           <input value={form.name} onChange={(e) => set("name", e.target.value)} placeholder="مثال: ياسين السعيدي" />
         </div>
         <div className="field">
-          <label>{lang === "ar" ? "الموقع الحالي / المدينة" : "Position actuelle / Ville"}</label>
+          <label>{t.code}</label>
+          <input value={form.code} onChange={(e) => set("code", e.target.value)} placeholder="مثال: DRV-001" style={{ textTransform: "uppercase" }} />
+        </div>
+        <div className="field">
+          <label>{lang === "ar" ? "الموقع الحالي / المدينة (اختياري)" : "Position actuelle / Ville (Optionnel)"}</label>
           <input value={form.current_city} onChange={(e) => set("current_city", e.target.value)} placeholder="Mohammedia / المحمدية" />
         </div>
         <div className="modal-actions">
