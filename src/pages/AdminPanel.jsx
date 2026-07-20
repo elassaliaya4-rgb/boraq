@@ -268,6 +268,13 @@ export default function AdminPanel() {
       .from("agencies")
       .select("*")
       .order("created_at", { ascending: false });
+    const clearedIds = (() => {
+      try {
+        const raw = localStorage.getItem("boraq_cleared_notifs_admin");
+        return raw ? JSON.parse(raw) : [];
+      } catch { return []; }
+    })();
+
     const { data: nts } = await supabase
       .from("notifications")
       .select("*")
@@ -280,7 +287,7 @@ export default function AdminPanel() {
       .order("created_at", { ascending: false });
     setPackages((pkgs || []).filter(p => p.status !== "deleted"));
     setAgencies(ags || []);
-    setNotifs((nts || []).filter(n => n.target !== "deleted"));
+    setNotifs((nts || []).filter(n => n.target !== "deleted" && !clearedIds.includes(n.id)));
     setDrivers(drvs || []);
 
     if (ags && ags.length > 0 && !scanFilterAgency) {
@@ -340,10 +347,20 @@ export default function AdminPanel() {
     else loadData();
   }
 
+  function saveClearedAdminNotifIds(ids) {
+    try {
+      const raw = localStorage.getItem("boraq_cleared_notifs_admin");
+      const existing = raw ? JSON.parse(raw) : [];
+      const updated = Array.from(new Set([...existing, ...ids]));
+      localStorage.setItem("boraq_cleared_notifs_admin", JSON.stringify(updated));
+    } catch (e) {}
+  }
+
   async function deleteNotif(n, e) {
     if (e) e.stopPropagation();
     try {
       setNotifs((prev) => prev.filter((item) => item.id !== n.id));
+      saveClearedAdminNotifIds([n.id]);
       await supabase.from("notifications").update({ target: "deleted", is_read: true }).eq("id", n.id);
       await supabase.from("notifications").delete().eq("id", n.id);
     } catch (err) {
@@ -357,6 +374,7 @@ export default function AdminPanel() {
       const ids = notifs.map((n) => n.id);
       setNotifs([]);
       if (ids.length > 0) {
+        saveClearedAdminNotifIds(ids);
         await supabase.from("notifications").update({ target: "deleted", is_read: true }).in("id", ids);
         await supabase.from("notifications").delete().in("id", ids);
       }
