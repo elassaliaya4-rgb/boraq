@@ -871,7 +871,7 @@ export default function DriverPanel() {
                     </table>
 
                     {/* Mobile Card List View (no horizontal scroll) */}
-                    <div className="mobile-only-list" dir={lang === "ar" ? "rtl" : "ltr"} style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                    <div className="mobile-only-list" dir={lang === "ar" ? "rtl" : "ltr"} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                       {pkgs.map((p) => {
                         const isLoaded = p.status === "inTransit";
                         const FLOW = ["pending", "inTransit", "arrived", "delivered"];
@@ -882,23 +882,104 @@ export default function DriverPanel() {
                           <div 
                             key={p.id} 
                             onClick={() => setDetailPkg(p)}
-                            className="clickable-row"
+                            className="package-card-mobile"
                             style={{ 
-                              background: isLoaded ? "rgba(16, 185, 129, 0.08)" : "var(--surface)", 
-                              border: isLoaded ? "1px solid rgba(16, 185, 129, 0.3)" : "1px solid var(--border)", 
-                              borderInlineStart: isLoaded ? "4px solid #10b981" : "4px solid var(--border)",
-                              borderRadius: 12, 
-                              padding: 12,
+                              background: isLoaded ? "linear-gradient(135deg, rgba(16, 185, 129, 0.09) 0%, rgba(15, 23, 42, 0.6) 100%)" : "var(--surface)", 
+                              border: isLoaded ? "1px solid rgba(16, 185, 129, 0.35)" : "1px solid var(--border)", 
+                              borderInlineStart: isLoaded ? "5px solid #10b981" : "5px solid var(--primary)",
+                              borderRadius: 16, 
+                              padding: "14px 16px",
                               display: "flex",
                               flexDirection: "column",
-                              gap: 8,
-                              boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
-                              transition: "all 0.25s ease"
+                              gap: 10,
+                              boxShadow: "0 4px 16px rgba(0,0,0,0.12)",
+                              position: "relative",
+                              cursor: "pointer"
                             }}
                           >
+                            {/* Card Header: Tracking Number & Status Badge */}
                             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                              <span style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "50%" }}>{p.receiver_name}</span>
-                              <span style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "50%" }}>De: {p.origin}</span>
+                              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                                <span style={{ fontWeight: 800, fontSize: 15, color: "var(--text)", letterSpacing: "0.02em" }}>
+                                  {p.tracking_number}
+                                </span>
+                                {isLoaded && (
+                                  <span style={{ fontSize: 10, fontWeight: 800, padding: "2px 7px", borderRadius: 10, background: "rgba(16,185,129,0.2)", color: "#10b981" }}>
+                                    🚚 {lang === "ar" ? "شحنة محملة" : "Chargé"}
+                                  </span>
+                                )}
+                              </div>
+                              
+                              <span className={`status ${p.status}`} style={{ fontSize: 11, padding: "4px 10px", borderRadius: 20 }}>
+                                {t[p.status] || p.status}
+                              </span>
+                            </div>
+
+                            {/* Receiver & Origin Route */}
+                            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", fontSize: 13, color: "var(--text-dim)" }}>
+                              <div style={{ display: "flex", alignItems: "center", gap: 6, color: "var(--text)", fontWeight: 600 }}>
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                                <span>{p.receiver_name || (lang === "ar" ? "بدون اسم" : "Sans nom")}</span>
+                              </div>
+                              <div style={{ fontSize: 12, fontWeight: 600, color: "var(--text-dim)" }}>
+                                {p.origin} ➔ {agency.city || agency.name}
+                              </div>
+                            </div>
+
+                            {/* Driver Quick Action Buttons */}
+                            <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 4, paddingTop: 8, borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+                              {nextStatus && (
+                                <button
+                                  onClick={(e) => advancePkgStatus(p, e)}
+                                  style={{
+                                    flex: 1,
+                                    padding: "8px 12px",
+                                    borderRadius: 10,
+                                    border: "none",
+                                    fontSize: 12,
+                                    fontWeight: 800,
+                                    cursor: "pointer",
+                                    background: nextStatus === "inTransit" 
+                                      ? "linear-gradient(135deg, #0ea5e9, #2563eb)" 
+                                      : nextStatus === "arrived"
+                                      ? "linear-gradient(135deg, #10b981, #059669)"
+                                      : "linear-gradient(135deg, #22c55e, #16a34a)",
+                                    color: "#ffffff",
+                                    boxShadow: "0 2px 10px rgba(0,0,0,0.15)",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    gap: 6
+                                  }}
+                                >
+                                  <span>
+                                    {nextStatus === "inTransit" && (lang === "ar" ? "🚚 تحميل فـ الشاحنة (En route)" : "🚚 Charger (En route)")}
+                                    {nextStatus === "arrived" && (lang === "ar" ? "🏢 وصول للوكالة (Arrivé)" : "🏢 Marquer Arrivé")}
+                                    {nextStatus === "delivered" && (lang === "ar" ? "✅ تسليم النهائي (Livré)" : "✅ Marquer Livré")}
+                                  </span>
+                                </button>
+                              )}
+
+                              {/* Gear Icon button to open full details with 60fps spring modal */}
+                              <button
+                                onClick={(e) => { e.stopPropagation(); setDetailPkg(p); }}
+                                style={{
+                                  width: 34,
+                                  height: 34,
+                                  borderRadius: 10,
+                                  background: "rgba(56, 189, 248, 0.12)",
+                                  border: "1px solid rgba(56, 189, 248, 0.3)",
+                                  color: "#38bdf8",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  justifyContent: "center",
+                                  cursor: "pointer",
+                                  flexShrink: 0
+                                }}
+                                title={lang === "ar" ? "التفاصيل والإعدادات" : "Détails & Options"}
+                              >
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                              </button>
                             </div>
                           </div>
                         );
