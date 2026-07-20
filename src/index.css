@@ -1083,13 +1083,7 @@ input, select, textarea {
   50% { transform: scale(1.05); filter: drop-shadow(0 0 25px rgba(245, 158, 11, 0.4)); }
 }
 
-@keyframes splash-drive {
-  0% { left: -70px; opacity: 1; }
-  90% { left: 250px; opacity: 1; }
-  91% { left: 250px; opacity: 0; }
-  95% { left: -70px; opacity: 0; }
-  100% { left: -70px; opacity: 1; }
-}
+
 
 @keyframes splash-load {
   0% { width: 0%; }
