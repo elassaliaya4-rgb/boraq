@@ -253,6 +253,21 @@ export default function DriverPanel() {
     }
   }
 
+  async function advancePkgStatus(pkg, e) {
+    if (e) e.stopPropagation();
+    const FLOW = ["pending", "inTransit", "arrived", "delivered"];
+    const curIdx = FLOW.indexOf(pkg.status);
+    if (curIdx < FLOW.length - 1) {
+      const nextStatus = FLOW[curIdx + 1];
+      await supabase.from("packages").update({ status: nextStatus }).eq("id", pkg.id);
+      loadData(true);
+      if (triggerToast) {
+        const labels = { pending: "انتظار", inTransit: "في الطريق", arrived: "وصل للوكالة", delivered: "تم التسليم" };
+        triggerToast(lang === "ar" ? `تم تحديث الطرد ${pkg.tracking_number} إلى: ${labels[nextStatus] || nextStatus}` : `Colis ${pkg.tracking_number} passé à : ${nextStatus}`);
+      }
+    }
+  }
+
   // Group packages by destination agency
   const groupedPackages = packages.reduce((acc, pkg) => {
     const agencyId = pkg.agency_id || "unassigned";
@@ -748,6 +763,10 @@ export default function DriverPanel() {
                     <div className="mobile-only-list" dir={lang === "ar" ? "rtl" : "ltr"} style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                       {pkgs.map((p) => {
                         const isLoaded = p.status === "inTransit";
+                        const FLOW = ["pending", "inTransit", "arrived", "delivered"];
+                        const curIdx = FLOW.indexOf(p.status);
+                        const nextStatus = curIdx < FLOW.length - 1 ? FLOW[curIdx + 1] : null;
+
                         return (
                           <div 
                             key={p.id} 
@@ -758,21 +777,15 @@ export default function DriverPanel() {
                               border: isLoaded ? "1px solid rgba(16, 185, 129, 0.3)" : "1px solid var(--border)", 
                               borderInlineStart: isLoaded ? "4px solid #10b981" : "4px solid var(--border)",
                               borderRadius: 12, 
-                              padding: 14, 
-                              cursor: "pointer",
+                              padding: 12,
                               display: "flex",
                               flexDirection: "column",
                               gap: 8,
-                              boxShadow: "0 2px 8px rgba(0,0,0,0.15)"
+                              boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
+                              transition: "all 0.25s ease"
                             }}
                           >
                             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                              <span style={{ fontSize: 13, fontWeight: "700", color: "var(--text)" }}>{p.tracking_number}</span>
-                              <span className={`status ${p.status}`} style={{ fontSize: 10, padding: "2px 8px" }}>
-                                {t[p.status] || p.status}
-                              </span>
-                            </div>
-                            <div className="card-meta-row" style={{ display: "flex", justifyContent: "space-between", fontSize: 12 }}>
                               <span style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "50%" }}>{p.receiver_name}</span>
                               <span style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "50%" }}>De: {p.origin}</span>
                             </div>

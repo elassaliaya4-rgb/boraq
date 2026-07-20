@@ -1056,6 +1056,35 @@ export default function AdminPanel() {
 
         {tab === "notifs" && (
           <div>
+            <div className="row-head" style={{ marginBottom: 16 }}>
+              <h2 style={{ margin: 0 }}>{t.notifications}</h2>
+              {notifs && notifs.length > 0 && (
+                <button
+                  onClick={async () => {
+                    if (window.confirm(lang === "ar" ? "هل تريد مسح جميع الإشعارات؟" : "Effacer toutes les notifications ?")) {
+                      await supabase.from("notifications").delete().eq("target", "admin");
+                      setNotifs([]);
+                    }
+                  }}
+                  style={{
+                    background: "rgba(239, 68, 68, 0.1)",
+                    border: "1px solid rgba(239, 68, 68, 0.25)",
+                    color: "#ef4444",
+                    padding: "6px 12px",
+                    borderRadius: 8,
+                    fontSize: 12,
+                    fontWeight: 700,
+                    cursor: "pointer",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 6
+                  }}
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                  <span>{lang === "ar" ? "مسح الكل" : "Tout effacer"}</span>
+                </button>
+              )}
+            </div>
             {!notifs || notifs.length === 0 ? (
               <div className="notif">{t.noNotifications}</div>
             ) : (

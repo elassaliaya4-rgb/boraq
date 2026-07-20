@@ -662,6 +662,32 @@ export default function AgencyPanel() {
             </h1>
           </div>
           <div className="topbar-actions">
+            {/* ── Add Package Button ── */}
+            <button
+              onClick={() => setShowPkgForm(true)}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "8px",
+                padding: "9px 18px",
+                fontSize: "13px",
+                fontWeight: "700",
+                borderRadius: "50px",
+                cursor: "pointer",
+                background: "linear-gradient(135deg, #22c55e, #16a34a)",
+                border: "1px solid rgba(34,197,94,0.4)",
+                color: "#fff",
+                boxShadow: "0 4px 16px rgba(34,197,94,0.35)",
+                letterSpacing: "0.02em",
+                transition: "all 0.2s ease"
+              }}
+              onMouseEnter={e => { e.currentTarget.style.boxShadow = "0 6px 24px rgba(34,197,94,0.55)"; e.currentTarget.style.transform = "translateY(-1px)"; }}
+              onMouseLeave={e => { e.currentTarget.style.boxShadow = "0 4px 16px rgba(34,197,94,0.35)"; e.currentTarget.style.transform = "translateY(0)"; }}
+            >
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              <span>{t.addPackage}</span>
+            </button>
+
             {/* ── Premium Scan Button ── */}
             <button
               onClick={() => setShowScanner(true)}
@@ -1198,7 +1224,13 @@ export default function AgencyPanel() {
         )}
 
         {tab === "packages" && (
-          <PackagesTable packages={packages} onManage={openPackageDetails} onRefresh={loadData} />
+          <>
+            <div className="row-head">
+              <h2>{t.packages}</h2>
+              <button className="btn-accent btn-sm" onClick={() => setShowPkgForm(true)}>{t.addPackage}</button>
+            </div>
+            <PackagesTable packages={packages} onManage={openPackageDetails} onRefresh={loadData} />
+          </>
         )}
 
         {tab === "drivers" && (
@@ -1276,6 +1308,35 @@ export default function AgencyPanel() {
 
         {tab === "notifs" && (
           <div>
+            <div className="row-head" style={{ marginBottom: 16 }}>
+              <h2 style={{ margin: 0 }}>{t.notifications}</h2>
+              {notifs && notifs.length > 0 && (
+                <button
+                  onClick={async () => {
+                    if (window.confirm(lang === "ar" ? "هل تريد مسح جميع الإشعارات؟" : "Effacer toutes les notifications ?")) {
+                      await supabase.from("notifications").delete().eq("agency_id", agencyInfo?.id);
+                      setNotifs([]);
+                    }
+                  }}
+                  style={{
+                    background: "rgba(239, 68, 68, 0.1)",
+                    border: "1px solid rgba(239, 68, 68, 0.25)",
+                    color: "#ef4444",
+                    padding: "6px 12px",
+                    borderRadius: 8,
+                    fontSize: 12,
+                    fontWeight: 700,
+                    cursor: "pointer",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 6
+                  }}
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                  <span>{lang === "ar" ? "مسح الكل" : "Tout effacer"}</span>
+                </button>
+              )}
+            </div>
             {!notifs || notifs.length === 0 ? (
               <div className="notif">{t.noNotifications}</div>
             ) : (
