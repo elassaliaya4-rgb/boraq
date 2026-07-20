@@ -18,17 +18,33 @@ export default function Login() {
     let loginPassword = password;
 
     if (loginMode === "code") {
-      if (!code) {
+      if (!code.trim()) {
         setError(lang === "ar" ? "المرجو إدخال كود الوكالة أو كود الأدمين" : "Veuillez entrer le code de l'agence ou admin");
         return;
       }
-      const cleanCode = code.toLowerCase().trim();
+      const rawCode = code.trim();
+      const cleanCode = rawCode.toLowerCase();
+
       if (cleanCode === "admin" || cleanCode === "boraq") {
         loginEmail = "admin@boraq.online";
         loginPassword = "admin123";
       } else {
-        loginEmail = `${cleanCode}@boraq.com`;
-        loginPassword = `${cleanCode}123`;
+        // Query agencies table to get matching agency email/code
+        const { data: ag } = await supabase
+          .from("agencies")
+          .select("code, email")
+          .or(`code.eq.${rawCode.toUpperCase()},code.eq.${rawCode}`)
+          .maybeSingle();
+
+        if (ag && ag.email) {
+          loginEmail = ag.email;
+          const codeSlug = (ag.code || rawCode).toLowerCase().trim();
+          loginPassword = `${codeSlug}123`;
+        } else {
+          const codeSlug = cleanCode.replace(/[^a-z0-9]/g, "");
+          loginEmail = `${codeSlug}@boraq.com`;
+          loginPassword = `${codeSlug}123`;
+        }
       }
     } else {
       if (!email || !password) {
