@@ -10,6 +10,15 @@ import { Capacitor } from "@capacitor/core";
 // Force Vercel redeploy stable morning state
 export default function App() {
   const { user, profile, loading, dir, lang, signOut, t, toast, theme } = useApp();
+  const [minSplashDone, setMinSplashDone] = useState(false);
+
+  // Guarantee the 3D Rmook completes its full journey (1.8s) before revealing panel to eliminate lag!
+  useEffect(() => {
+    const splashTimer = setTimeout(() => {
+      setMinSplashDone(true);
+    }, 1800);
+    return () => clearTimeout(splashTimer);
+  }, []);
 
   // Dynamic document direction & language
   useEffect(() => {
@@ -21,7 +30,9 @@ export default function App() {
   const isTrackPage = window.location.pathname === "/track";
   if (isTrackPage) return <TrackPage />;
 
-  if (loading) {
+  const isSplashVisible = loading || !minSplashDone;
+
+  if (isSplashVisible) {
     return (
       <div className="splash-container">
         <div className="splash-logo-wrap">

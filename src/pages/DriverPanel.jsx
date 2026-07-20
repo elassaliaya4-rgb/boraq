@@ -24,6 +24,13 @@ export default function DriverPanel() {
   const [showScanner, setShowScanner] = useState(false);
   const [detailPkg, setDetailPkg] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [minSplashDone, setMinSplashDone] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setMinSplashDone(true), 1600);
+    return () => clearTimeout(timer);
+  }, []);
+
   const [scanFilterAgency, setScanFilterAgency] = useState("");
   const mountedRef = useRef(true);
 
@@ -41,6 +48,8 @@ export default function DriverPanel() {
       setShowScanner(false);
     }
   };
+
+
 
   // Handle native Android back button to dismiss modals/subtabs
   useEffect(() => {
@@ -283,7 +292,7 @@ export default function DriverPanel() {
     return ag ? { name: ag.name, city: ag.city } : { name: lang === "ar" ? "غير محدد" : "Non assigné", city: "" };
   }
 
-  if (loading) {
+  if (loading || !minSplashDone) {
     return (
       <div className="splash-container">
         <div className="splash-logo-wrap">
