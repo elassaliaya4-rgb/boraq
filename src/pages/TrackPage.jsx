@@ -270,8 +270,9 @@ export default function TrackPage() {
         boxShadow: "0 20px 50px rgba(0, 0, 0, 0.4)",
         backdropFilter: "blur(16px)"
       }}>
-        <h2 style={{ color: "#e8edf7", fontSize: 18, fontWeight: 700, marginBottom: 4, textAlign: "center" }}>
-          📦 {txt.suivre}
+        <h2 style={{ color: "#e8edf7", fontSize: 18, fontWeight: 700, marginBottom: 4, textAlign: "center", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2.5"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+          <span>{txt.suivre}</span>
         </h2>
         <p style={{ color: "#94a3b8", fontSize: 12, marginBottom: 20, textAlign: "center" }}>
           {txt.hint}
@@ -294,16 +295,24 @@ export default function TrackPage() {
             background: "linear-gradient(135deg, #3b82f6, #2563eb)",
             color: "#fff", border: "none", cursor: "pointer",
             boxShadow: "0 4px 16px rgba(59, 130, 246, 0.4)",
-            opacity: loading ? 0.7 : 1, transition: "all 0.2s"
+            opacity: loading ? 0.7 : 1, transition: "all 0.2s",
+            display: "flex", alignItems: "center", justifyContent: "center"
           }}>
-            {loading ? "⏳" : "🔍"}
+            {loading ? (
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+            ) : (
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            )}
           </button>
         </form>
 
         {/* Recent Search History Chips */}
         {recentCodes.length > 0 && (
           <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap", marginBottom: 16 }}>
-            <span style={{ fontSize: 10, color: "#64748b", fontWeight: "600" }}>🕒 Récents / السجلات:</span>
+            <span style={{ fontSize: 10, color: "#64748b", fontWeight: "600", display: "flex", alignItems: "center", gap: 4 }}>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              <span>Récents / السجلات:</span>
+            </span>
             {recentCodes.map(code => (
               <button
                 key={code}
@@ -315,10 +324,11 @@ export default function TrackPage() {
                   padding: "3px 9px", borderRadius: 20, fontSize: 11, fontWeight: "700",
                   background: "rgba(59, 130, 246, 0.12)", color: "#93c5fd",
                   border: "1px solid rgba(59, 130, 246, 0.3)", cursor: "pointer",
-                  transition: "all 0.2s"
+                  transition: "all 0.2s", display: "inline-flex", alignItems: "center", gap: 4
                 }}
               >
-                📦 {code}
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+                <span>{code}</span>
               </button>
             ))}
           </div>
@@ -329,9 +339,11 @@ export default function TrackPage() {
           <div style={{
             padding: "12px", borderRadius: 14,
             background: "rgba(239, 68, 68, 0.12)", border: "1px solid rgba(239, 68, 68, 0.3)",
-            color: "#fca5a5", fontSize: 13, textAlign: "center", fontWeight: "600"
+            color: "#fca5a5", fontSize: 13, textAlign: "center", fontWeight: "600",
+            display: "flex", alignItems: "center", justifyContent: "center", gap: 6
           }}>
-            ❌ {error}
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+            <span>{error}</span>
           </div>
         )}
 

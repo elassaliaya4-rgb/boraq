@@ -369,7 +369,10 @@ export default function AgencyPanel() {
       />
       <div style={isMobileAPK ? { display: "flex", flex: 1, width: "100%", overflow: "hidden" } : { display: "contents" }}>
         <aside className="sidebar">
-          <div className="logo" style={{ fontSize: 22, marginBottom: 12 }}>⚡ {t.appName}</div>
+          <div className="logo" style={{ fontSize: 22, marginBottom: 12, display: "flex", alignItems: "center", gap: 8 }}>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="#3b82f6"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            <span>{t.appName}</span>
+          </div>
         {agencyInfo && (
           <div style={{
             position: "relative",
@@ -601,7 +604,10 @@ export default function AgencyPanel() {
                 {lang === "ar" ? "→ رجوع" : "← Retour"}
               </button>
             )}
-            <h1>{t.welcome} {agencyInfo?.name || "Agence"} 👋</h1>
+            <h1 style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <span>{t.welcome} {agencyInfo?.name || "Agence"}</span>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v5"/><path d="M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v6"/><path d="M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v8"/><path d="M18 8a2 2 0 0 1 2 2v4a6 6 0 0 1-6 6h-2a6 6 0 0 1-6-6v-1.5"/></svg>
+            </h1>
           </div>
           <div className="topbar-actions">
             {/* ── Premium Scan Button ── */}
@@ -707,26 +713,25 @@ export default function AgencyPanel() {
               className="theme-toggle-desktop"
               onClick={toggleTheme}
               style={{
-                width: "38px",
-                height: "38px",
-                padding: 0,
-                fontSize: "16px",
-                borderRadius: "12px",
-                cursor: "pointer",
+                width: 36,
+                height: 36,
+                borderRadius: "50%",
+                border: "1px solid var(--border)",
+                background: "var(--surface-2)",
+                color: "var(--text)",
                 display: "inline-flex",
                 alignItems: "center",
                 justifyContent: "center",
-                background: "var(--surface)",
-                border: "1px solid var(--border)",
-                color: "var(--text)",
-                boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
-                transition: "all 0.2s ease"
+                cursor: "pointer",
+                transition: "all 0.2s"
               }}
-              onMouseEnter={e => e.currentTarget.style.borderColor = "var(--primary)"}
-              onMouseLeave={e => e.currentTarget.style.borderColor = "var(--border)"}
               title={lang === "ar" ? "تغيير المظهر" : "Changer le thème"}
             >
-              {theme === "dark" ? "☀️" : "🌙"}
+              {theme === "dark" ? (
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+              ) : (
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+              )}
             </button>
           </div>
         </div>

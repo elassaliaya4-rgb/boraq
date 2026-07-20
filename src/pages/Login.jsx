@@ -141,13 +141,21 @@ export default function Login() {
             }}
             style={{ background: "rgba(0,0,0,0.05)", border: "1px solid var(--border)" }}
           >
-            🔑 {loginMode === "code" 
-              ? (lang === "ar" ? "دخول الأدمين (إيميل)" : "Accès Admin (Email)") 
-              : (lang === "ar" ? "دخول الوكالة (كود)" : "Accès Agence (Code)")
-            }
+            <span style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 2l-2 2m-2-2l2 2m2 4l-4 4M2 12c0 5.52 4.48 10 10 10s10-4.48 10-10S17.52 2 12 2"/></svg>
+              <span>
+                {loginMode === "code" 
+                  ? (lang === "ar" ? "دخول الأدمين (إيميل)" : "Accès Admin (Email)") 
+                  : (lang === "ar" ? "دخول الوكالة (كود)" : "Accès Agence (Code)")
+                }
+              </span>
+            </span>
           </button>
         </div>
-        <div className="logo">⚡ {t.appName}</div>
+        <div className="logo" style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="#3b82f6"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          <span>{t.appName}</span>
+        </div>
         <div className="tagline">{t.tagline}</div>
 
         {error && <div className="error">{error}</div>}

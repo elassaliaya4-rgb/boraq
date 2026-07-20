@@ -264,12 +264,17 @@ export default function DriverPanel() {
     return (
       <div className="splash-container">
         <div className="splash-logo-wrap">
-          <div className="splash-logo-text">⚡ Boraq</div>
+          <div className="splash-logo-text" style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="#3b82f6"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            <span>Boraq</span>
+          </div>
           <div className="splash-sub">LOGISTICS & MERCHANDISE</div>
         </div>
         <div className="splash-animation-box">
           <div className="splash-speed-lines"></div>
-          <div className="splash-truck">🚚💨</div>
+          <div className="splash-truck" style={{ color: "#3b82f6" }}>
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 17h4V5H2v12h3"/><path d="M20 17h2v-3.34a4 4 0 0 0-1.17-2.83L19 9h-5v8h1"/><circle cx="7.5" cy="17.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg>
+          </div>
         </div>
         <div className="splash-loader-bar">
           <div className="splash-loader-fill"></div>
@@ -287,7 +292,10 @@ export default function DriverPanel() {
       />
       <div style={isMobileAPK ? { display: "flex", flex: 1, width: "100%", overflow: "hidden" } : { display: "contents" }}>
         <aside className="sidebar">
-          <div className="logo" style={{ fontSize: 22, marginBottom: 18 }}>⚡ {t.appName}</div>
+          <div className="logo" style={{ fontSize: 22, marginBottom: 18, display: "flex", alignItems: "center", gap: 8 }}>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="#3b82f6"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            <span>{t.appName}</span>
+          </div>
         
         {driverInfo && (
           <div style={{
@@ -552,14 +560,19 @@ export default function DriverPanel() {
               onMouseLeave={e => e.currentTarget.style.borderColor = "var(--border)"}
               title={lang === "ar" ? "تغيير المظهر" : "Changer le thème"}
             >
-              {theme === "dark" ? "☀️" : "🌙"}
+              {theme === "dark" ? (
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+              ) : (
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+              )}
             </button>
           </div>
         </header>
 
         {packages.length === 0 ? (
-          <div className="notif" style={{ textAlign: "center", padding: 30 }}>
-            🎉 {lang === "ar" ? "لا توجد طرود نشطة حالياً للتوصيل!" : "Aucun colis actif à livrer pour le moment !"}
+          <div className="notif" style={{ textAlign: "center", padding: 30, display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            <span>{lang === "ar" ? "لا توجد طرود نشطة حالياً للتوصيل!" : "Aucun colis actif à livrer pour le moment !"}</span>
           </div>
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
@@ -568,7 +581,7 @@ export default function DriverPanel() {
               const pkgs = groupedPackages[agencyId];
               return (
                 <div key={agencyId} style={{
-                  background: "var(--surface-1)",
+                  background: "var(--surface)",
                   border: "1px solid var(--border)",
                   borderRadius: 14,
                   padding: 16
@@ -582,7 +595,8 @@ export default function DriverPanel() {
                     marginBottom: 12
                   }}>
                     <h3 style={{ margin: 0, fontSize: 15, fontWeight: 600, display: "flex", alignItems: "center", gap: 6 }}>
-                      🏢 {agency.name} {agency.city && `(${agency.city})`}
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2.5"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><path d="M9 22v-4h6v4"/><line x1="8" y1="6" x2="8.01" y2="6"/><line x1="12" y1="6" x2="12.01" y2="6"/><line x1="16" y1="6" x2="16.01" y2="6"/><line x1="8" y1="10" x2="8.01" y2="10"/><line x1="12" y1="10" x2="12.01" y2="10"/><line x1="16" y1="10" x2="16.01" y2="10"/><line x1="8" y1="14" x2="8.01" y2="14"/><line x1="12" y1="14" x2="12.01" y2="14"/><line x1="16" y1="14" x2="16.01" y2="14"/></svg>
+                      <span>{agency.name} {agency.city && `(${agency.city})`}</span>
                     </h3>
                     <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                       <a
@@ -607,7 +621,8 @@ export default function DriverPanel() {
                         onMouseEnter={e => { e.currentTarget.style.background = "rgba(59,130,246,0.2)"; }}
                         onMouseLeave={e => { e.currentTarget.style.background = "rgba(59,130,246,0.1)"; }}
                       >
-                        📍 {lang === "ar" ? "الموقع" : "Localiser"}
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                        <span>{lang === "ar" ? "الموقع" : "Localiser"}</span>
                       </a>
                       <button
                         onClick={() => {
@@ -628,7 +643,8 @@ export default function DriverPanel() {
                           boxShadow: "0 0 8px rgba(251, 191, 36, 0.2)"
                         }}
                       >
-                        📷 {lang === "ar" ? "مسح" : "Scanner"}
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                        <span>{lang === "ar" ? "مسح" : "Scanner"}</span>
                       </button>
                       <span style={{
                         fontSize: 12,

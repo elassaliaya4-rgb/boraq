@@ -394,7 +394,10 @@ export default function AdminPanel() {
       />
       <div style={isMobileAPK ? { display: "flex", flex: 1, width: "100%", overflow: "hidden" } : { display: "contents" }}>
         <aside className="sidebar">
-          <div className="logo" style={{ fontSize: 22, marginBottom: 18 }}>⚡ {t.appName}</div>
+          <div className="logo" style={{ fontSize: 22, marginBottom: 18, display: "flex", alignItems: "center", gap: 8 }}>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="#3b82f6"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            <span>{t.appName}</span>
+          </div>
         <div className="nav-grid">
           <NavBtn
             icon={<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3m0 4h4v-4m-4 0h4"/></svg>}
@@ -599,11 +602,6 @@ export default function AdminPanel() {
               className="theme-toggle-desktop"
               onClick={toggleTheme}
               style={{
-                width: "38px",
-                height: "38px",
-                padding: 0,
-                fontSize: "16px",
-                borderRadius: "12px",
                 cursor: "pointer",
                 display: "inline-flex",
                 alignItems: "center",
@@ -806,8 +804,9 @@ export default function AdminPanel() {
               
               if (filteredPkgs.length === 0) {
                 return (
-                  <div style={{ padding: 40, textAlign: "center", background: "var(--surface)", border: "1px dashed var(--border)", borderRadius: 16, color: "var(--text-dim)" }}>
-                    📭 {lang === "ar" ? "لا توجد طرود لهذه الوكالة حالياً" : "Aucun colis trouvé pour cette origine"}
+                  <div style={{ padding: 40, textAlign: "center", background: "var(--surface)", border: "1px dashed var(--border)", borderRadius: 16, color: "var(--text-dim)", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+                    <span>{lang === "ar" ? "لا توجد طرود لهذه الوكالة حالياً" : "Aucun colis trouvé pour cette origine"}</span>
                   </div>
                 );
               }
@@ -847,7 +846,11 @@ export default function AdminPanel() {
                             fontWeight: "bold",
                             flexShrink: 0
                           }}>
-                            {isValidated ? "✓" : "⏳"}
+                            {isValidated ? (
+                              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg>
+                            ) : (
+                              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                            )}
                           </div>
                           
                           <div style={{ minWidth: 0 }}>
@@ -863,8 +866,10 @@ export default function AdminPanel() {
                                 {isValidated ? (lang === "ar" ? "مقبول" : "Valide") : (lang === "ar" ? "في الانتظار" : "En attente")}
                               </span>
                             </div>
-                            <div className="card-meta-row" style={{ fontSize: 11, marginTop: 3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                              {p.sender_name} ({p.origin}) ➔ {p.receiver_name}
+                            <div className="card-meta-row" style={{ fontSize: 11, marginTop: 3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", display: "flex", alignItems: "center", gap: 4 }}>
+                              <span>{p.sender_name} ({p.origin})</span>
+                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                              <span>{p.receiver_name}</span>
                             </div>
                           </div>
                         </div>
@@ -879,12 +884,15 @@ export default function AdminPanel() {
                               borderRadius: 8, 
                               background: "rgba(255,255,255,0.05)", 
                               border: "1px solid rgba(255,255,255,0.08)",
-                              color: "#fff",
+                              color: "var(--text)",
                               cursor: "pointer",
-                              fontWeight: "600"
+                              fontWeight: "600",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center"
                             }}
                           >
-                            ⚙️
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
                           </button>
                         </div>
                       </div>
@@ -927,8 +935,9 @@ export default function AdminPanel() {
                 <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(280px,1fr))", gap:16, marginBottom:24 }}>
                   {/* Donut chart */}
                   <div style={{ background:"var(--surface)", border:"1px solid var(--border)", borderRadius:16, padding:"20px 16px" }}>
-                    <div style={{ fontSize:13, fontWeight:700, color:"var(--text)", marginBottom:12 }}>
-                      📊 {lang==="ar" ? "توزيع الحالات" : "Répartition des statuts"}
+                    <div style={{ fontSize:13, fontWeight:700, color:"var(--text)", marginBottom:12, display: "flex", alignItems: "center", gap: 6 }}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2.5"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>
+                      <span>{lang==="ar" ? "توزيع الحالات" : "Répartition des statuts"}</span>
                     </div>
                     <ResponsiveContainer width="100%" height={180}>
                       <PieChart>
@@ -944,8 +953,9 @@ export default function AdminPanel() {
 
                   {/* Bar chart */}
                   <div style={{ background:"var(--surface)", border:"1px solid var(--border)", borderRadius:16, padding:"20px 16px" }}>
-                    <div style={{ fontSize:13, fontWeight:700, color:"var(--text)", marginBottom:12 }}>
-                      📈 {lang==="ar" ? "الطرود - آخر 7 أيام" : "Colis — 7 derniers jours"}
+                    <div style={{ fontSize:13, fontWeight:700, color:"var(--text)", marginBottom:12, display: "flex", alignItems: "center", gap: 6 }}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2.5"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+                      <span>{lang==="ar" ? "الطرود - آخر 7 أيام" : "Colis — 7 derniers jours"}</span>
                     </div>
                     <ResponsiveContainer width="100%" height={180}>
                       <BarChart data={last7} margin={{ top:4, right:8, left:-20, bottom:0 }}>
@@ -984,7 +994,8 @@ export default function AdminPanel() {
                   boxShadow: "0 3px 10px rgba(34,197,94,0.3)", display:"flex", alignItems:"center", gap:6
                 }}
               >
-                📥 {lang==="ar" ? "تصدير Excel" : "Exporter Excel"}
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                <span>{lang==="ar" ? "تصدير Excel" : "Exporter Excel"}</span>
               </button>
             </div>
             <PackagesTable packages={packages} onManage={setDetailPkg} onRefresh={loadData} />
@@ -1005,7 +1016,11 @@ export default function AdminPanel() {
                     <tr key={a.id}>
                       <td><b>{a.name}</b></td><td>{a.code}</td><td>{a.city}</td>
                       <td>{packages?.filter((p) => p?.agency_id === a?.id)?.length || 0}</td>
-                      <td><button className="btn-danger btn-sm" onClick={() => deleteAgency(a)}>🗑️</button></td>
+                      <td>
+                        <button className="btn-danger btn-sm" onClick={() => deleteAgency(a)} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                        </button>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -1021,10 +1036,15 @@ export default function AdminPanel() {
             ) : (
               notifs.map((n) => (
                 <div key={n.id} className={`notif clickable ${n.is_read ? "" : "unread-admin"}`} onClick={() => openNotif(n)}>
-                  <div className="icon">📦</div>
+                  <div className="icon" style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2.5"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+                  </div>
                   <div className="body">
                     <div className="msg">{t.newPackageAdmin} {n.agency_name}: <b>{n.message}</b></div>
-                    <div className="hint">👆 {t.tapSee}</div>
+                    <div className="hint" style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                      <span>{t.tapSee}</span>
+                    </div>
                   </div>
                   <div className="chev">{lang === "ar" ? "‹" : "›"}</div>
                 </div>
@@ -1061,17 +1081,18 @@ export default function AdminPanel() {
                         <td>{d.code}</td>
                         <td>
                           <span style={{
-                            padding: "4px 8px",
+                            padding: "4px 10px",
                             borderRadius: 12,
                             fontSize: 12,
-                            fontWeight: 600,
+                            fontWeight: 700,
                             background: isOnline ? "rgba(34, 197, 94, 0.15)" : "rgba(148, 163, 184, 0.15)",
-                            color: isOnline ? "#22c55e" : "#cbd5e1"
+                            color: isOnline ? "#16a34a" : "var(--text-dim)",
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: 6
                           }}>
-                            {isOnline 
-                              ? (lang === "ar" ? "🟢 متصل" : "🟢 En ligne") 
-                              : (lang === "ar" ? "🔴 غير متصل" : "🔴 Hors-ligne")
-                            }
+                            <span style={{ width: 7, height: 7, borderRadius: "50%", background: isOnline ? "#22c55e" : "#94a3b8", display: "inline-block" }}></span>
+                            <span>{isOnline ? (lang === "ar" ? "متصل" : "En ligne") : (lang === "ar" ? "غير متصل" : "Hors-ligne")}</span>
                           </span>
                         </td>
                         <td>
@@ -1089,14 +1110,17 @@ export default function AdminPanel() {
                                 width: "auto"
                               }}
                             >
-                              📍 {lang === "ar" ? "تحديد الموقع" : "Localiser"}
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                              <span>{lang === "ar" ? "تحديد الموقع" : "Localiser"}</span>
                             </button>
                           ) : (
                             <span style={{ color: "var(--text-dim)", fontSize: 12 }}>—</span>
                           )}
                         </td>
                         <td>
-                          <button className="btn-danger btn-sm" onClick={() => deleteDriver(d)}>🗑️</button>
+                          <button className="btn-danger btn-sm" onClick={() => deleteDriver(d)} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                          </button>
                         </td>
                       </tr>
                     );

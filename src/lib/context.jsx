@@ -20,11 +20,14 @@ export function AppProvider({ children }) {
   const [theme, setTheme] = useState(() => {
     try {
       const saved = localStorage.getItem("theme") || "dark";
-      // Apply class immediately — before first render — to prevent dark flash
       if (saved === "light") {
         document.body.classList.add("light-theme");
+        document.body.setAttribute("data-theme", "light");
+        document.documentElement.setAttribute("data-theme", "light");
       } else {
         document.body.classList.remove("light-theme");
+        document.body.setAttribute("data-theme", "dark");
+        document.documentElement.setAttribute("data-theme", "dark");
       }
       return saved;
     } catch (e) {
@@ -58,8 +61,12 @@ export function AppProvider({ children }) {
   useEffect(() => {
     if (theme === "light") {
       document.body.classList.add("light-theme");
+      document.body.setAttribute("data-theme", "light");
+      document.documentElement.setAttribute("data-theme", "light");
     } else {
       document.body.classList.remove("light-theme");
+      document.body.setAttribute("data-theme", "dark");
+      document.documentElement.setAttribute("data-theme", "dark");
     }
   }, [theme]);
 
