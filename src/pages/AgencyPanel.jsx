@@ -209,9 +209,9 @@ export default function AgencyPanel() {
     if (!profile?.agency_id) return;
     loadData();
 
-    // Subscribe to real-time notifications for this agency
+    // Subscribe to real-time notifications & driver updates for this agency
     const channel = supabase
-      .channel("agency-notifs")
+      .channel("agency-realtime")
       .on(
         "postgres_changes",
         {
@@ -225,6 +225,17 @@ export default function AgencyPanel() {
             triggerToast(payload.new.message);
             loadData();
           }
+        }
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "drivers"
+        },
+        () => {
+          loadData();
         }
       )
       .subscribe();
@@ -306,9 +317,9 @@ export default function AgencyPanel() {
     setNotifs(nts || []);
 
     const { data: drs } = await supabase
-      .from("profiles")
+      .from("drivers")
       .select("*")
-      .eq("role", "driver");
+      .order("name", { ascending: true });
     setDrivers(drs || []);
   }
 
@@ -868,6 +879,13 @@ export default function AgencyPanel() {
                 >
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 11 11 13 15 9"/></svg>
                   <span>{lang === "ar" ? "مركز التحقق" : "Centre de Vérification"}</span>
+                </button>
+                <button
+                  onClick={() => setTab("drivers")}
+                  style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "10px 20px", borderRadius: 12, background: "linear-gradient(135deg, #8b5cf6, #7c3aed)", border: "none", color: "#fff", fontSize: 13, fontWeight: 700, cursor: "pointer", boxShadow: "0 4px 16px rgba(139,92,246,0.3)" }}
+                >
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><rect x="1" y="3" width="15" height="13" rx="2"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+                  <span>{lang === "ar" ? "خريطة السائقين المباشرة" : "Positions Chauffeurs"}</span>
                 </button>
                 <button
                   onClick={() => setShowScanner(true)}
