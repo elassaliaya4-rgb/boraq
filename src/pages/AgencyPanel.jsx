@@ -412,12 +412,17 @@ export default function AgencyPanel() {
   async function clearAllAgencyNotifs() {
     if (!window.confirm(lang === "ar" ? "هل تريد مسح جميع الإشعارات؟" : "Effacer toutes les notifications ?")) return;
     try {
+      const ids = notifs.map((n) => n.id);
       setNotifs([]);
+      if (ids.length > 0) {
+        await supabase.from("notifications").update({ target: "deleted", is_read: true }).in("id", ids);
+        await supabase.from("notifications").delete().in("id", ids);
+      }
       const agId = profile?.agency_id || agencyInfo?.id;
       if (agId) {
+        await supabase.from("notifications").update({ target: "deleted", is_read: true }).eq("agency_id", agId);
         await supabase.from("notifications").delete().eq("agency_id", agId);
       }
-      await supabase.from("notifications").delete().eq("target", "agency");
       if (triggerToast) {
         triggerToast(lang === "ar" ? "تم مسح جميع الإشعارات بنجاح" : "Toutes les notifications ont été supprimées");
       }
