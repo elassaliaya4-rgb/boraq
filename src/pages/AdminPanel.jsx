@@ -1195,26 +1195,39 @@ export default function AdminPanel() {
                           </span>
                         </td>
                         <td>
-                          {d.latitude && d.longitude ? (
-                            <button
-                              onClick={() => setMapDriver(d)}
-                              className="btn-primary"
-                              style={{
-                                padding: "4px 10px",
-                                fontSize: 12,
-                                borderRadius: 6,
-                                display: "inline-flex",
-                                alignItems: "center",
-                                gap: 4,
-                                width: "auto"
-                              }}
-                            >
-                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-                              <span>{lang === "ar" ? "تحديد الموقع" : "Localiser"}</span>
-                            </button>
-                          ) : (
-                            <span style={{ color: "var(--text-dim)", fontSize: 12 }}>—</span>
-                          )}
+                          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                            <span style={{
+                              padding: "4px 8px",
+                              borderRadius: 8,
+                              fontSize: 12,
+                              background: "rgba(59, 130, 246, 0.1)",
+                              color: "#3b82f6",
+                              fontWeight: 600,
+                              display: "inline-flex",
+                              alignItems: "center",
+                              gap: 4
+                            }}>
+                              📍 {d.current_city || d.city || "Casablanca"}
+                            </span>
+                            {d.latitude && d.longitude && (
+                              <button
+                                onClick={() => setMapDriver(d)}
+                                className="btn-primary"
+                                style={{
+                                  padding: "3px 8px",
+                                  fontSize: 11,
+                                  borderRadius: 6,
+                                  display: "inline-flex",
+                                  alignItems: "center",
+                                  gap: 4,
+                                  width: "auto"
+                                }}
+                              >
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                                <span>{lang === "ar" ? "GPS" : "GPS"}</span>
+                              </button>
+                            )}
+                          </div>
                         </td>
                         <td>
                           <button className="btn-danger btn-sm" onClick={() => deleteDriver(d)} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
@@ -1596,59 +1609,31 @@ function AgencyForm({ onClose, onSaved }) {
 
 function ChauffeurForm({ onClose, onSaved }) {
   const { t, lang } = useApp();
-  const [form, setForm] = useState({ name: "", code: "" });
+  const [form, setForm] = useState({ name: "", code: "", current_city: "Casablanca" });
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
 
   function set(k, v) { setForm((f) => ({ ...f, [k]: v })); }
 
   async function save() {
-    if (!form.name || !form.code) { setErr(t.fillAll); return; }
+    if (!form.name.trim()) { 
+      setErr(lang === "ar" ? "المرجو إدخال اسم السائق" : "Veuillez entrer le nom du chauffeur"); 
+      return; 
+    }
     setBusy(true); setErr("");
 
-    const generatedEmail = `${form.code.toLowerCase().trim()}@boraq.com`;
-    const generatedPassword = `${form.code.toLowerCase().trim()}123`;
+    const driverCode = form.code ? form.code.toUpperCase().trim() : `DRV-${Math.floor(100 + Math.random() * 900)}`;
 
-    // Create a temp client just for auth signup so we don't hijack the admin's session
-    const tempClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-      auth: {
-        persistSession: false,
-        autoRefreshToken: false,
-        detectSessionInUrl: false
-      }
-    });
-
-    const { data: authData, error: authErr } = await tempClient.auth.signUp({
-      email: generatedEmail, password: generatedPassword,
-    });
-    if (authErr) { setErr(authErr.message); setBusy(false); return; }
-
-    const { data: driver, error: drvErr } = await supabase
+    const { error: drvErr } = await supabase
       .from("drivers")
       .insert({
-        name: form.name,
-        code: form.code.toUpperCase().trim(),
-        email: generatedEmail
-      })
-      .select().single();
+        name: form.name.trim(),
+        code: driverCode,
+        current_city: form.current_city ? form.current_city.trim() : "Casablanca"
+      });
 
     if (drvErr) { setErr(drvErr.message); setBusy(false); return; }
 
-    if (authData.user) {
-      const { error: profErr } = await supabase
-        .from("profiles")
-        .insert({
-          id: authData.user.id,
-          role: "driver",
-          driver_id: driver.id
-        });
-      
-      if (profErr) {
-        setErr("Profile error: " + profErr.message);
-        setBusy(false);
-        return;
-      }
-    }
     setBusy(false);
     onSaved();
   }
@@ -1658,8 +1643,18 @@ function ChauffeurForm({ onClose, onSaved }) {
       <div className="modal" onClick={(e) => e.stopPropagation()}>
         <h2>{lang === "ar" ? "إضافة سائق جديد" : "Ajouter Chauffeur"}</h2>
         {err && <div className="error">{err}</div>}
-        <div className="field"><label>{t.name}</label><input value={form.name} onChange={(e) => set("name", e.target.value)} placeholder="Yassine Saidi" /></div>
-        <div className="field"><label>{t.code}</label><input value={form.code} onChange={(e) => set("code", e.target.value)} placeholder="DRV-001" style={{ textTransform: "uppercase" }} /></div>
+        <div className="field">
+          <label>{t.name}</label>
+          <input value={form.name} onChange={(e) => set("name", e.target.value)} placeholder="مثال: ياسين السعيدي" />
+        </div>
+        <div className="field">
+          <label>{t.code}</label>
+          <input value={form.code} onChange={(e) => set("code", e.target.value)} placeholder="DRV-001" style={{ textTransform: "uppercase" }} />
+        </div>
+        <div className="field">
+          <label>{lang === "ar" ? "آخر موقع / المدينة" : "Dernière position / Ville"}</label>
+          <input value={form.current_city} onChange={(e) => set("current_city", e.target.value)} placeholder="Casablanca / الدار البيضاء" />
+        </div>
         <div className="modal-actions">
           <button className="btn-primary" onClick={save} disabled={busy}>{busy ? "..." : t.save}</button>
           <button className="btn-sm" onClick={onClose}>{t.cancel}</button>

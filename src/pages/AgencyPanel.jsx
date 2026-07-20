@@ -1314,7 +1314,19 @@ export default function AgencyPanel() {
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                         <div>
                           <div style={{ fontSize: 14, fontWeight: "700", color: "var(--text)" }}>{d.name}</div>
-                          <div style={{ fontSize: 11, color: "var(--text-dim)", marginTop: 2 }}>Code: {d.code}</div>
+                          <div style={{ fontSize: 11, color: "var(--text-dim)", marginTop: 2, display: "flex", alignItems: "center", gap: 6 }}>
+                            <span>Code: {d.code}</span>
+                            <span style={{
+                              padding: "2px 6px",
+                              borderRadius: 6,
+                              background: "rgba(59, 130, 246, 0.1)",
+                              color: "#3b82f6",
+                              fontWeight: "600",
+                              fontSize: "10px"
+                            }}>
+                              📍 {d.current_city || d.city || "Casablanca"}
+                            </span>
+                          </div>
                         </div>
                         <span style={{
                           padding: "4px 10px",
