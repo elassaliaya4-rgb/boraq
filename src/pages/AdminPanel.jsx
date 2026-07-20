@@ -1558,30 +1558,7 @@ function AgencyForm({ onClose, onSaved }) {
     const generatedPassword = `${safeSlug}123`;
 
     try {
-      const tempClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-        auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false }
-      });
-
-      let userId = null;
-      const { data: authData, error: authErr } = await tempClient.auth.signUp({
-        email: generatedEmail,
-        password: generatedPassword,
-      });
-
-      if (authData?.user) {
-        userId = authData.user.id;
-      } else if (authErr && (authErr.message?.includes("already registered") || authErr.code === "user_already_exists")) {
-        const { data: signInData } = await tempClient.auth.signInWithPassword({
-          email: generatedEmail,
-          password: generatedPassword,
-        });
-        userId = signInData?.user?.id;
-      } else if (authErr) {
-        setErr(authErr.message);
-        setBusy(false);
-        return;
-      }
-
+      // 1. Insert into agencies table FIRST
       const { data: agency, error: agErr } = await supabase
         .from("agencies")
         .insert({
@@ -1596,6 +1573,28 @@ function AgencyForm({ onClose, onSaved }) {
 
       if (agErr) { setErr(agErr.message); setBusy(false); return; }
 
+      // 2. Create Auth user silently
+      const tempClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+        auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false }
+      });
+
+      let userId = null;
+      const { data: authData } = await tempClient.auth.signUp({
+        email: generatedEmail,
+        password: generatedPassword,
+      });
+
+      if (authData?.user) {
+        userId = authData.user.id;
+      } else {
+        const { data: signInData } = await tempClient.auth.signInWithPassword({
+          email: generatedEmail,
+          password: generatedPassword,
+        });
+        userId = signInData?.user?.id;
+      }
+
+      // 3. Upsert profile if user ID exists
       if (agency?.id && userId) {
         await supabase.from("profiles").upsert({
           id: userId,
