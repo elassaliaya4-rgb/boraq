@@ -309,14 +309,17 @@ export default function AdminPanel() {
     const pkgId = pkg.id;
     const tracking = pkg.tracking_number;
 
-    const unreadMatching = notifs.filter(
-      (n) => !n.is_read && (n.package_id === pkgId || (tracking && n.message && n.message.includes(tracking)))
+    setNotifs((prev) =>
+      prev.map((item) => {
+        if (item.package_id === pkgId || (tracking && item.message && item.message.includes(tracking))) {
+          return { ...item, is_read: true };
+        }
+        return item;
+      })
     );
 
-    if (unreadMatching.length > 0) {
-      const ids = unreadMatching.map((n) => n.id);
-      await supabase.from("notifications").update({ is_read: true }).in("id", ids);
-      setNotifs((prev) => prev.map((item) => ids.includes(item.id) ? { ...item, is_read: true } : item));
+    if (pkgId) {
+      await supabase.from("notifications").update({ is_read: true }).eq("package_id", pkgId);
     }
   }
 
@@ -331,8 +334,8 @@ export default function AdminPanel() {
     await supabase.from("notifications").update({ is_read: true }).eq("id", n.id);
     setNotifs((prev) => prev.map((item) => item.id === n.id ? { ...item, is_read: true } : item));
     const pkg = packages.find((p) => p.id === n.package_id);
-    if (pkg) setDetailPkg(pkg);
-    loadData();
+    if (pkg) openPackageDetails(pkg);
+    else loadData();
   }
 
   async function deleteAgency(a) {
