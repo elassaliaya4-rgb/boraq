@@ -338,6 +338,29 @@ export default function AdminPanel() {
     else loadData();
   }
 
+  async function deleteNotif(n, e) {
+    if (e) e.stopPropagation();
+    try {
+      setNotifs((prev) => prev.filter((item) => item.id !== n.id));
+      await supabase.from("notifications").delete().eq("id", n.id);
+    } catch (err) {
+      console.error("deleteNotif error:", err);
+    }
+  }
+
+  async function clearAllAdminNotifs() {
+    if (!window.confirm(lang === "ar" ? "هل تريد مسح جميع الإشعارات؟" : "Effacer toutes les notifications ?")) return;
+    try {
+      setNotifs([]);
+      await supabase.from("notifications").delete().eq("target", "admin");
+      if (triggerToast) {
+        triggerToast(lang === "ar" ? "تم مسح جميع الإشعارات بنجاح" : "Toutes les notifications ont été supprimées");
+      }
+    } catch (err) {
+      console.error("clearAllAdminNotifs error:", err);
+    }
+  }
+
   async function deleteAgency(a) {
     const count = packages.filter((p) => p.agency_id === a.id).length;
     const msg =
@@ -1060,12 +1083,7 @@ export default function AdminPanel() {
               <h2 style={{ margin: 0 }}>{t.notifications}</h2>
               {notifs && notifs.length > 0 && (
                 <button
-                  onClick={async () => {
-                    if (window.confirm(lang === "ar" ? "هل تريد مسح جميع الإشعارات؟" : "Effacer toutes les notifications ?")) {
-                      await supabase.from("notifications").delete().eq("target", "admin");
-                      setNotifs([]);
-                    }
-                  }}
+                  onClick={clearAllAdminNotifs}
                   style={{
                     background: "rgba(239, 68, 68, 0.1)",
                     border: "1px solid rgba(239, 68, 68, 0.25)",
@@ -1089,18 +1107,36 @@ export default function AdminPanel() {
               <div className="notif">{t.noNotifications}</div>
             ) : (
               notifs.map((n) => (
-                <div key={n.id} className={`notif clickable ${n.is_read ? "" : "unread-admin"}`} onClick={() => openNotif(n)}>
+                <div key={n.id} className={`notif clickable ${n.is_read ? "" : "unread-admin"}`} onClick={() => openNotif(n)} style={{ display: "flex", alignItems: "center", gap: 10 }}>
                   <div className="icon" style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2.5"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
                   </div>
-                  <div className="body">
+                  <div className="body" style={{ flex: 1 }}>
                     <div className="msg">{t.newPackageAdmin} {n.agency_name}: <b>{n.message}</b></div>
                     <div className="hint" style={{ display: "flex", alignItems: "center", gap: 4 }}>
                       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
                       <span>{t.tapSee}</span>
                     </div>
                   </div>
-                  <div className="chev">{lang === "ar" ? "‹" : "›"}</div>
+                  <button
+                    onClick={(e) => deleteNotif(n, e)}
+                    style={{
+                      background: "rgba(239,68,68,0.1)",
+                      border: "none",
+                      color: "#ef4444",
+                      padding: "6px 10px",
+                      borderRadius: "8px",
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 4,
+                      fontSize: "12px",
+                      fontWeight: "600"
+                    }}
+                    title={lang === "ar" ? "مسح الإشعار" : "Supprimer"}
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                  </button>
                 </div>
               ))
             )}
