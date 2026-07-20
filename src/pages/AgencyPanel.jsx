@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import { useApp } from "../lib/context";
 import { supabase } from "../lib/supabase";
 import PackageForm from "../components/PackageForm";
@@ -12,8 +13,8 @@ import { Capacitor } from "@capacitor/core";
 export default function AgencyPanel() {
   const { t, lang, setLang, signOut, profile, user, triggerToast, theme, toggleTheme } = useApp();
   const isMobileAPK = Capacitor.getPlatform() === "android" || Capacitor.getPlatform() === "ios";
-  const [tabHistory, setTabHistory] = useState(["packages"]);
-  const [tab, setTabState] = useState("packages");
+  const [tabHistory, setTabHistory] = useState(["dashboard"]);
+  const [tab, setTabState] = useState("dashboard");
   const setTab = (newTab) => {
     setTabState((prevTab) => {
       if (prevTab !== newTab) {
@@ -504,6 +505,21 @@ export default function AgencyPanel() {
           </div>
         )}
         <div className="nav-grid">
+          <button className={`nav-item ${tab === "dashboard" ? "active" : ""}`} onClick={() => setTab("dashboard")} style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+            <div style={{
+              width: 32, height: 32, borderRadius: 9,
+              background: tab === "dashboard" ? "rgba(129,140,248,0.2)" : "rgba(255,255,255,0.06)",
+              color: tab === "dashboard" ? "#818cf8" : "var(--text-dim)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              flexShrink: 0, transition: "all 0.2s ease"
+            }}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 16, height: 16 }}>
+                <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3m0 4h4v-4m-4 0h4"/>
+              </svg>
+            </div>
+            <span style={{ flex: 1 }}>{lang === "ar" ? "لوحة التحكم" : "Tableau de bord"}</span>
+          </button>
+
           <button className={`nav-item ${tab === "packages" ? "active" : ""}`} onClick={() => setTab("packages")} style={{ display: "flex", alignItems: "center", gap: "12px" }}>
             <div style={{
               width: 32, height: 32, borderRadius: 9,
@@ -623,9 +639,9 @@ export default function AgencyPanel() {
       <main className="main" style={isMobileAPK ? { paddingTop: "10px", paddingBottom: "96px", width: "100%", overflowY: "auto" } : {}}>
         <div className="topbar" style={isMobileAPK ? { display: "none" } : {}}>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            {tab !== "packages" && (
+            {tab !== "dashboard" && (
               <button 
-                onClick={() => setTab("packages")} 
+                onClick={() => setTab("dashboard")} 
                 className="btn-accent" 
                 style={{ 
                   padding: "6px 12px", 
@@ -772,8 +788,111 @@ export default function AgencyPanel() {
           </div>
         </div>
 
-        {/* Session Scanned Packages Tray */}
-        {scannedSessionPkgs.length > 0 && (
+        {/* ── Dashboard Tab ── */}
+        {tab === "dashboard" && (() => {
+          const statusColors = { pending: "#94a3b8", inTransit: "#3b82f6", arrived: "#f59e0b", delivered: "#22c55e" };
+          const statusLabels = { pending: lang==="ar"?"انتظار":"En attente", inTransit: lang==="ar"?"في الطريق":"Transit", arrived: lang==="ar"?"وصل":"Arrivé", delivered: lang==="ar"?"مسلم":"Livré" };
+          const pieData = ["pending","inTransit","arrived","delivered"].map(s => ({
+            name: statusLabels[s],
+            value: packages.filter(p => p.status === s).length,
+            color: statusColors[s]
+          })).filter(d => d.value > 0);
+          const last7 = Array.from({length:7}, (_,i) => {
+            const d = new Date(); d.setDate(d.getDate() - (6-i));
+            const key = d.toISOString().slice(0,10);
+            const label = d.toLocaleDateString(lang==="ar"?"ar-MA":"fr-FR", {weekday:"short"});
+            return { label, count: packages.filter(p => p.created_at?.slice(0,10) === key).length };
+          });
+          return (
+            <>
+              {/* Stats cards */}
+              <div className="stats" style={{ marginBottom: 20 }}>
+                <div className="stat-card" style={{ cursor: "pointer" }} onClick={() => setTab("packages")}>
+                  <div className="val">{packages.length}</div>
+                  <div className="lbl">{lang === "ar" ? "إجمالي الطرود" : "Total Colis"}</div>
+                </div>
+                <div className="stat-card" style={{ cursor: "pointer" }} onClick={() => setTab("scan_session")}>
+                  <div className="val" style={{ color: "#f59e0b" }}>{packages.filter(p => p.status === "arrived").length}</div>
+                  <div className="lbl">{lang === "ar" ? "طرود واصلة" : "Colis Arrivés"}</div>
+                </div>
+                <div className="stat-card">
+                  <div className="val" style={{ color: "#22c55e" }}>{packages.filter(p => p.status === "delivered").length}</div>
+                  <div className="lbl">{lang === "ar" ? "طرود مسلمة" : "Colis Livrés"}</div>
+                </div>
+                <div className="stat-card" style={{ cursor: "pointer" }} onClick={() => setTab("scan_session")}>
+                  <div className="val" style={{ color: "#10b981" }}>{scannedSessionPkgs.length}</div>
+                  <div className="lbl">{lang === "ar" ? "ممسوحة هذه الجلسة" : "Scannés ce session"}</div>
+                </div>
+              </div>
+
+              {/* Charts */}
+              {packages.length > 0 && (
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 16, marginBottom: 24 }}>
+                  {/* Pie Chart */}
+                  <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 16, padding: 18 }}>
+                    <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 12, color: "var(--text)", display: "flex", alignItems: "center", gap: 6 }}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2.5"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>
+                      <span>{lang==="ar"?"توزيع حالات الطرود":"Répartition par Statut"}</span>
+                    </div>
+                    <ResponsiveContainer width="100%" height={200}>
+                      <PieChart>
+                        <Pie data={pieData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={70} innerRadius={35} paddingAngle={4}>
+                          {pieData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.color} />
+                          ))}
+                        </Pie>
+                        <Tooltip contentStyle={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 8, color: "var(--text)" }} />
+                        <Legend wrapperStyle={{ fontSize: 12, color: "var(--text)" }} />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+                  {/* Bar Chart */}
+                  <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 16, padding: 18 }}>
+                    <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 12, color: "var(--text)", display: "flex", alignItems: "center", gap: 6 }}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2.5"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                      <span>{lang==="ar"?"نشاط 7 أيام الأخيرة":"Activité 7 Derniers Jours"}</span>
+                    </div>
+                    <ResponsiveContainer width="100%" height={200}>
+                      <BarChart data={last7}>
+                        <XAxis dataKey="label" stroke="var(--text-dim)" fontSize={11} />
+                        <YAxis stroke="var(--text-dim)" fontSize={11} allowDecimals={false} />
+                        <Tooltip contentStyle={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 8, color: "var(--text)" }} />
+                        <Bar dataKey="count" fill="#3b82f6" radius={[6, 6, 0, 0]} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+              )}
+
+              {/* Quick action buttons */}
+              <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 16 }}>
+                <button
+                  onClick={() => setTab("packages")}
+                  style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "10px 20px", borderRadius: 12, background: "linear-gradient(135deg, #3b82f6, #2563eb)", border: "none", color: "#fff", fontSize: 13, fontWeight: 700, cursor: "pointer", boxShadow: "0 4px 16px rgba(59,130,246,0.3)" }}
+                >
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+                  <span>{lang === "ar" ? "إدارة الطرود" : "Gérer les Colis"}</span>
+                </button>
+                <button
+                  onClick={() => setTab("scan_session")}
+                  style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "10px 20px", borderRadius: 12, background: "linear-gradient(135deg, #10b981, #059669)", border: "none", color: "#fff", fontSize: 13, fontWeight: 700, cursor: "pointer", boxShadow: "0 4px 16px rgba(16,185,129,0.3)" }}
+                >
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 11 11 13 15 9"/></svg>
+                  <span>{lang === "ar" ? "مركز التحقق" : "Centre de Vérification"}</span>
+                </button>
+                <button
+                  onClick={() => setShowScanner(true)}
+                  style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "10px 20px", borderRadius: 12, background: "linear-gradient(135deg, #0ea5e9, #6366f1)", border: "none", color: "#fff", fontSize: 13, fontWeight: 700, cursor: "pointer", boxShadow: "0 4px 16px rgba(99,102,241,0.3)" }}
+                >
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M3 17v2a2 2 0 0 0 2 2h2"/><line x1="7" y1="12" x2="17" y2="12"/></svg>
+                  <span>{lang === "ar" ? "مسح الباركود" : "Scanner"}</span>
+                </button>
+              </div>
+            </>
+          );
+        })()}
+
+        {tab === "scan_session" && scannedSessionPkgs.length > 0 && (
           <div className="scanned-tray" style={{
             background: "var(--surface)",
             border: "1px solid rgba(16, 185, 129, 0.3)",
@@ -1314,6 +1433,15 @@ export default function AgencyPanel() {
         activeTab={tab}
         onChange={setTab}
         tabs={[
+          {
+            id: "dashboard",
+            label: lang === "ar" ? "لوحة التحكم" : "Tableau de bord",
+            icon: (
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ width: "100%", height: "100%" }}>
+                <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3m0 4h4v-4m-4 0h4"/>
+              </svg>
+            )
+          },
           {
             id: "packages",
             label: t.myPackages,

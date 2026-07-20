@@ -95,6 +95,8 @@ export default function MobileBottomNav({ tabs, activeTab, onChange }) {
   // ── Live pill position that follows the finger ────────────────────────────
   function getPillStyle() {
     const numTabs = tabs.length;
+    const isAr = lang === "ar";
+    const effectiveIndex = isAr ? (numTabs - 1 - activeIndex) : activeIndex;
 
     if (!touching || fingerX === null || !navRef.current) {
       // Snap to active tab with spring animation (perfectly centered)
@@ -102,7 +104,7 @@ export default function MobileBottomNav({ tabs, activeTab, onChange }) {
         position: "absolute",
         top: "6px",
         bottom: "6px",
-        left: `calc(12px + ${activeIndex} * ((100% - 12px) / ${numTabs}))`,
+        left: `calc(12px + ${effectiveIndex} * ((100% - 12px) / ${numTabs}))`,
         width: `calc(((100% - 12px) / ${numTabs}) - 12px)`,
         background: isLight ? "rgba(37, 99, 235, 0.12)" : "rgba(59, 130, 246, 0.14)",
         borderRadius: "20px",
