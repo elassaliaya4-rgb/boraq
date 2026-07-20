@@ -141,7 +141,7 @@ export default function DriverPanel() {
         try {
           if (navigator.vibrate) navigator.vibrate(60);
         } catch (e) {}
-        window.location.reload();
+        loadData(false);
       }
       startY = 0;
       pullDelta = 0;
@@ -157,6 +157,13 @@ export default function DriverPanel() {
       window.removeEventListener("touchend", handleTouchEnd);
     };
   }, []);
+
+  useEffect(() => {
+    if (!profile?.driver_id) return;
+    updateLocation(true);
+    const interval = setInterval(() => updateLocation(true), 30000);
+    return () => clearInterval(interval);
+  }, [profile?.driver_id]);
 
   async function updateLocation(isAuto = true) {
     if (!profile?.driver_id) return;
@@ -222,12 +229,7 @@ export default function DriverPanel() {
     }
   }
 
-  useEffect(() => {
-    if (!profile?.driver_id) return;
-    updateLocation(true);
-    const interval = setInterval(() => updateLocation(true), 30000);
-    return () => clearInterval(interval);
-  }, [profile, agencies, driverInfo]);
+
 
   async function loadData(silent = false) {
     if (!mountedRef.current) return;

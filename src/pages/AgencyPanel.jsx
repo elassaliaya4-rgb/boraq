@@ -272,7 +272,7 @@ export default function AgencyPanel() {
         try {
           if (navigator.vibrate) navigator.vibrate(60);
         } catch (e) {}
-        window.location.reload();
+        loadData(true);
       }
       startY = 0;
       pullDelta = 0;

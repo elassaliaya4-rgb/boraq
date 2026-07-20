@@ -180,7 +180,7 @@ export default function AdminPanel() {
         try {
           if (navigator.vibrate) navigator.vibrate(60);
         } catch (e) {}
-        window.location.reload();
+        loadPackages(true);
       }
       startY = 0;
       pullDelta = 0;
