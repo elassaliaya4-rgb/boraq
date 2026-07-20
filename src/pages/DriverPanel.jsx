@@ -189,9 +189,7 @@ export default function DriverPanel() {
       }
 
       if (lat && lng) {
-        const drvName = driverInfo?.name || profile?.name || "السائق";
-
-        // Update driver DB record
+        // Update driver DB record silently for live map tracking
         await supabase
           .from("drivers")
           .update({
@@ -201,31 +199,8 @@ export default function DriverPanel() {
           })
           .eq("id", profile.driver_id);
 
-        const notifMsg = lang === "ar"
-          ? `📍 السائق ${drvName} قام بتحديث موقعه الجغرافي على الخريطة`
-          : `📍 Le chauffeur ${drvName} a mis à jour sa position GPS en direct`;
-
-        // Send notification to Admin
-        await supabase.from("notifications").insert({
-          target: "admin",
-          agency_name: drvName,
-          message: notifMsg,
-          is_read: false
-        });
-
-        // Send notification to all agencies
-        if (agencies && agencies.length > 0) {
-          const agencyNotifs = agencies.map(a => ({
-            target: "agency",
-            agency_id: a.id,
-            message: notifMsg,
-            is_read: false
-          }));
-          await supabase.from("notifications").insert(agencyNotifs);
-        }
-
         if (!isAuto && triggerToast) {
-          triggerToast(lang === "ar" ? "تم تحديث موقعك وإرسال إشعار لجميع الوكالات والأدمين!" : "Position GPS mise à jour et envoyée à l'Admin et aux agences !");
+          triggerToast(lang === "ar" ? "تم تحديث موقعك على الخريطة بنجاح!" : "Position GPS mise à jour sur la carte !");
         }
       }
     } catch (error) {
