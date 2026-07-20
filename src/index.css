@@ -1133,17 +1133,16 @@ input, select, textarea {
 }
 
 @keyframes splash-drive {
-  0% { left: -40px; transform: scaleX(-1); }
-  45% { left: 240px; transform: scaleX(-1); opacity: 1; }
-  46% { left: 240px; opacity: 0; }
-  50% { left: -40px; opacity: 0; }
-  51% { left: -40px; opacity: 1; }
-  100% { left: 240px; transform: scaleX(-1); }
+  0% { left: -50px; transform: scaleX(1); }
+  90% { left: 250px; transform: scaleX(1); opacity: 1; }
+  91% { left: 250px; opacity: 0; }
+  95% { left: -50px; opacity: 0; }
+  100% { left: -50px; transform: scaleX(1); opacity: 1; }
 }
 
 @keyframes splash-speed {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-15px); }
+  0% { transform: translateX(-15px); }
+  100% { transform: translateX(0); }
 }
 
 @keyframes splash-load {
