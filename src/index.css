@@ -68,15 +68,56 @@ body.light-theme .status.delivered,
 }
 
 /* ── btn-sm: light-blue text invisible on white ── */
-body.light-theme .btn-sm,
-[data-theme="light"] .btn-sm {
+body.light-theme .btn-sm:not(.btn-danger),
+[data-theme="light"] .btn-sm:not(.btn-danger) {
   background: rgba(37, 99, 235, 0.08) !important;
   color: #1d4ed8 !important;
   border-color: rgba(37, 99, 235, 0.2) !important;
 }
-body.light-theme .btn-sm:hover,
-[data-theme="light"] .btn-sm:hover {
+body.light-theme .btn-sm:not(.btn-danger):hover,
+[data-theme="light"] .btn-sm:not(.btn-danger):hover {
   background: rgba(37, 99, 235, 0.15) !important;
+}
+
+/* ── Danger & Delete Buttons (Clean Light Red Fill, No Fuzzy Shadow) ── */
+body.light-theme .btn-danger,
+[data-theme="light"] .btn-danger,
+body.light-theme .btn-danger.btn-sm,
+[data-theme="light"] .btn-danger.btn-sm {
+  background: #fef2f2 !important;
+  color: #dc2626 !important;
+  border: 1px solid #fecaca !important;
+  box-shadow: none !important;
+}
+body.light-theme .btn-danger:hover,
+[data-theme="light"] .btn-danger:hover,
+body.light-theme .btn-danger.btn-sm:hover,
+[data-theme="light"] .btn-danger.btn-sm:hover {
+  background: #dc2626 !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.2) !important;
+}
+
+/* ── Action & Manage Buttons in Light Mode ── */
+body.light-theme .btn-manage,
+[data-theme="light"] .btn-manage {
+  background: #f1f5f9 !important;
+  color: #475569 !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: none !important;
+}
+body.light-theme .btn-manage:hover,
+[data-theme="light"] .btn-manage:hover {
+  background: #e2e8f0 !important;
+  color: #0f172a !important;
+}
+
+body.light-theme .btn-secondary,
+[data-theme="light"] .btn-secondary {
+  background: #f1f5f9 !important;
+  color: #334155 !important;
+  border: 1px solid #cbd5e1 !important;
+  box-shadow: none !important;
 }
 
 /* ── Error banner ── */
@@ -164,23 +205,15 @@ body.light-theme .mobile-nav-item.active,
 body.light-theme .scanned-tray,
 [data-theme="light"] .scanned-tray {
   background: #ffffff !important;
-  border: 1px solid #cbd5e1 !important;
-  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.06) !important;
-  color: #0f172a !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.05) !important;
 }
+
 body.light-theme .scanned-tray-card,
 [data-theme="light"] .scanned-tray-card {
-  background: #f1f5f9 !important;
-  border: 1px solid #cbd5e1 !important;
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
   box-shadow: 0 1px 4px rgba(15, 23, 42, 0.04) !important;
-  color: #0f172a !important;
-}
-body.light-theme .scanned-tray-card *,
-[data-theme="light"] .scanned-tray-card * {
-  color: #0f172a !important;
-}
-body.light-theme .scanned-tray-card .status {
-  color: #15803d !important;
 }
 
 /* ── Mobile header ── */
