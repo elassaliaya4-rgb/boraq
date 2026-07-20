@@ -47,8 +47,18 @@ export default function App() {
           <div className="splash-sub">LOGISTICS & MERCHANDISE</div>
         </div>
 
-        {/* ── Ultra-Pro 3D Semi-Truck (Rmook) Animation ── */}
+        {/* ── Ultra-Pro 3D Semi-Truck (Rmook) + 3D Highway Road (Chantii) Animation ── */}
         <div className="splash-3d-track">
+          {/* 3D Highway Road Surface (Chantii) */}
+          <div className="splash-road-bed">
+            <svg width="260" height="18" viewBox="0 0 260 18" fill="none">
+              <rect x="0" y="0" width="260" height="18" fill="#1e293b" />
+              <line x1="0" y1="2" x2="260" y2="2" stroke="#f59e0b" strokeWidth="1.5" />
+              <line x1="0" y1="10" x2="260" y2="10" stroke="#ffffff" strokeWidth="2" strokeDasharray="14 10" className="road-dashed-line" opacity="0.9" />
+              <line x1="0" y1="17" x2="260" y2="17" stroke="#38bdf8" strokeWidth="1" opacity="0.4" />
+            </svg>
+          </div>
+
           <div className="splash-3d-rmook">
             <svg width="100" height="46" viewBox="0 0 135 56" fill="none" xmlns="http://www.w3.org/2000/svg">
               <defs>
