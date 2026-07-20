@@ -1198,14 +1198,14 @@ export default function AdminPanel() {
                               padding: "4px 8px",
                               borderRadius: 8,
                               fontSize: 12,
-                              background: "rgba(59, 130, 246, 0.1)",
-                              color: "#3b82f6",
+                              background: d.current_city || d.city ? "rgba(59, 130, 246, 0.1)" : "var(--surface-2)",
+                              color: d.current_city || d.city ? "#3b82f6" : "var(--text-dim)",
                               fontWeight: 600,
                               display: "inline-flex",
                               alignItems: "center",
                               gap: 4
                             }}>
-                              📍 {d.current_city || d.city || "Casablanca"}
+                              📍 {d.current_city || d.city || (lang === "ar" ? "غير محدد بعد" : "Non déterminé")}
                             </span>
                             {d.latitude && d.longitude && (
                               <button
@@ -1607,7 +1607,7 @@ function AgencyForm({ onClose, onSaved }) {
 
 function ChauffeurForm({ onClose, onSaved }) {
   const { t, lang } = useApp();
-  const [form, setForm] = useState({ name: "", current_city: "Mohammedia" });
+  const [form, setForm] = useState({ name: "", current_city: "" });
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
 
@@ -1620,12 +1620,16 @@ function ChauffeurForm({ onClose, onSaved }) {
     }
     setBusy(true); setErr("");
 
+    const driverPayload = {
+      name: form.name.trim()
+    };
+    if (form.current_city.trim()) {
+      driverPayload.current_city = form.current_city.trim();
+    }
+
     const { error: drvErr } = await supabase
       .from("drivers")
-      .insert({
-        name: form.name.trim(),
-        current_city: form.current_city ? form.current_city.trim() : "Mohammedia"
-      });
+      .insert(driverPayload);
 
     if (drvErr) { setErr(drvErr.message); setBusy(false); return; }
 

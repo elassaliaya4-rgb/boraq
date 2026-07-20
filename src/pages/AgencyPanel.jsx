@@ -1318,15 +1318,15 @@ export default function AgencyPanel() {
                             <span style={{
                               padding: "2px 8px",
                               borderRadius: 6,
-                              background: "rgba(59, 130, 246, 0.1)",
-                              color: "#3b82f6",
+                              background: d.current_city || d.city ? "rgba(59, 130, 246, 0.1)" : "var(--surface-2)",
+                              color: d.current_city || d.city ? "#3b82f6" : "var(--text-dim)",
                               fontWeight: "600",
                               fontSize: "11px",
                               display: "inline-flex",
                               alignItems: "center",
                               gap: 4
                             }}>
-                              📍 {d.current_city || d.city || "Mohammedia"}
+                              📍 {d.current_city || d.city || (lang === "ar" ? "غير محدد بعد" : "Non déterminé")}
                             </span>
                           </div>
                         </div>
