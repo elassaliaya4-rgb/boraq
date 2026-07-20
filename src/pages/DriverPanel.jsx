@@ -287,10 +287,86 @@ export default function DriverPanel() {
     return (
       <div className="splash-container">
         <div className="splash-logo-wrap">
+          <div className="splash-logo-badge">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ color: "#38bdf8", filter: "drop-shadow(0 0 12px rgba(56, 189, 248, 0.6))" }}>
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" fill="#38bdf8" />
+            </svg>
+          </div>
           <div className="splash-logo-text">
-            ⚡ <span>Bora</span><span style={{ color: "#f59e0b" }}>q</span>
+            <span>Bora</span><span style={{ color: "#f59e0b" }}>q</span>
           </div>
           <div className="splash-sub">LOGISTICS & MERCHANDISE</div>
+        </div>
+
+        {/* ── Ultra-Pro 3D Semi-Truck (Rmook) Animation ── */}
+        <div className="splash-3d-track">
+          <div className="splash-3d-rmook">
+            <svg width="100" height="46" viewBox="0 0 135 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="trailer3d_d" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#38bdf8" />
+                  <stop offset="35%" stopColor="#1e293b" />
+                  <stop offset="100%" stopColor="#0f172a" />
+                </linearGradient>
+                <linearGradient id="cab3d_d" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" stopColor="#fbbf24" />
+                  <stop offset="50%" stopColor="#f59e0b" />
+                  <stop offset="100%" stopColor="#b45309" />
+                </linearGradient>
+                <radialGradient id="wheel3d_d" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stopColor="#94a3b8" />
+                  <stop offset="60%" stopColor="#1e293b" />
+                  <stop offset="100%" stopColor="#020617" />
+                </radialGradient>
+                <filter id="headlightGlow_d" x="-30%" y="-30%" width="160%" height="160%">
+                  <feGaussianBlur stdDeviation="3" result="blur" />
+                  <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                </filter>
+              </defs>
+
+              {/* 3D Exhaust Trail */}
+              <g className="rmook-exhaust">
+                <circle cx="2" cy="38" r="3" fill="#38bdf8" opacity="0.3" />
+                <circle cx="8" cy="38" r="4.5" fill="#38bdf8" opacity="0.5" />
+                <circle cx="15" cy="38" r="6" fill="#38bdf8" opacity="0.7" />
+              </g>
+
+              {/* 3D Long Semi Trailer (Rmook) Body */}
+              <rect x="18" y="10" width="65" height="30" rx="3" fill="url(#trailer3d_d)" stroke="rgba(56, 189, 248, 0.5)" strokeWidth="1.5" />
+              
+              {/* Trailer 3D Lines & Branding */}
+              <line x1="18" y1="20" x2="83" y2="20" stroke="rgba(56, 189, 248, 0.3)" strokeWidth="1" />
+              <line x1="18" y1="30" x2="83" y2="30" stroke="rgba(56, 189, 248, 0.2)" strokeWidth="1" />
+              <rect x="24" y="21" width="48" height="8" rx="2" fill="rgba(56, 189, 248, 0.15)" stroke="#38bdf8" strokeWidth="0.8" />
+              <text x="48" y="27" fill="#38bdf8" fontSize="5.5" fontWeight="900" textAnchor="middle" letterSpacing="0.6">BORAQ LOGISTICS</text>
+
+              {/* Cab Connector */}
+              <rect x="82" y="24" width="8" height="14" fill="#334155" />
+
+              {/* 3D Heavy Cab (Tracteur) */}
+              <path d="M86 16 H104 C108 16 112 20 114 25 L118 32 C119 34 119 40 119 40 H86 V16 Z" fill="url(#cab3d_d)" stroke="#f59e0b" strokeWidth="1.2" />
+              
+              {/* 3D Windshield Glass */}
+              <path d="M96 19 H105 L110 27 H96 V19 Z" fill="#0f172a" stroke="#38bdf8" strokeWidth="1" opacity="0.9" />
+
+              {/* Glowing Headlight & Beam */}
+              <circle cx="117" cy="35" r="2.5" fill="#fef08a" filter="url(#headlightGlow_d)" />
+              <polygon points="117,33 135,28 135,42 117,37" fill="rgba(254, 240, 138, 0.2)" />
+
+              {/* 3D Wheels (Chrome Rims) */}
+              <circle cx="30" cy="42" r="6" fill="url(#wheel3d_d)" stroke="#38bdf8" strokeWidth="1.2" />
+              <circle cx="30" cy="42" r="2" fill="#38bdf8" />
+
+              <circle cx="44" cy="42" r="6" fill="url(#wheel3d_d)" stroke="#38bdf8" strokeWidth="1.2" />
+              <circle cx="44" cy="42" r="2" fill="#38bdf8" />
+
+              <circle cx="68" cy="42" r="6" fill="url(#wheel3d_d)" stroke="#f59e0b" strokeWidth="1.2" />
+              <circle cx="68" cy="42" r="2" fill="#f59e0b" />
+
+              <circle cx="102" cy="42" r="6" fill="url(#wheel3d_d)" stroke="#f59e0b" strokeWidth="1.2" />
+              <circle cx="102" cy="42" r="2" fill="#f59e0b" />
+            </svg>
+          </div>
         </div>
 
         <div className="splash-loader-bar">
