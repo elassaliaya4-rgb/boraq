@@ -44,14 +44,45 @@ export default function Login() {
           // 2. Query drivers table if not found in agencies!
           const { data: drv } = await supabase
             .from("drivers")
-            .select("code, email")
+            .select("id, code, email")
             .or(`code.eq.${rawCode.toUpperCase()},code.eq.${rawCode},code.eq.${cleanCode}`)
             .maybeSingle();
 
           if (drv && drv.email) {
             loginEmail = drv.email;
-            const codeSlug = drv.code.toLowerCase().replace(/[^a-z0-9]/g, "");
+            const codeSlug = (drv.code || "").toLowerCase().replace(/[^a-z0-9]/g, "") || "driver";
             loginPassword = `${codeSlug}123456`;
+
+            // Auto-heal check for APK & Web: If auth user is missing or password differs
+            const { error: testErr } = await supabase.auth.signInWithPassword({
+              email: loginEmail,
+              password: loginPassword,
+            });
+
+            if (testErr) {
+              const tempClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+                auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false }
+              });
+              const { data: healData } = await tempClient.auth.signUp({
+                email: loginEmail,
+                password: loginPassword,
+              });
+              let healUserId = healData?.user?.id;
+              if (!healUserId) {
+                const { data: si } = await tempClient.auth.signInWithPassword({
+                  email: loginEmail,
+                  password: loginPassword
+                });
+                healUserId = si?.user?.id;
+              }
+              if (healUserId) {
+                await supabase.from("profiles").upsert({
+                  id: healUserId,
+                  role: "driver",
+                  driver_id: drv.id
+                });
+              }
+            }
           } else {
             setError(
               lang === "ar" 
