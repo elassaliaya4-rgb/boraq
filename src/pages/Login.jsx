@@ -29,7 +29,7 @@ export default function Login() {
         loginEmail = "admin@boraq.online";
         loginPassword = "admin123";
       } else {
-        // Query agencies table to get matching agency email/code
+        // 1. Query agencies table first
         const { data: ag } = await supabase
           .from("agencies")
           .select("code, email")
@@ -41,8 +41,25 @@ export default function Login() {
           const codeSlug = (ag.code || rawCode).toLowerCase().trim();
           loginPassword = `${codeSlug}123`;
         } else {
-          setError(lang === "ar" ? `كود الوكالة "${rawCode}" غير موجود في النظام. المرجو التأكد من الكود أو التواصل مع الأدمين.` : `Code d'agence "${rawCode}" non trouvé. Veuillez vérifier le code.`);
-          return;
+          // 2. Query drivers table if not found in agencies!
+          const { data: drv } = await supabase
+            .from("drivers")
+            .select("code, email")
+            .or(`code.eq.${rawCode.toUpperCase()},code.eq.${rawCode},code.eq.${cleanCode}`)
+            .maybeSingle();
+
+          if (drv && drv.email) {
+            loginEmail = drv.email;
+            const codeSlug = drv.code.toLowerCase().replace(/[^a-z0-9]/g, "");
+            loginPassword = `${codeSlug}123456`;
+          } else {
+            setError(
+              lang === "ar" 
+                ? `الكود "${rawCode}" غير موجود في النظام (سواء وكالة أو سائق). المرجو التأكد من الكود.` 
+                : `Code "${rawCode}" non trouvé (agence ou chauffeur). Veuillez vérifier le code.`
+            );
+            return;
+          }
         }
       }
     } else {
