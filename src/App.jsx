@@ -25,13 +25,35 @@ export default function App() {
     return (
       <div className="splash-container">
         <div className="splash-logo-wrap">
-          <div className="splash-logo-text">⚡ Boraq</div>
+          <div className="splash-logo-badge">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ color: "#38bdf8", filter: "drop-shadow(0 0 10px rgba(56, 189, 248, 0.5))" }}>
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" fill="#38bdf8" />
+            </svg>
+          </div>
+          <div className="splash-logo-text">
+            <span>Bora</span><span style={{ color: "#f59e0b" }}>q</span>
+          </div>
           <div className="splash-sub">LOGISTICS & MERCHANDISE</div>
         </div>
+
         <div className="splash-animation-box">
           <div className="splash-speed-lines"></div>
-          <div className="splash-truck">🚚💨</div>
+          <div className="splash-truck">
+            <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="url(#truckGrad)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <defs>
+                <linearGradient id="truckGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#38bdf8" />
+                  <stop offset="100%" stopColor="#f59e0b" />
+                </linearGradient>
+              </defs>
+              <rect x="1" y="3" width="15" height="13" rx="2" fill="rgba(56, 189, 248, 0.1)"/>
+              <polygon points="16 8 20 8 23 11 23 16 16 16 16 8" fill="rgba(245, 158, 11, 0.1)"/>
+              <circle cx="5.5" cy="18.5" r="2.5" fill="#38bdf8"/>
+              <circle cx="18.5" cy="18.5" r="2.5" fill="#f59e0b"/>
+            </svg>
+          </div>
         </div>
+
         <div className="splash-loader-bar">
           <div className="splash-loader-fill"></div>
         </div>
