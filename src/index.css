@@ -1095,36 +1095,34 @@ input, select, textarea {
 .splash-truck {
   position: absolute;
   bottom: 4px;
-  font-size: 28px;
-  animation: splash-drive 3.4s infinite linear;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  animation: splash-drive 3.2s infinite linear;
   white-space: nowrap !important;
 }
 
-.splash-speed-lines {
-  position: absolute;
-  bottom: 12px;
-  left: 20px;
-  width: 40px;
-  height: 6px;
-  background: repeating-linear-gradient(90deg, var(--primary), var(--primary) 6px, transparent 6px, transparent 12px);
-  opacity: 0.7;
-  animation: splash-speed 0.5s infinite linear;
+.splash-dust-trail {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  transform: translateY(10px);
 }
 
-.splash-loader-bar {
-  width: 180px;
+.splash-dust-trail span {
   height: 4px;
-  background: rgba(255, 255, 255, 0.08);
-  border-radius: 10px;
-  overflow: hidden;
+  border-radius: 4px;
+  background: linear-gradient(90deg, transparent, #38bdf8);
+  animation: splash-puff 0.4s infinite alternate ease-in-out;
 }
 
-.splash-loader-fill {
-  height: 100%;
-  width: 0%;
-  background: linear-gradient(90deg, var(--primary), var(--accent));
-  border-radius: 10px;
-  animation: splash-load 3s forwards cubic-bezier(0.1, 0.8, 0.25, 1);
+.splash-dust-trail span:nth-child(1) { width: 14px; opacity: 0.3; animation-delay: 0s; }
+.splash-dust-trail span:nth-child(2) { width: 10px; opacity: 0.6; animation-delay: 0.15s; }
+.splash-dust-trail span:nth-child(3) { width: 6px; opacity: 0.9; animation-delay: 0.3s; }
+
+@keyframes splash-puff {
+  0% { transform: scaleX(0.7); opacity: 0.3; }
+  100% { transform: scaleX(1.3); opacity: 0.9; }
 }
 
 @keyframes splash-pulse {
@@ -1133,16 +1131,11 @@ input, select, textarea {
 }
 
 @keyframes splash-drive {
-  0% { left: -50px; transform: scaleX(1); }
-  90% { left: 250px; transform: scaleX(1); opacity: 1; }
+  0% { left: -70px; opacity: 1; }
+  90% { left: 250px; opacity: 1; }
   91% { left: 250px; opacity: 0; }
-  95% { left: -50px; opacity: 0; }
-  100% { left: -50px; transform: scaleX(1); opacity: 1; }
-}
-
-@keyframes splash-speed {
-  0% { transform: translateX(-15px); }
-  100% { transform: translateX(0); }
+  95% { left: -70px; opacity: 0; }
+  100% { left: -70px; opacity: 1; }
 }
 
 @keyframes splash-load {

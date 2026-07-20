@@ -37,8 +37,12 @@ export default function App() {
         </div>
 
         <div className="splash-animation-box">
-          <div className="splash-speed-lines"></div>
           <div className="splash-truck">
+            <div className="splash-dust-trail">
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
             <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="url(#truckGrad)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <defs>
                 <linearGradient id="truckGrad" x1="0%" y1="0%" x2="100%" y2="100%">
