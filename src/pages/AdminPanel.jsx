@@ -1705,18 +1705,46 @@ function ChauffeurForm({ onClose, onSaved }) {
     setBusy(true); setErr("");
 
     const driverCode = form.code ? form.code.toUpperCase().trim() : `DRV-${Math.floor(100 + Math.random() * 900)}`;
+    const generatedEmail = `${driverCode.toLowerCase().replace(/[^a-z0-9]/g, "")}@boraq.com`;
+    const generatedPassword = `${driverCode.toLowerCase().replace(/[^a-z0-9]/g, "")}123`;
 
-    const { error: drvErr } = await supabase
-      .from("drivers")
-      .insert({
-        name: form.name.trim(),
-        code: driverCode
+    try {
+      const tempClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+        auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false }
       });
 
-    if (drvErr) { setErr(drvErr.message); setBusy(false); return; }
+      const { data: authData } = await tempClient.auth.signUp({
+        email: generatedEmail,
+        password: generatedPassword,
+      });
 
-    setBusy(false);
-    onSaved();
+      const { data: driver, error: drvErr } = await supabase
+        .from("drivers")
+        .insert({
+          name: form.name.trim(),
+          code: driverCode,
+          email: generatedEmail
+        })
+        .select()
+        .maybeSingle();
+
+      if (drvErr) { setErr(drvErr.message); setBusy(false); return; }
+
+      if (authData?.user && driver?.id) {
+        await supabase.from("profiles").insert({
+          id: authData.user.id,
+          role: "driver",
+          driver_id: driver.id
+        });
+      }
+
+      setBusy(false);
+      onSaved();
+    } catch (e) {
+      console.error("ChauffeurForm save error:", e);
+      setErr(e.message || "An error occurred");
+      setBusy(false);
+    }
   }
 
   return (
