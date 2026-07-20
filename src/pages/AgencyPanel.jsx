@@ -339,6 +339,40 @@ export default function AgencyPanel() {
     }
   }
 
+  async function markPackageNotifsRead(pkg) {
+    if (!pkg) return;
+    const pkgId = pkg.id;
+    const tracking = pkg.tracking_number;
+
+    const unreadMatching = notifs.filter(
+      (n) => !n.is_read && (n.package_id === pkgId || (tracking && n.message && n.message.includes(tracking)))
+    );
+
+    if (unreadMatching.length > 0) {
+      const ids = unreadMatching.map((n) => n.id);
+      await supabase.from("notifications").update({ is_read: true }).in("id", ids);
+      setNotifs((prev) => prev.map((item) => ids.includes(item.id) ? { ...item, is_read: true } : item));
+    }
+  }
+
+  function openPackageDetails(pkg) {
+    if (!pkg) return;
+    setDetailPkg(pkg);
+    markPackageNotifsRead(pkg);
+  }
+
+  async function validatePackage(pkg) {
+    if (!pkg) return;
+    markPackageNotifsRead(pkg);
+    const updatedPkg = { ...pkg, status: "arrived" };
+    setScannedSessionPkgs(prev => [updatedPkg, ...prev.filter(p => p.id !== pkg.id)]);
+    const { error } = await supabase.from("packages").update({ status: "arrived" }).eq("id", pkg.id);
+    if (!error) {
+      triggerToast(lang === "ar" ? "تم قبول الطرد بنجاح" : "Colis validé avec succès");
+      loadData();
+    }
+  }
+
   async function openNotif(n) {
     if (!n) return;
     await supabase.from("notifications").update({ is_read: true }).eq("id", n.id);
@@ -446,22 +480,21 @@ export default function AgencyPanel() {
                   style={{
                     background: "rgba(255,255,255,0.06)",
                     border: "none",
-                    borderRadius: "4px",
-                    width: "20px",
-                    height: "20px",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
+                    borderRadius: "6px",
+                    padding: "4px 8px",
                     cursor: "pointer",
                     fontSize: "10px",
                     color: "var(--text-dim)",
-                    transition: "all 0.2s"
+                    transition: "all 0.2s",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center"
                   }}
                   onMouseEnter={e => e.currentTarget.style.background = "rgba(255,255,255,0.12)"}
                   onMouseLeave={e => e.currentTarget.style.background = "rgba(255,255,255,0.06)"}
                   title={lang === "ar" ? "تعديل الموقع" : "Modifier localisation"}
                 >
-                  ✏️
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                 </button>
               </div>
             </div>
@@ -865,8 +898,9 @@ export default function AgencyPanel() {
               justifyContent: "space-between"
             }}>
               <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <span style={{ fontSize: 13, color: "var(--text-dim)", fontWeight: "600" }}>
-                  🏢 {lang === "ar" ? "وكالتك الحالية:" : "Votre agence :"} <b style={{ color: "#fbbf24" }}>{agencyInfo?.name}</b>
+                <span style={{ fontSize: 13, color: "var(--text-dim)", fontWeight: "600", display: "inline-flex", alignItems: "center", gap: 6 }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" strokeWidth="2.5"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><path d="M9 22v-4h6v4"/><line x1="8" y1="6" x2="8.01" y2="6"/><line x1="12" y1="6" x2="12.01" y2="6"/><line x1="16" y1="6" x2="16.01" y2="6"/></svg>
+                  <span>{lang === "ar" ? "وكالتك الحالية:" : "Votre agence :"} <b style={{ color: "#fbbf24" }}>{agencyInfo?.name}</b></span>
                 </span>
               </div>
 
@@ -920,7 +954,8 @@ export default function AgencyPanel() {
                         gap: 6
                       }}
                     >
-                      <span>⏳ {lang === "ar" ? "في انتظار التحقق" : "En attente"}</span>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                      <span>{lang === "ar" ? "في انتظار التحقق" : "En attente"}</span>
                       <span style={{ fontSize: 10, background: "rgba(255,255,255,0.2)", padding: "1px 6px", borderRadius: 8 }}>
                         {pendingPkgs.length}
                       </span>
@@ -942,7 +977,8 @@ export default function AgencyPanel() {
                         gap: 6
                       }}
                     >
-                      <span>✅ {lang === "ar" ? "الطرود المقبولة" : "Colis validés"}</span>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                      <span>{lang === "ar" ? "الطرود المقبولة" : "Colis validés"}</span>
                       <span style={{ fontSize: 10, background: "rgba(255,255,255,0.2)", padding: "1px 6px", borderRadius: 8 }}>
                         {validatedPkgs.length}
                       </span>
@@ -950,10 +986,18 @@ export default function AgencyPanel() {
                   </div>
 
                   {displayPkgs.length === 0 ? (
-                    <div style={{ padding: 40, textAlign: "center", background: "var(--surface)", border: "1px dashed var(--border)", borderRadius: 16, color: "var(--text-dim)" }}>
-                      {valTab === "pending"
-                        ? (lang === "ar" ? "🎉 تم التحقق من جميع الطرود بنجاح!" : "🎉 Tous les colis sont validés !")
-                        : (lang === "ar" ? "📭 لا توجد طرود ممسوحة حالياً" : "📭 Aucun colis validé pour le moment")}
+                    <div style={{ padding: 40, textAlign: "center", background: "var(--surface)", border: "1px dashed var(--border)", borderRadius: 16, color: "var(--text-dim)", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+                      {valTab === "pending" ? (
+                        <>
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                          <span>{lang === "ar" ? "تم التحقق من جميع الطرود بنجاح!" : "Tous les colis sont validés !"}</span>
+                        </>
+                      ) : (
+                        <>
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+                          <span>{lang === "ar" ? "لا توجد طرود ممسوحة حالياً" : "Aucun colis validé pour le moment"}</span>
+                        </>
+                      )}
                     </div>
                   ) : (
                     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: 12 }}>
@@ -989,7 +1033,11 @@ export default function AgencyPanel() {
                                 fontWeight: "bold",
                                 flexShrink: 0
                               }}>
-                                {isValidated ? "✓" : "⏳"}
+                                {isValidated ? (
+                                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg>
+                                ) : (
+                                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                                )}
                               </div>
                               
                               <div style={{ minWidth: 0 }}>
@@ -1005,8 +1053,10 @@ export default function AgencyPanel() {
                                     {isValidated ? (lang === "ar" ? "مقبول" : "Valide") : (lang === "ar" ? "في الانتظار" : "En attente")}
                                   </span>
                                 </div>
-                                <div className="card-meta-row" style={{ fontSize: 11, marginTop: 3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                                  {p.sender_name} ({p.origin}) ➔ {p.receiver_name}
+                                <div className="card-meta-row" style={{ fontSize: 11, marginTop: 3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", display: "flex", alignItems: "center", gap: 4 }}>
+                                  <span>{p.sender_name} ({p.origin})</span>
+                                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                                  <span>{p.receiver_name}</span>
                                 </div>
                               </div>
                             </div>
@@ -1030,27 +1080,25 @@ export default function AgencyPanel() {
                                     gap: 4
                                   }}
                                 >
-                                  ✓ {lang === "ar" ? "تأكيد" : "Valider"}
+                                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg>
+                                  <span>{lang === "ar" ? "تأكيد" : "Valider"}</span>
                                 </button>
                               )}
                               <button 
                                 className="btn-manage" 
-                                onClick={() => setDetailPkg(p)}
+                                onClick={() => openPackageDetails(p)}
                                 style={{ 
                                   padding: "6px 10px", 
                                   fontSize: 11, 
                                   borderRadius: 8, 
-                                  background: "var(--surface-2)", 
+                                  background: "var(--surface)", 
                                   border: "1px solid var(--border)",
                                   color: "var(--text)",
                                   cursor: "pointer",
-                                  fontWeight: "600",
-                                  display: "flex",
-                                  alignItems: "center",
-                                  justifyContent: "center"
+                                  fontWeight: "600"
                                 }}
                               >
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
                               </button>
                             </div>
                           </div>
@@ -1064,106 +1112,99 @@ export default function AgencyPanel() {
           </>
         )}
 
+        {tab === "packages" && (
+          <PackagesTable packages={packages} onManage={openPackageDetails} onRefresh={loadData} />
+        )}
+
         {tab === "drivers" && (
-          <>
+          <div>
             <div className="row-head" style={{ marginBottom: 16 }}>
-              <h2 style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M10 17h4V5H2v12h3"/><path d="M20 17h2v-3.34a4 4 0 0 0-1.17-2.83L19 9h-5v8h1"/><circle cx="7.5" cy="17.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg>
-                <span>{lang === "ar" ? "السائقين المتصلين والحالة" : "Chauffeurs en ligne & Statut"}</span>
+              <h2 style={{ margin: 0, fontSize: 18, fontWeight: "800", color: "var(--text)", display: "flex", alignItems: "center", gap: 8 }}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2.5"><rect x="1" y="3" width="15" height="13" rx="2"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+                <span>{lang === "ar" ? "السائقين المتصلين" : "Chauffeurs en ligne"}</span>
               </h2>
             </div>
-
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 14 }}>
-              {drivers.map((d) => {
-                const isOnline = d.last_active && (new Date() - new Date(d.last_active)) < 300000;
-                return (
-                  <div
-                    key={d.id}
-                    style={{
+            {drivers.length === 0 ? (
+              <div style={{ padding: 40, textAlign: "center", background: "var(--surface)", border: "1px dashed var(--border)", borderRadius: 16, color: "var(--text-dim)" }}>
+                {lang === "ar" ? "لا يوجد سائقين مسجلين حالياً" : "Aucun chauffeur enregistré pour le moment."}
+              </div>
+            ) : (
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 12 }}>
+                {drivers.map(d => {
+                  const isOnline = d.last_active && (new Date() - new Date(d.last_active)) < 180000;
+                  return (
+                    <div key={d.id} style={{
                       background: "var(--surface)",
                       border: "1px solid var(--border)",
-                      borderInlineStart: isOnline ? "4px solid #10b981" : "4px solid var(--text-dim)",
                       borderRadius: 14,
                       padding: 16,
                       display: "flex",
                       flexDirection: "column",
-                      gap: 12,
-                      boxShadow: "0 4px 16px rgba(0,0,0,0.05)"
-                    }}
-                  >
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                      <div>
-                        <div style={{ fontSize: 15, fontWeight: "700", color: "var(--text)" }}>{d.name}</div>
-                        <div style={{ fontSize: 11, color: "var(--text-dim)", marginTop: 2 }}>Code: <b>{d.code}</b></div>
-                      </div>
-                      <span style={{
-                        padding: "4px 10px",
-                        borderRadius: 12,
-                        fontSize: 11,
-                        fontWeight: "700",
-                        background: isOnline ? "rgba(16, 185, 129, 0.15)" : "rgba(148, 163, 184, 0.15)",
-                        color: isOnline ? "#10b981" : "var(--text-dim)",
-                        display: "inline-flex",
-                        alignItems: "center",
-                        gap: 4
-                      }}>
-                        <span style={{ width: 6, height: 6, borderRadius: "50%", background: isOnline ? "#10b981" : "#94a3b8" }}></span>
-                        {isOnline ? (lang === "ar" ? "متصل" : "En ligne") : (lang === "ar" ? "غير متصل" : "Hors ligne")}
-                      </span>
-                    </div>
-
-                    {d.latitude && d.longitude ? (
-                      <button
-                        onClick={() => setMapDriver(d)}
-                        className="btn-primary"
-                        style={{
-                          width: "100%",
-                          padding: "8px 12px",
-                          fontSize: 12,
-                          fontWeight: "700",
-                          borderRadius: 10,
-                          display: "flex",
+                      gap: 12
+                    }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                        <div>
+                          <div style={{ fontSize: 14, fontWeight: "700", color: "var(--text)" }}>{d.name}</div>
+                          <div style={{ fontSize: 11, color: "var(--text-dim)", marginTop: 2 }}>Code: {d.code}</div>
+                        </div>
+                        <span style={{
+                          padding: "4px 10px",
+                          borderRadius: 12,
+                          fontSize: 11,
+                          fontWeight: 700,
+                          background: isOnline ? "rgba(34, 197, 94, 0.15)" : "rgba(148, 163, 184, 0.15)",
+                          color: isOnline ? "#16a34a" : "var(--text-dim)",
+                          display: "inline-flex",
                           alignItems: "center",
-                          justifyContent: "center",
                           gap: 6
-                        }}
-                      >
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-                        <span>{lang === "ar" ? "تحديد موقع GPS المباشر" : "Position GPS Live"}</span>
-                      </button>
-                    ) : (
-                      <div style={{ fontSize: 11, color: "var(--text-dim)", fontStyle: "italic", textAlign: "center" }}>
-                        {lang === "ar" ? "لا يوجد موقع GPS حالياً" : "GPS non disponible"}
+                        }}>
+                          <span style={{ width: 7, height: 7, borderRadius: "50%", background: isOnline ? "#22c55e" : "#94a3b8" }}></span>
+                          <span>{isOnline ? (lang === "ar" ? "متصل" : "En ligne") : (lang === "ar" ? "غير متصل" : "Hors-ligne")}</span>
+                        </span>
                       </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          </>
-        )}
-
-        {tab === "packages" && (
-          <>
-            <div className="row-head">
-              <h2>{t.myPackages}</h2>
-              <button className="btn-accent btn-sm" onClick={() => setShowPkgForm(true)}>{t.addPackage}</button>
-            </div>
-            <PackagesTable packages={packages} onManage={setDetailPkg} onRefresh={loadData} />
-          </>
+                      {d.latitude && d.longitude && (
+                        <button
+                          onClick={() => setMapDriver(d)}
+                          className="btn-primary"
+                          style={{
+                            padding: "8px 12px",
+                            fontSize: 12,
+                            borderRadius: 10,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            gap: 6,
+                            fontWeight: "700"
+                          }}
+                        >
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                          <span>{lang === "ar" ? "موقع GPS المباشر" : "Position GPS Live"}</span>
+                        </button>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
         )}
 
         {tab === "notifs" && (
           <div>
-            {notifs.length === 0 ? (
+            {!notifs || notifs.length === 0 ? (
               <div className="notif">{t.noNotifications}</div>
             ) : (
               notifs.map((n) => (
                 <div key={n.id} className={`notif clickable ${n.is_read ? "" : "unread"}`} onClick={() => openNotif(n)}>
-                  <div className="icon">📦</div>
+                  <div className="icon" style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2.5"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+                  </div>
                   <div className="body">
                     <div className="msg">{t.newPackageNotif}: <b>{n.message}</b></div>
-                    <div className="hint">👆 {t.tapSee}</div>
+                    <div className="hint" style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                      <span>{t.tapSee}</span>
+                    </div>
                   </div>
                   <div className="chev">{lang === "ar" ? "‹" : "›"}</div>
                 </div>
@@ -1205,7 +1246,9 @@ export default function AgencyPanel() {
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
                 <span>{lang === "ar" ? `موقع السائق: ${mapDriver.name}` : `Position de ${mapDriver.name}`}</span>
               </h2>
-              <button className="btn-close" onClick={() => setMapDriver(null)}>✕</button>
+              <button className="btn-close" onClick={() => setMapDriver(null)} style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
             </div>
             <div id="live-map" style={{ width: "100%", height: 350, borderRadius: 12, overflow: "hidden", border: "1px solid var(--border)" }}></div>
             <div style={{ marginTop: 12, display: "flex", gap: 10 }}>
@@ -1214,9 +1257,10 @@ export default function AgencyPanel() {
                 target="_blank"
                 rel="noreferrer"
                 className="btn-primary"
-                style={{ textDecoration: "none", textAlign: "center", flex: 1, padding: "10px", borderRadius: 10, fontSize: 13 }}
+                style={{ textDecoration: "none", textAlign: "center", flex: 1, padding: "10px", borderRadius: 10, fontSize: 13, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}
               >
-                🗺️ {lang === "ar" ? "فتح في Google Maps" : "Ouvrir f Google Maps"}
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
+                <span>{lang === "ar" ? "فتح في Google Maps" : "Ouvrir f Google Maps"}</span>
               </a>
               <button className="btn-sm" onClick={() => setMapDriver(null)} style={{ flex: 1 }}>
                 {t.cancel}
@@ -1228,7 +1272,10 @@ export default function AgencyPanel() {
       {showSettings && (
         <div className="modal-bg" onClick={() => setShowSettings(false)}>
           <div className="modal" onClick={(e) => e.stopPropagation()}>
-            <h2>⚙️ {lang === "ar" ? "إعدادات موقع الوكالة" : "Paramètres de localisation"}</h2>
+            <h2 style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+              <span>{lang === "ar" ? "إعدادات موقع الوكالة" : "Paramètres de localisation"}</span>
+            </h2>
             <div className="field">
               <label>{lang === "ar" ? "المدينة" : "Ville"}</label>
               <input 

@@ -304,6 +304,28 @@ export default function AdminPanel() {
     XLSX.writeFile(wb, `${filename}_${new Date().toISOString().slice(0,10)}.xlsx`);
   }
 
+  async function markPackageNotifsRead(pkg) {
+    if (!pkg) return;
+    const pkgId = pkg.id;
+    const tracking = pkg.tracking_number;
+
+    const unreadMatching = notifs.filter(
+      (n) => !n.is_read && (n.package_id === pkgId || (tracking && n.message && n.message.includes(tracking)))
+    );
+
+    if (unreadMatching.length > 0) {
+      const ids = unreadMatching.map((n) => n.id);
+      await supabase.from("notifications").update({ is_read: true }).in("id", ids);
+      setNotifs((prev) => prev.map((item) => ids.includes(item.id) ? { ...item, is_read: true } : item));
+    }
+  }
+
+  function openPackageDetails(pkg) {
+    if (!pkg) return;
+    setDetailPkg(pkg);
+    markPackageNotifsRead(pkg);
+  }
+
   async function openNotif(n) {
     if (!n) return;
     await supabase.from("notifications").update({ is_read: true }).eq("id", n.id);
@@ -381,7 +403,7 @@ export default function AdminPanel() {
     const found = packages.find(
       (p) => p.tracking_number === tracking || p.tracking_number === text
     );
-    if (found) setDetailPkg(found);
+    if (found) openPackageDetails(found);
     else alert(t.notFound + ": " + tracking);
   }
 
@@ -772,29 +794,91 @@ export default function AdminPanel() {
                 </select>
               </div>
 
-              {/* Progress counter */}
-              {(() => {
-                const filteredPkgs = packages.filter(p => p.origin === scanFilterAgency);
-                const totalCount = filteredPkgs.length;
-                const verifiedCount = filteredPkgs.filter(p => scannedSessionPkgs.some(s => s.id === p.id)).length;
-                const percent = totalCount > 0 ? Math.round((verifiedCount / totalCount) * 100) : 0;
-                
-                return (
-                  <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-                    <div style={{ textAlign: "right" }}>
-                      <div style={{ fontSize: 13, fontWeight: "700" }}>
-                        {lang === "ar" ? `التحقق: ${verifiedCount} / ${totalCount}` : `Validés: ${verifiedCount} / ${totalCount}`}
-                      </div>
-                      <div style={{ fontSize: 11, color: "var(--text-dim)", marginTop: 2 }}>
-                        {lang === "ar" ? `${percent}% من الإجمالي` : `${percent}% du total`}
-                      </div>
-                    </div>
-                    {/* Progress bar */}
-                    <div style={{ width: 100, height: 8, background: "rgba(255,255,255,0.08)", borderRadius: 4, overflow: "hidden" }}>
-                      <div style={{ width: `${percent}%`, height: "100%", background: "#10b981", borderRadius: 4, transition: "width 0.3s ease" }}></div>
-                    </div>
+              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                <div style={{
+                  background: "var(--surface)",
+                  border: "1px solid var(--border)",
+                  padding: "8px 16px",
+                  borderRadius: 12,
+                  textAlign: "center"
+                }}>
+                  <div style={{ fontSize: 10, color: "var(--text-dim)", textTransform: "uppercase", fontWeight: 700 }}>
+                    {lang === "ar" ? "تم فحصها في هذه الجلسة" : "Scannés cette session"}
                   </div>
-                );
+                  <div style={{ fontSize: 20, fontWeight: 900, color: "#10b981" }}>
+                    {scannedSessionPkgs.length}
+                  </div>
+                </div>
+
+                {scannedSessionPkgs.length > 0 && (
+                  <button
+                    onClick={() => {
+                      if (window.confirm(lang === "ar" ? "هل تريد إعادة تعيين قائمة التحقق الجلسة؟" : "Réinitialiser la liste de vérification ?")) {
+                        setScannedSessionPkgs([]);
+                      }
+                    }}
+                    style={{
+                      background: "rgba(239, 68, 68, 0.1)",
+                      border: "1px solid rgba(239, 68, 68, 0.25)",
+                      color: "#ef4444",
+                      padding: "8px 12px",
+                      borderRadius: 10,
+                      fontSize: 12,
+                      fontWeight: 700,
+                      cursor: "pointer"
+                    }}
+                  >
+                    {lang === "ar" ? "إعادة تعيين" : "Réinitialiser"}
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Agency Tabs Selector */}
+            <div style={{ display: "flex", gap: 8, overflowX: "auto", paddingBottom: 4 }}>
+              {(() => {
+                const origins = Array.from(new Set(packages.map(p => p.origin).filter(Boolean)));
+                if (origins.length === 0) return null;
+
+                return origins.map(orig => {
+                  const countForOrig = packages.filter(p => p.origin === orig).length;
+                  const validatedForOrig = packages.filter(p => p.origin === orig && scannedSessionPkgs.some(s => s.id === p.id)).length;
+                  const isSelected = scanFilterAgency === orig;
+
+                  return (
+                    <button
+                      key={orig}
+                      onClick={() => setScanFilterAgency(orig)}
+                      style={{
+                        padding: "10px 18px",
+                        borderRadius: 12,
+                        fontSize: 13,
+                        fontWeight: 700,
+                        background: isSelected ? "linear-gradient(135deg, #3b82f6, #2563eb)" : "var(--surface)",
+                        color: isSelected ? "#fff" : "var(--text)",
+                        border: isSelected ? "none" : "1px solid var(--border)",
+                        cursor: "pointer",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 8,
+                        boxShadow: isSelected ? "0 4px 15px rgba(59, 130, 246, 0.3)" : "none",
+                        whiteSpace: "nowrap",
+                        transition: "all 0.2s ease"
+                      }}
+                    >
+                      <span>{orig}</span>
+                      <span style={{
+                        fontSize: 10,
+                        padding: "2px 7px",
+                        borderRadius: 10,
+                        background: isSelected ? "rgba(255,255,255,0.25)" : "rgba(255,255,255,0.08)",
+                        color: isSelected ? "#fff" : "var(--text-dim)"
+                      }}>
+                        {validatedForOrig}/{countForOrig}
+                      </span>
+                    </button>
+                  );
+                });
               })()}
             </div>
 
@@ -877,7 +961,7 @@ export default function AdminPanel() {
                         <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
                           <button 
                             className="btn-manage" 
-                            onClick={() => setDetailPkg(p)}
+                            onClick={() => openPackageDetails(p)}
                             style={{ 
                               padding: "6px 10px", 
                               fontSize: 11, 
@@ -901,11 +985,6 @@ export default function AdminPanel() {
                 </div>
               );
             })()}
-          </>
-        )}
-
-        {tab === "dashboard" && (
-          <>
             <div className="stats">
               <Stat val={packages?.length || 0} lbl={t.totalPackages} onClick={() => setTab("packages")} />
               <Stat val={agencies?.length || 0} lbl={t.totalAgencies} onClick={() => setTab("agencies")} />
@@ -932,43 +1011,38 @@ export default function AdminPanel() {
               });
 
               return (
-                <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(280px,1fr))", gap:16, marginBottom:24 }}>
-                  {/* Donut chart */}
-                  <div style={{ background:"var(--surface)", border:"1px solid var(--border)", borderRadius:16, padding:"20px 16px" }}>
-                    <div style={{ fontSize:13, fontWeight:700, color:"var(--text)", marginBottom:12, display: "flex", alignItems: "center", gap: 6 }}>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 16, marginBottom: 24 }}>
+                  {/* Pie Chart: Status Breakdown */}
+                  <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 16, padding: 18 }}>
+                    <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 12, color: "var(--text)", display: "flex", alignItems: "center", gap: 6 }}>
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2.5"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>
-                      <span>{lang==="ar" ? "توزيع الحالات" : "Répartition des statuts"}</span>
+                      <span>{lang==="ar"?"توزيع حالات الطرود":"Répartition par Statut"}</span>
                     </div>
-                    <ResponsiveContainer width="100%" height={180}>
+                    <ResponsiveContainer width="100%" height={200}>
                       <PieChart>
-                        <Pie data={pieData} cx="50%" cy="50%" innerRadius={50} outerRadius={80}
-                          dataKey="value" paddingAngle={3}>
-                          {pieData.map((e,i) => <Cell key={i} fill={e.color} />)}
+                        <Pie data={pieData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={70} innerRadius={35} paddingAngle={4}>
+                          {pieData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.color} />
+                          ))}
                         </Pie>
-                        <Tooltip formatter={(v,n) => [v, n]} contentStyle={{ background:"var(--surface)", border:"1px solid var(--border)", borderRadius:8, fontSize:12 }} />
-                        <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize:11 }} />
+                        <Tooltip contentStyle={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 8, color: "var(--text)" }} />
+                        <Legend wrapperStyle={{ fontSize: 12, color: "var(--text)" }} />
                       </PieChart>
                     </ResponsiveContainer>
                   </div>
 
-                  {/* Bar chart */}
-                  <div style={{ background:"var(--surface)", border:"1px solid var(--border)", borderRadius:16, padding:"20px 16px" }}>
-                    <div style={{ fontSize:13, fontWeight:700, color:"var(--text)", marginBottom:12, display: "flex", alignItems: "center", gap: 6 }}>
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2.5"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
-                      <span>{lang==="ar" ? "الطرود - آخر 7 أيام" : "Colis — 7 derniers jours"}</span>
+                  {/* Bar Chart: Last 7 Days Activity */}
+                  <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 16, padding: 18 }}>
+                    <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 12, color: "var(--text)", display: "flex", alignItems: "center", gap: 6 }}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2.5"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                      <span>{lang==="ar"?"نشاط 7 أيام الأخيرة":"Activité 7 Derniers Jours"}</span>
                     </div>
-                    <ResponsiveContainer width="100%" height={180}>
-                      <BarChart data={last7} margin={{ top:4, right:8, left:-20, bottom:0 }}>
-                        <XAxis dataKey="label" tick={{ fontSize:10, fill:"var(--text-dim)" }} axisLine={false} tickLine={false} />
-                        <YAxis allowDecimals={false} tick={{ fontSize:10, fill:"var(--text-dim)" }} axisLine={false} tickLine={false} />
-                        <Tooltip contentStyle={{ background:"var(--surface)", border:"1px solid var(--border)", borderRadius:8, fontSize:12 }} cursor={{ fill:"rgba(59,130,246,0.06)" }} />
-                        <Bar dataKey="count" name={lang==="ar"?"طرود":"Colis"} fill="url(#barGrad)" radius={[6,6,0,0]} />
-                        <defs>
-                          <linearGradient id="barGrad" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stopColor="#3b82f6" />
-                            <stop offset="100%" stopColor="#6366f1" />
-                          </linearGradient>
-                        </defs>
+                    <ResponsiveContainer width="100%" height={200}>
+                      <BarChart data={last7}>
+                        <XAxis dataKey="label" stroke="var(--text-dim)" fontSize={11} />
+                        <YAxis stroke="var(--text-dim)" fontSize={11} allowDecimals={false} />
+                        <Tooltip contentStyle={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 8, color: "var(--text)" }} />
+                        <Bar dataKey="count" fill="#3b82f6" radius={[6, 6, 0, 0]} />
                       </BarChart>
                     </ResponsiveContainer>
                   </div>
@@ -977,7 +1051,7 @@ export default function AdminPanel() {
             })()}
 
             <PkgHeader t={t} onAdd={() => setShowPkgForm(true)} />
-            <PackagesTable packages={packages} onManage={setDetailPkg} onRefresh={loadData} />
+            <PackagesTable packages={packages} onManage={openPackageDetails} onRefresh={loadData} />
           </>
         )}
 
@@ -998,7 +1072,7 @@ export default function AdminPanel() {
                 <span>{lang==="ar" ? "تصدير Excel" : "Exporter Excel"}</span>
               </button>
             </div>
-            <PackagesTable packages={packages} onManage={setDetailPkg} onRefresh={loadData} />
+            <PackagesTable packages={packages} onManage={openPackageDetails} onRefresh={loadData} />
           </>
         )}
 
@@ -1166,8 +1240,13 @@ export default function AdminPanel() {
         <div className="modal-bg" onClick={() => setMapDriver(null)}>
           <div className="modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 600 }}>
             <div className="modal-head">
-              <h2>📍 {lang === "ar" ? `موقع السائق: ${mapDriver.name}` : `Position de ${mapDriver.name}`}</h2>
-              <button className="btn-close" onClick={() => setMapDriver(null)}>✕</button>
+              <h2 style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                <span>{lang === "ar" ? `موقع السائق: ${mapDriver.name}` : `Position de ${mapDriver.name}`}</span>
+              </h2>
+              <button className="btn-close" onClick={() => setMapDriver(null)} style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
             </div>
             <div style={{ padding: "10px 0 0 0" }}>
               <div id="live-map" style={{ width: "100%", height: "400px", borderRadius: 12, background: "#1e293b" }}></div>
@@ -1179,7 +1258,8 @@ export default function AdminPanel() {
                   className="btn-secondary btn-sm"
                   style={{ textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 5 }}
                 >
-                  🗺️ {lang === "ar" ? "فتح في Google Maps" : "Ouvrir f Google Maps"}
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
+                  <span>{lang === "ar" ? "فتح في Google Maps" : "Ouvrir f Google Maps"}</span>
                 </a>
                 <button className="btn-primary btn-sm" onClick={() => setMapDriver(null)}>
                   {lang === "ar" ? "إغلاق" : "Fermer"}

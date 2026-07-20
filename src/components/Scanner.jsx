@@ -642,7 +642,8 @@ export default function Scanner({ onClose, onOpenPackage, agencies = [], onUpdat
             paddingLeft: 28,
             paddingRight: 28
           }}>
-            🎯 {lang === "ar" ? `الوكالة المستهدفة: ${expectedAgency}` : `Agence cible : ${expectedAgency}`}
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+            <span>{lang === "ar" ? `الوكالة المستهدفة: ${expectedAgency}` : `Agence cible : ${expectedAgency}`}</span>
           </div>
         )}
       </header>
@@ -677,7 +678,9 @@ export default function Scanner({ onClose, onOpenPackage, agencies = [], onUpdat
       {starting && !error && (
         <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", zIndex: 10004, background: "#000" }}>
           <div style={{ textAlign: "center" }}>
-            <div style={{ fontSize: 24 }}>📷</div>
+            <div style={{ display: "flex", justifyContent: "center", marginBottom: 8, color: "#3b82f6" }}>
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+            </div>
             <div style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", marginTop: 8 }}>
               {lang === "ar" ? "جاري تشغيل الكاميرا..." : "Démarrage de la caméra..."}
             </div>
@@ -686,8 +689,9 @@ export default function Scanner({ onClose, onOpenPackage, agencies = [], onUpdat
       )}
 
       {error && (
-        <div style={{ position: "absolute", top: 80, left: 16, right: 16, zIndex: 10005, background: "rgba(239, 68, 68, 0.95)", color: "#fff", padding: "10px 14px", borderRadius: 10, fontSize: 13, textAlign: "center", boxShadow: "0 4px 12px rgba(0,0,0,0.3)" }}>
-          ⚠️ {error}
+        <div style={{ position: "absolute", top: 80, left: 16, right: 16, zIndex: 10005, background: "rgba(239, 68, 68, 0.95)", color: "#fff", padding: "10px 14px", borderRadius: 10, fontSize: 13, textAlign: "center", boxShadow: "0 4px 12px rgba(0,0,0,0.3)", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <span>{error}</span>
         </div>
       )}
 
@@ -708,7 +712,7 @@ export default function Scanner({ onClose, onOpenPackage, agencies = [], onUpdat
             className={`scanner-circle-btn ${isTorchOn ? "active" : ""}`}
             title={lang === "ar" ? "الفلاش" : "Flashlight"}
           >
-            🔦
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
           </button>
         )}
         <button
@@ -716,7 +720,7 @@ export default function Scanner({ onClose, onOpenPackage, agencies = [], onUpdat
           className="scanner-circle-btn"
           title={lang === "ar" ? "المعرض" : "Galerie"}
         >
-          🖼️
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
         </button>
       </div>
 
@@ -726,8 +730,9 @@ export default function Scanner({ onClose, onOpenPackage, agencies = [], onUpdat
       {waQueue.length > 0 && (
         <div className="modal-bg" onClick={() => setWaQueue([])} style={{ zIndex: 10006 }}>
           <div className="modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 420 }}>
-            <div style={{ fontSize: 17, fontWeight: 600, marginBottom: 8 }}>
-              🟢 {lang === "ar" ? "إرسال إشعارات واتساب" : "Envoyer WhatsApp en masse"}
+            <div style={{ fontSize: 17, fontWeight: 700, marginBottom: 8, display: "flex", alignItems: "center", gap: 8 }}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2.5"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+              <span>{lang === "ar" ? "إرسال إشعارات واتساب" : "Envoyer WhatsApp en masse"}</span>
             </div>
             <div style={{ fontSize: 12, color: "var(--text-dim)", marginBottom: 14 }}>
               {lang === "ar" 
@@ -752,8 +757,9 @@ export default function Scanner({ onClose, onOpenPackage, agencies = [], onUpdat
                     <div style={{ fontSize: 12, fontWeight: 600, color: item.sent ? "#10b981" : "var(--text)" }}>
                       {item.pkg.tracking_number} • {item.pkg.receiver_name}
                     </div>
-                    <div style={{ fontSize: 11, color: "var(--text-dim)", marginTop: 2 }}>
-                      📱 {item.wa.phone}
+                    <div style={{ fontSize: 11, color: "var(--text-dim)", marginTop: 2, display: "flex", alignItems: "center", gap: 4 }}>
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                      <span>{item.wa.phone}</span>
                     </div>
                   </div>
                   <a
@@ -773,10 +779,23 @@ export default function Scanner({ onClose, onOpenPackage, agencies = [], onUpdat
                       borderRadius: 6,
                       background: item.sent ? "rgba(16, 185, 129, 0.15)" : "#10b981",
                       color: item.sent ? "#10b981" : "#fff",
-                      border: item.sent ? "1px solid rgba(16, 185, 129, 0.3)" : "none"
+                      border: item.sent ? "1px solid rgba(16, 185, 129, 0.3)" : "none",
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: 4
                     }}
                   >
-                    {item.sent ? (lang === "ar" ? "تم ✓" : "Envoyé ✓") : (lang === "ar" ? "إرسال 🟢" : "Envoyer 🟢")}
+                    {item.sent ? (
+                      <>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg>
+                        <span>{lang === "ar" ? "تم" : "Envoyé"}</span>
+                      </>
+                    ) : (
+                      <>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                        <span>{lang === "ar" ? "إرسال" : "Envoyer"}</span>
+                      </>
+                    )}
                   </a>
                 </div>
               ))}

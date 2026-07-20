@@ -36,8 +36,9 @@ export default function Ticket({ pkg, agencyName, onClose }) {
       <div className="modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 360 }}>
         <div className="ticket" id="ticket-print">
           <div className="t-head">
-            <div className="t-logo">
-              {agencyName && agencyName !== "—" ? `⚡ ${agencyName}` : `⚡ ${t.appName}`}
+            <div className="t-logo" style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="#3b82f6"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+              <span>{agencyName && agencyName !== "—" ? agencyName : t.appName}</span>
             </div>
             <div style={{ fontSize: 11, color: "#888" }}>Cargo & Livraison</div>
           </div>
@@ -53,8 +54,14 @@ export default function Ticket({ pkg, agencyName, onClose }) {
           <div className="t-qr"><canvas ref={canvasRef}></canvas></div>
         </div>
         <div className="modal-actions" style={{ gap: 8 }}>
-          <button className="btn-primary" onClick={handlePrint} style={{ flex: 1 }}>🖨️ {t.print}</button>
-          <button className="btn-sm" onClick={onClose} style={{ flex: 1 }}>⬅️ {lang === "ar" ? "رجوع" : "Retour"}</button>
+          <button className="btn-primary" onClick={handlePrint} style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+            <span>{t.print}</span>
+          </button>
+          <button className="btn-sm" onClick={onClose} style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+            <span>{lang === "ar" ? "رجوع" : "Retour"}</span>
+          </button>
         </div>
       </div>
     </div>
