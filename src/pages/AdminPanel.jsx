@@ -1551,53 +1551,66 @@ function AgencyForm({ onClose, onSaved }) {
     if (!form.name || !form.code) { setErr(t.fillAll); return; }
     setBusy(true); setErr("");
 
-    const generatedEmail = `${form.code.toLowerCase().trim()}@boraq.com`;
-    const generatedPassword = `${form.code.toLowerCase().trim()}123`;
+    const cleanCode = form.code.toUpperCase().trim();
+    const rawSlug = cleanCode.toLowerCase().replace(/[^a-z0-9]/g, "");
+    const safeSlug = rawSlug.length >= 1 ? rawSlug : `ag${Math.floor(100 + Math.random() * 900)}`;
+    const generatedEmail = `${safeSlug}@boraq.com`;
+    const generatedPassword = `${safeSlug}123`;
 
-    // Create a temp client just for auth signup so we don't hijack the admin's session
-    const tempClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-      auth: {
-        persistSession: false,
-        autoRefreshToken: false,
-        detectSessionInUrl: false
-      }
-    });
+    try {
+      const tempClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+        auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false }
+      });
 
-    const { data: authData, error: authErr } = await tempClient.auth.signUp({
-      email: generatedEmail, password: generatedPassword,
-    });
-    if (authErr) { setErr(authErr.message); setBusy(false); return; }
-
-    const { data: agency, error: agErr } = await supabase
-      .from("agencies")
-      .insert({
-        name: form.name,
-        code: form.code.toUpperCase().trim(),
-        city: form.city, 
+      let userId = null;
+      const { data: authData, error: authErr } = await tempClient.auth.signUp({
         email: generatedEmail,
-        google_maps_link: form.google_maps_link
-      })
-      .select().single();
+        password: generatedPassword,
+      });
 
-    if (agErr) { setErr(agErr.message); setBusy(false); return; }
-
-    if (authData.user) {
-      const { error: profErr } = await supabase
-        .from("profiles")
-        .insert({
-          id: authData.user.id,
-          role: "agency",
-          agency_id: agency.id
+      if (authData?.user) {
+        userId = authData.user.id;
+      } else if (authErr && (authErr.message?.includes("already registered") || authErr.code === "user_already_exists")) {
+        const { data: signInData } = await tempClient.auth.signInWithPassword({
+          email: generatedEmail,
+          password: generatedPassword,
         });
-      
-      if (profErr) {
-        setErr("Profile error: " + profErr.message);
+        userId = signInData?.user?.id;
+      } else if (authErr) {
+        setErr(authErr.message);
         setBusy(false);
         return;
       }
+
+      const { data: agency, error: agErr } = await supabase
+        .from("agencies")
+        .insert({
+          name: form.name.trim(),
+          code: cleanCode,
+          city: form.city ? form.city.trim() : "", 
+          email: generatedEmail,
+          google_maps_link: form.google_maps_link
+        })
+        .select()
+        .single();
+
+      if (agErr) { setErr(agErr.message); setBusy(false); return; }
+
+      if (agency?.id && userId) {
+        await supabase.from("profiles").upsert({
+          id: userId,
+          role: "agency",
+          agency_id: agency.id
+        });
+      }
+
+      setBusy(false);
+      onSaved();
+    } catch (e) {
+      console.error("AgencyForm save error:", e);
+      setErr(e.message || "An error occurred");
+      setBusy(false);
     }
-    setBusy(false);
-    onSaved();
   }
 
   return (
