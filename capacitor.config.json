@@ -3,6 +3,8 @@
   "appName": "Boraq",
   "webDir": "dist",
   "server": {
+    "url": "https://boraq.online",
+    "cleartext": true,
     "androidScheme": "https"
   },
   "plugins": {
