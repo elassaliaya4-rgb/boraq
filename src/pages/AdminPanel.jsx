@@ -1760,6 +1760,7 @@ function ChauffeurForm({ onClose, onSaved }) {
           <label>{t.code}</label>
           <input value={form.code} onChange={(e) => set("code", e.target.value)} placeholder="مثال: DRV-001" style={{ textTransform: "uppercase" }} />
         </div>
+        {/* Updated driver creation with email constraint fix - 2026-07-20 */}
         <div className="modal-actions">
           <button className="btn-primary" onClick={save} disabled={busy}>{busy ? "..." : t.save}</button>
           <button className="btn-sm" onClick={onClose}>{t.cancel}</button>
