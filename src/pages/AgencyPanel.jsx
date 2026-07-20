@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
+import { createClient } from "@supabase/supabase-js";
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import { useApp } from "../lib/context";
-import { supabase } from "../lib/supabase";
+import { supabase, SUPABASE_URL, SUPABASE_ANON_KEY } from "../lib/supabase";
 import PackageForm from "../components/PackageForm";
 import PackageDetails from "../components/PackageDetails";
 import Scanner from "../components/Scanner";
@@ -35,6 +36,7 @@ export default function AgencyPanel() {
   const [editCity, setEditCity] = useState("");
   const [editMapsLink, setEditMapsLink] = useState("");
   const [showPkgForm, setShowPkgForm] = useState(false);
+  const [showDrForm, setShowDrForm] = useState(false);
   const [detailPkg, setDetailPkg] = useState(null);
   const [showScanner, setShowScanner] = useState(false);
   const [scannedSessionPkgs, setScannedSessionPkgs] = useState(() => {
@@ -1312,11 +1314,15 @@ export default function AgencyPanel() {
 
         {tab === "drivers" && (
           <div>
-            <div className="row-head" style={{ marginBottom: 16 }}>
+            <div className="row-head" style={{ marginBottom: 16, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <h2 style={{ margin: 0, fontSize: 18, fontWeight: "800", color: "var(--text)", display: "flex", alignItems: "center", gap: 8 }}>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2.5"><rect x="1" y="3" width="15" height="13" rx="2"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
                 <span>{lang === "ar" ? "السائقين المتصلين" : "Chauffeurs en ligne"}</span>
               </h2>
+              <button className="btn-accent btn-sm" onClick={() => setShowDrForm(true)} style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                <span>{lang === "ar" ? "إضافة سائق" : "Ajouter Chauffeur"}</span>
+              </button>
             </div>
             {drivers.length === 0 ? (
               <div style={{ padding: 40, textAlign: "center", background: "var(--surface)", border: "1px dashed var(--border)", borderRadius: 16, color: "var(--text-dim)" }}>
@@ -1655,6 +1661,98 @@ export default function AgencyPanel() {
           </div>
         </div>
       )}
+
+      {showDrForm && (
+        <ChauffeurForm
+          onClose={() => setShowDrForm(false)}
+          onSaved={() => {
+            setShowDrForm(false);
+            loadData();
+          }}
+        />
+      )}
+    </div>
+  );
+}
+
+function ChauffeurForm({ onClose, onSaved }) {
+  const { t, lang } = useApp();
+  const [form, setForm] = useState({ name: "", code: "" });
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState("");
+
+  function set(k, v) { setForm((f) => ({ ...f, [k]: v })); }
+
+  async function save() {
+    if (!form.name.trim()) { 
+      setErr(lang === "ar" ? "المرجو إدخال اسم السائق" : "Veuillez entrer le nom du chauffeur"); 
+      return; 
+    }
+    setBusy(true); setErr("");
+
+    const driverCode = form.code ? form.code.toUpperCase().trim() : `DRV-${Math.floor(100 + Math.random() * 900)}`;
+    const rawSlug = driverCode.toLowerCase().replace(/[^a-z0-9]/g, "");
+    const safeSlug = rawSlug.length >= 2 ? rawSlug : `drv${Math.floor(100 + Math.random() * 900)}`;
+    const generatedEmail = `driver_${safeSlug}_${Date.now()}@boraq.com`;
+    const generatedPassword = `${safeSlug}123456`;
+
+    try {
+      const tempClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+        auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false }
+      });
+
+      const { data: authData } = await tempClient.auth.signUp({
+        email: generatedEmail,
+        password: generatedPassword,
+      });
+
+      const { data: driver, error: drvErr } = await supabase
+        .from("drivers")
+        .insert({
+          name: form.name.trim(),
+          code: driverCode,
+          email: generatedEmail
+        })
+        .select()
+        .maybeSingle();
+
+      if (drvErr) { setErr(drvErr.message); setBusy(false); return; }
+
+      if (authData?.user && driver?.id) {
+        await supabase.from("profiles").insert({
+          id: authData.user.id,
+          role: "driver",
+          driver_id: driver.id
+        });
+      }
+
+      setBusy(false);
+      onSaved();
+    } catch (e) {
+      console.error("ChauffeurForm save error:", e);
+      setErr(e.message || "An error occurred");
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div className="modal-bg" onClick={onClose}>
+      <div className="modal" onClick={(e) => e.stopPropagation()}>
+        <h2>{lang === "ar" ? "إضافة سائق جديد" : "Ajouter Chauffeur"}</h2>
+        {err && <div className="error">{err}</div>}
+        <div className="field">
+          <label>{t.name}</label>
+          <input value={form.name} onChange={(e) => set("name", e.target.value)} placeholder="مثال: ياسين السعيدي" />
+        </div>
+        <div className="field">
+          <label>{t.code}</label>
+          <input value={form.code} onChange={(e) => set("code", e.target.value)} placeholder="مثال: DRV-001" style={{ textTransform: "uppercase" }} />
+        </div>
+        <div className="modal-actions">
+          <button className="btn-primary" onClick={save} disabled={busy}>{busy ? "..." : t.save}</button>
+          <button className="btn-sm" onClick={onClose}>{t.cancel}</button>
+        </div>
+      </div>
     </div>
   );
 }
