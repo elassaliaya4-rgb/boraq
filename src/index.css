@@ -625,28 +625,64 @@ tr:last-child td {
   color: #86efac;
 }
 
+/* ── Global 60FPS / 120FPS GPU Hardware Acceleration for Mobile APK & Web ── */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button, .btn-primary, .btn-secondary, .card, .package-card, .status, .sidebar, header, nav, .modal {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+button:active, .btn-primary:active, .package-card:active {
+  transform: scale(0.97) translateZ(0) !important;
+  transition: transform 0.12s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
 /* Modal */
 .modal-bg {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.6);
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: center;
   padding: 20px;
   z-index: 10010; /* Render above mobile bottom navigation (999) */
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
+  animation: modal-fade-in 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: opacity, backdrop-filter;
 }
 
 .modal {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 18px;
+  border-radius: 20px;
   padding: 28px;
   width: 100%;
   max-width: 480px;
-  margin: 40px auto 80px auto; /* Ensure scroll space at the bottom */
+  margin: auto;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4), 0 0 30px rgba(56, 189, 248, 0.15);
+  animation: modal-spring-up 0.28s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  will-change: transform, opacity;
+}
+
+@keyframes modal-fade-in {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+@keyframes modal-spring-up {
+  0% { transform: translate3d(0, 35px, 0) scale(0.94); opacity: 0; }
+  100% { transform: translate3d(0, 0, 0) scale(1); opacity: 1; }
 }
 
 .modal h2 {
