@@ -262,6 +262,7 @@ export default function AdminPanel() {
     const { data: pkgs } = await supabase
       .from("packages")
       .select("*")
+      .neq("status", "deleted")
       .order("created_at", { ascending: false });
     const { data: ags } = await supabase
       .from("agencies")
@@ -271,14 +272,15 @@ export default function AdminPanel() {
       .from("notifications")
       .select("*")
       .eq("target", "admin")
+      .neq("target", "deleted")
       .order("created_at", { ascending: false });
     const { data: drvs } = await supabase
       .from("drivers")
       .select("*")
       .order("created_at", { ascending: false });
-    setPackages(pkgs || []);
+    setPackages((pkgs || []).filter(p => p.status !== "deleted"));
     setAgencies(ags || []);
-    setNotifs(nts || []);
+    setNotifs((nts || []).filter(n => n.target !== "deleted"));
     setDrivers(drvs || []);
 
     if (ags && ags.length > 0 && !scanFilterAgency) {
@@ -342,6 +344,7 @@ export default function AdminPanel() {
     if (e) e.stopPropagation();
     try {
       setNotifs((prev) => prev.filter((item) => item.id !== n.id));
+      await supabase.from("notifications").update({ target: "deleted", is_read: true }).eq("id", n.id);
       await supabase.from("notifications").delete().eq("id", n.id);
     } catch (err) {
       console.error("deleteNotif error:", err);
@@ -352,6 +355,7 @@ export default function AdminPanel() {
     if (!window.confirm(lang === "ar" ? "هل تريد مسح جميع الإشعارات؟" : "Effacer toutes les notifications ?")) return;
     try {
       setNotifs([]);
+      await supabase.from("notifications").update({ target: "deleted", is_read: true }).eq("target", "admin");
       await supabase.from("notifications").delete().eq("target", "admin");
       if (triggerToast) {
         triggerToast(lang === "ar" ? "تم مسح جميع الإشعارات بنجاح" : "Toutes les notifications ont été supprimées");
@@ -408,11 +412,16 @@ export default function AdminPanel() {
   async function deletePackage(p) {
     setDetailPkg(null);
     if (!p?.id) return;
-    const { error } = await supabase.from("packages").delete().eq("id", p.id);
-    if (error) {
-      alert("Error deleting: " + error.message);
-    } else {
+    try {
+      setPackages((prev) => prev.filter((item) => item.id !== p.id));
+      await supabase.from("packages").update({ status: "deleted" }).eq("id", p.id);
+      await supabase.from("packages").delete().eq("id", p.id);
+      await supabase.from("notifications").update({ target: "deleted" }).eq("package_id", p.id);
+      await supabase.from("notifications").delete().eq("package_id", p.id);
       triggerToast(lang === "ar" ? "تم حذف الطرد بنجاح" : "Colis supprimé avec succès");
+      loadData();
+    } catch (e) {
+      console.error("deletePackage error:", e);
       loadData();
     }
   }

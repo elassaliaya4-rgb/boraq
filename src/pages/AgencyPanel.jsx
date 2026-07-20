@@ -305,16 +305,18 @@ export default function AgencyPanel() {
     const { data: pkgs } = await supabase
       .from("packages")
       .select("*")
+      .neq("status", "deleted")
       .or(`agency_id.eq.${profile.agency_id},created_by_name.eq.${agencyName},origin.eq.${agencyCity}`)
       .order("created_at", { ascending: false });
-    setPackages(pkgs || []);
+    setPackages((pkgs || []).filter(p => p.status !== "deleted"));
 
     const { data: nts } = await supabase
       .from("notifications").select("*")
       .eq("agency_id", profile.agency_id)
       .eq("target", "agency")
+      .neq("target", "deleted")
       .order("created_at", { ascending: false });
-    setNotifs(nts || []);
+    setNotifs((nts || []).filter(n => n.target !== "deleted"));
 
     const { data: drs } = await supabase
       .from("drivers")
@@ -427,11 +429,16 @@ export default function AgencyPanel() {
   async function deletePackage(pkg) {
     setDetailPkg(null);
     if (!pkg?.id) return;
-    const { error } = await supabase.from("packages").delete().eq("id", pkg.id);
-    if (error) {
-      alert("Error: " + error.message);
-    } else {
+    try {
+      setPackages((prev) => prev.filter((item) => item.id !== pkg.id));
+      await supabase.from("packages").update({ status: "deleted" }).eq("id", pkg.id);
+      await supabase.from("packages").delete().eq("id", pkg.id);
+      await supabase.from("notifications").update({ target: "deleted" }).eq("package_id", pkg.id);
+      await supabase.from("notifications").delete().eq("package_id", pkg.id);
       triggerToast(lang === "ar" ? "تم حذف الطرد بنجاح" : "Colis supprimé avec succès");
+      loadData();
+    } catch (e) {
+      console.error("deletePackage error:", e);
       loadData();
     }
   }
