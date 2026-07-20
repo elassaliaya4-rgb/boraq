@@ -7,12 +7,7 @@ export const SUPABASE_ANON_KEY = "sb_publishable_bS00fApm1kOtGuJ7UNaBxw_TrIjXHil
 const tabIsolatedStorage = {
   getItem: (key) => {
     try {
-      let val = sessionStorage.getItem(key);
-      if (!val) {
-        val = localStorage.getItem(key);
-        if (val) sessionStorage.setItem(key, val);
-      }
-      return val;
+      return sessionStorage.getItem(key);
     } catch {
       return null;
     }
