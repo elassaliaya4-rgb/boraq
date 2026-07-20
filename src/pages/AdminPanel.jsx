@@ -1165,9 +1165,8 @@ export default function AdminPanel() {
                 <thead>
                   <tr>
                     <th>{t.name}</th>
-                    <th>{t.code}</th>
                     <th>{lang === "ar" ? "الحالة" : "Statut"}</th>
-                    <th>{lang === "ar" ? "الموقع" : "Localisation"}</th>
+                    <th>{lang === "ar" ? "الموقع الحالي" : "Localisation"}</th>
                     <th>{t.actions}</th>
                   </tr>
                 </thead>
@@ -1177,7 +1176,6 @@ export default function AdminPanel() {
                     return (
                       <tr key={d.id}>
                         <td><b>{d.name}</b></td>
-                        <td>{d.code}</td>
                         <td>
                           <span style={{
                             padding: "4px 10px",
@@ -1609,7 +1607,7 @@ function AgencyForm({ onClose, onSaved }) {
 
 function ChauffeurForm({ onClose, onSaved }) {
   const { t, lang } = useApp();
-  const [form, setForm] = useState({ name: "", code: "", current_city: "Casablanca" });
+  const [form, setForm] = useState({ name: "", current_city: "Mohammedia" });
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
 
@@ -1622,14 +1620,11 @@ function ChauffeurForm({ onClose, onSaved }) {
     }
     setBusy(true); setErr("");
 
-    const driverCode = form.code ? form.code.toUpperCase().trim() : `DRV-${Math.floor(100 + Math.random() * 900)}`;
-
     const { error: drvErr } = await supabase
       .from("drivers")
       .insert({
         name: form.name.trim(),
-        code: driverCode,
-        current_city: form.current_city ? form.current_city.trim() : "Casablanca"
+        current_city: form.current_city ? form.current_city.trim() : "Mohammedia"
       });
 
     if (drvErr) { setErr(drvErr.message); setBusy(false); return; }
@@ -1648,12 +1643,8 @@ function ChauffeurForm({ onClose, onSaved }) {
           <input value={form.name} onChange={(e) => set("name", e.target.value)} placeholder="مثال: ياسين السعيدي" />
         </div>
         <div className="field">
-          <label>{t.code}</label>
-          <input value={form.code} onChange={(e) => set("code", e.target.value)} placeholder="DRV-001" style={{ textTransform: "uppercase" }} />
-        </div>
-        <div className="field">
-          <label>{lang === "ar" ? "آخر موقع / المدينة" : "Dernière position / Ville"}</label>
-          <input value={form.current_city} onChange={(e) => set("current_city", e.target.value)} placeholder="Casablanca / الدار البيضاء" />
+          <label>{lang === "ar" ? "الموقع الحالي / المدينة" : "Position actuelle / Ville"}</label>
+          <input value={form.current_city} onChange={(e) => set("current_city", e.target.value)} placeholder="Mohammedia / المحمدية" />
         </div>
         <div className="modal-actions">
           <button className="btn-primary" onClick={save} disabled={busy}>{busy ? "..." : t.save}</button>
