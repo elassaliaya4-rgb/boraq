@@ -6,13 +6,13 @@ export default function LandingPage({ onOpenLogin }) {
   const { lang, setLang } = useApp();
   const isAr = lang === "ar";
 
-  // Tab State inside the tracking panel modal: 'tracking' | 'agencies' | 'simulator'
+  // Tab State inside tools panel modal: 'tracking' | 'agencies' | 'simulator'
   const [activeTab, setActiveTab] = useState("tracking");
 
   // Show interactive tracking panel overlay
   const [showToolModal, setShowToolModal] = useState(false);
 
-  // Bottom carousel index: 01 to 05 (matching the screenshot bottom indicator)
+  // Bottom/Slide Section indicator: 1 | 2 | 3 (For the cinematic showcase sections)
   const [carouselIndex, setCarouselIndex] = useState(1);
 
   // Tracking database states
@@ -85,37 +85,65 @@ export default function LandingPage({ onOpenLogin }) {
 
   const cities = Array.from(new Set(agencies.map(a => a.city).filter(Boolean)));
 
-  // 5 Step Steps for the right sidebar carousel
-  const steps = [
-    { id: 1, title: isAr ? "دفع الطرود" : "Dépôt colis", desc: isAr ? "استلام الطرود وتسجيلها بالباركود" : "Réception et enregistrement" },
-    { id: 2, title: isAr ? "الفرز والتعبئة" : "Tri & Emballage", desc: isAr ? "تجهيز وتغليف الشحنات" : "Préparation et emballage" },
-    { id: 3, title: isAr ? "الشحن البري" : "Transport routier", desc: isAr ? "انطلاق شاحنات النقل" : "Expédition et camionnage" },
-    { id: 4, title: isAr ? "الوصول للوجهة" : "Arrivée agence", desc: isAr ? "توزيع الشحنات بالوكالات" : "Arrivée et notifications SMS" },
-    { id: 5, title: isAr ? "تسليم الطرد" : "Remise destinataire", desc: isAr ? "التسليم للعميل بالرمز الموثق" : "Livraison finale sécurisée" }
+  // Mock floating dispatch items for interactive preview grid (Section 2 & 3)
+  const floatWidgets = [
+    { label: "EXPEDITION", val: "Tanger ➔ Casablanca", color: "#10b981", time: "14:32" },
+    { label: "STATUS", val: "En route - Camion Connecté", color: "#a855f7", time: "En direct" },
+    { label: "SMS SENT", val: "Alerte récepteur envoyé", color: "#f59e0b", time: "14:35" }
   ];
 
   return (
     <div dir={isAr ? "rtl" : "ltr"} style={{
       minHeight: "100vh",
-      background: "#f0f2f5",
-      color: "#1e293b",
+      background: "#080710", // Ultra premium dark cinematic background
+      color: "#f3f4f6",
       fontFamily: "system-ui, -apple-system, sans-serif",
       margin: 0,
       padding: "20px 40px",
       display: "flex",
       flexDirection: "column",
       justifyContent: "space-between",
-      boxSizing: "border-box"
+      boxSizing: "border-box",
+      overflowX: "hidden",
+      position: "relative"
     }}>
       
-      {/* ── 1. ULTRA PREMIUM NAVBAR (ChinaLogist Style) ── */}
+      {/* ── 3D Textured stones atmospheric background elements ── */}
+      <div style={{
+        position: "absolute",
+        top: "15%",
+        left: "5%",
+        width: "120px",
+        height: "120px",
+        background: "radial-gradient(circle, rgba(168,85,247,0.08) 0%, transparent 70%)",
+        borderRadius: "50%",
+        filter: "blur(20px)",
+        pointerEvents: "none",
+        zIndex: 1
+      }} />
+      <div style={{
+        position: "absolute",
+        bottom: "20%",
+        right: "8%",
+        width: "180px",
+        height: "180px",
+        background: "radial-gradient(circle, rgba(99,102,241,0.08) 0%, transparent 70%)",
+        borderRadius: "50%",
+        filter: "blur(30px)",
+        pointerEvents: "none",
+        zIndex: 1
+      }} />
+
+      {/* ── 1. CINEMATIC GLASS HEADER NAVBAR ── */}
       <header style={{
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
         width: "100%",
         padding: "10px 0",
-        boxSizing: "border-box"
+        boxSizing: "border-box",
+        zIndex: 10,
+        position: "relative"
       }}>
         {/* Logo and Subtitle */}
         <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
@@ -123,10 +151,11 @@ export default function LandingPage({ onOpenLogin }) {
             width: "42px",
             height: "42px",
             borderRadius: "10px",
-            background: "#111827",
+            background: "linear-gradient(135deg, #a855f7, #6366f1)",
             display: "flex",
             alignItems: "center",
-            justifyContent: "center"
+            justifyContent: "center",
+            boxShadow: "0 0 20px rgba(168,85,247,0.4)"
           }}>
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ffffff" strokeWidth="2.5">
               <polygon points="12 2 2 7 12 12 22 7 12 2"/>
@@ -135,8 +164,8 @@ export default function LandingPage({ onOpenLogin }) {
             </svg>
           </div>
           <div>
-            <div style={{ fontSize: "20px", fontWeight: "900", color: "#111827", letterSpacing: "-0.02em" }}>BoraqLogist</div>
-            <div style={{ fontSize: "11px", color: "#64748b", fontWeight: "700" }}>
+            <div style={{ fontSize: "20px", fontWeight: "900", color: "#ffffff", letterSpacing: "-0.02em" }}>BoraqLogist</div>
+            <div style={{ fontSize: "11px", color: "#94a3b8", fontWeight: "700" }}>
               {isAr ? "شحن لوجستي سريع بالمغرب" : "Livraison colis express au Maroc"}
             </div>
           </div>
@@ -147,33 +176,33 @@ export default function LandingPage({ onOpenLogin }) {
           display: "flex",
           alignItems: "center",
           gap: "8px",
-          background: "#ffffff",
+          background: "rgba(255,255,255,0.06)",
           padding: "6px 8px",
           borderRadius: "30px",
-          boxShadow: "0 4px 20px rgba(0,0,0,0.05)",
-          border: "1px solid rgba(0,0,0,0.03)"
+          border: "1px solid rgba(255,255,255,0.1)",
+          backdropFilter: "blur(12px)"
         }} className="desktop-only-table">
           <button
             onClick={() => { setActiveTab("tracking"); setShowToolModal(true); }}
-            style={{ background: "#111827", color: "#ffffff", border: "none", padding: "8px 20px", borderRadius: "20px", fontWeight: "800", fontSize: "13px", cursor: "pointer" }}
+            style={{ background: "#ffffff", color: "#080710", border: "none", padding: "8px 20px", borderRadius: "20px", fontWeight: "800", fontSize: "13px", cursor: "pointer" }}
           >
             {isAr ? "تتبع الشحنات" : "Suivi colis"}
           </button>
           <button
             onClick={() => { setActiveTab("agencies"); setShowToolModal(true); }}
-            style={{ background: "transparent", color: "#64748b", border: "none", padding: "8px 18px", borderRadius: "20px", fontWeight: "800", fontSize: "13px", cursor: "pointer" }}
+            style={{ background: "transparent", color: "#cbd5e1", border: "none", padding: "8px 18px", borderRadius: "20px", fontWeight: "800", fontSize: "13px", cursor: "pointer" }}
           >
             {isAr ? "الوكالات" : "Nos Agences"}
           </button>
           <button
             onClick={() => { setActiveTab("simulator"); setShowToolModal(true); }}
-            style={{ background: "transparent", color: "#64748b", border: "none", padding: "8px 18px", borderRadius: "20px", fontWeight: "800", fontSize: "13px", cursor: "pointer" }}
+            style={{ background: "transparent", color: "#cbd5e1", border: "none", padding: "8px 18px", borderRadius: "20px", fontWeight: "800", fontSize: "13px", cursor: "pointer" }}
           >
             {isAr ? "الأسعار" : "Tarifs"}
           </button>
           <button
             onClick={() => setLang(isAr ? "fr" : "ar")}
-            style={{ background: "transparent", color: "#64748b", border: "none", padding: "8px 18px", borderRadius: "20px", fontWeight: "800", fontSize: "13px", cursor: "pointer" }}
+            style={{ background: "transparent", color: "#cbd5e1", border: "none", padding: "8px 18px", borderRadius: "20px", fontWeight: "800", fontSize: "13px", cursor: "pointer" }}
           >
             {isAr ? "Français" : "العربية"}
           </button>
@@ -186,30 +215,28 @@ export default function LandingPage({ onOpenLogin }) {
             width: "44px",
             height: "44px",
             borderRadius: "50%",
-            background: "#ffffff",
+            background: "rgba(255,255,255,0.06)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            boxShadow: "0 4px 15px rgba(0,0,0,0.06)",
-            border: "1px solid rgba(0,0,0,0.03)",
-            color: "#111827"
+            border: "1px solid rgba(255,255,255,0.15)",
+            color: "#ffffff"
           }}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
           </a>
 
-          {/* Calculate Delivery Rounded Button */}
+          {/* Calculate Delivery button */}
           <button
             onClick={() => { setActiveTab("simulator"); setShowToolModal(true); }}
             style={{
-              background: "#ffffff",
-              border: "1px solid rgba(0,0,0,0.08)",
-              color: "#111827",
+              background: "rgba(255,255,255,0.08)",
+              border: "1px solid rgba(255,255,255,0.15)",
+              color: "#ffffff",
               padding: "10px 24px",
               borderRadius: "30px",
               cursor: "pointer",
               fontSize: "14px",
               fontWeight: "800",
-              boxShadow: "0 4px 18px rgba(0,0,0,0.05)",
               display: "flex",
               alignItems: "center",
               gap: "10px"
@@ -219,11 +246,11 @@ export default function LandingPage({ onOpenLogin }) {
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
           </button>
 
-          {/* Espace Pro Rounded Pill */}
+          {/* Espace Pro Pill */}
           <button
             onClick={onOpenLogin}
             style={{
-              background: "#111827",
+              background: "linear-gradient(135deg, #fd9a63 0%, #a855f7 100%)",
               border: "none",
               color: "#ffffff",
               padding: "10px 24px",
@@ -231,7 +258,7 @@ export default function LandingPage({ onOpenLogin }) {
               cursor: "pointer",
               fontSize: "14px",
               fontWeight: "800",
-              boxShadow: "0 4px 18px rgba(17,24,39,0.3)"
+              boxShadow: "0 4px 18px rgba(253,154,99,0.4)"
             }}
           >
             <span>{isAr ? "فضاء الخدامة" : "Espace Pro"}</span>
@@ -239,7 +266,7 @@ export default function LandingPage({ onOpenLogin }) {
         </div>
       </header>
 
-      {/* ── 2. TWO-COLUMN SPLIT HERO SECTION (ChinaLogist Replica) ── */}
+      {/* ── 2. TWO-COLUMN SPLIT HERO SECTION WITH DYNAMIC GRAPHICS (Subject & Scene) ── */}
       <main style={{
         display: "grid",
         gridTemplateColumns: "1.1fr 0.9fr",
@@ -247,49 +274,54 @@ export default function LandingPage({ onOpenLogin }) {
         alignItems: "center",
         width: "100%",
         marginTop: "30px",
-        boxSizing: "border-box"
+        boxSizing: "border-box",
+        zIndex: 5,
+        position: "relative"
       }} className="responsive-grid-landing">
         
-        {/* LEFT COLUMN: HERO TEXTS & PRIMARY ACTION BUTTONS */}
+        {/* LEFT COLUMN: SLEEK CONTRAST MODERN TYPOGRAPHY & TRANSITIONS */}
         <div style={{ display: "flex", flexDirection: "column", gap: "28px", textAlign: isAr ? "right" : "left" }}>
           
-          <h1 style={{
-            fontSize: "clamp(38px, 5.5vw, 68px)",
-            fontWeight: "900",
-            lineHeight: 1.08,
-            color: "#111827",
-            margin: 0,
-            letterSpacing: "-0.03em"
-          }}>
-            {isAr ? "توصيل طرود البضائع" : "Livraison de colis"}<br/>
-            {isAr ? "بـ كود موحد بالمغرب" : "au Maroc"}<br/>
-            <span style={{ color: "#64748b" }}>{isAr ? "تتبع فوري وموثوق" : "clés en main"}</span>
-
-            {/* Micro client badge next to heading */}
-            <div style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "8px",
-              background: "#ffffff",
-              padding: "6px 14px",
-              borderRadius: "24px",
-              border: "1px solid rgba(0,0,0,0.06)",
-              marginLeft: isAr ? "0" : "16px",
-              marginRight: isAr ? "16px" : "0",
-              fontSize: "13px",
-              verticalAlign: "middle"
-            }}>
-              {/* Stacked tiny driver headshot circles */}
-              <div style={{ display: "flex", alignItems: "center" }}>
-                <img src="/boraq_packaging.jpg" style={{ width: "24px", height: "24px", borderRadius: "50%", border: "2px solid #fff", objectFit: "cover" }} />
-                <img src="/boraq_3d_truck.jpg" style={{ width: "24px", height: "24px", borderRadius: "50%", border: "2px solid #fff", marginLeft: "-8px", objectFit: "cover" }} />
-                <img src="/boraq_map_tracking.jpg" style={{ width: "24px", height: "24px", borderRadius: "50%", border: "2px solid #fff", marginLeft: "-8px", objectFit: "cover" }} />
+          {carouselIndex === 1 && (
+            <div style={{ animation: "fadeInUp 0.6s ease" }}>
+              <div style={{ display: "inline-flex", padding: "6px 14px", borderRadius: "20px", background: "rgba(168,85,247,0.15)", color: "#c084fc", fontSize: "12px", fontWeight: "900", textTransform: "uppercase", marginBottom: "16px" }}>
+                SECTION 1 / 3 ✦ FAST DELIVERY ROUTES
               </div>
-              <span style={{ fontWeight: "800", color: "#111827" }}>5000+ {isAr ? "طرد يومياً" : "colis / jour"}</span>
+              <h1 style={{ fontSize: "clamp(34px, 5.5vw, 60px)", fontWeight: "900", lineHeight: 1.08, color: "#ffffff", margin: 0, letterSpacing: "-0.03em" }}>
+                {isAr ? "توصيل طرود البضائع" : "Livraison de colis"}<br/>
+                {isAr ? "بـ كود موحد بالمغرب" : "au Maroc"}<br/>
+                <span style={{ color: "#a855f7" }}>boraq.online</span>
+              </h1>
             </div>
-          </h1>
+          )}
 
-          <p style={{ fontSize: "16px", color: "#64748b", lineHeight: 1.6, margin: 0, maxWidth: "520px" }}>
+          {carouselIndex === 2 && (
+            <div style={{ animation: "fadeInUp 0.6s ease" }}>
+              <div style={{ display: "inline-flex", padding: "6px 14px", borderRadius: "20px", background: "rgba(99,102,241,0.15)", color: "#818cf8", fontSize: "12px", fontWeight: "900", textTransform: "uppercase", marginBottom: "16px" }}>
+                SECTION 2 / 3 ✦ BORAQ REVOLUTION
+              </div>
+              <h1 style={{ fontSize: "clamp(34px, 5.5vw, 60px)", fontWeight: "900", lineHeight: 1.08, color: "#ffffff", margin: 0, letterSpacing: "-0.03em" }}>
+                Revolutionizing<br/>
+                Delivery & Logistics<br/>
+                <span style={{ color: "#6366f1" }}>with Boraq</span>
+              </h1>
+            </div>
+          )}
+
+          {carouselIndex === 3 && (
+            <div style={{ animation: "fadeInUp 0.6s ease" }}>
+              <div style={{ display: "inline-flex", padding: "6px 14px", borderRadius: "20px", background: "rgba(253,154,99,0.15)", color: "#fdba74", fontSize: "12px", fontWeight: "900", textTransform: "uppercase", marginBottom: "16px" }}>
+                SECTION 3 / 3 ✦ START ORDER
+              </div>
+              <h1 style={{ fontSize: "clamp(34px, 5.5vw, 60px)", fontWeight: "900", lineHeight: 1.08, color: "#ffffff", margin: 0, letterSpacing: "-0.03em" }}>
+                Your Next Fast<br/>
+                Delivery Starts Here<br/>
+                <span style={{ color: "#fd9a63" }}>with boraq.online</span>
+              </h1>
+            </div>
+          )}
+
+          <p style={{ fontSize: "16px", color: "#94a3b8", lineHeight: 1.6, margin: 0, maxWidth: "520px" }}>
             {isAr
               ? "نقل وتغليف الطرود، تتبع مباشر عبر خريطة GPS المباشرة، إشعارات تلقائية للهاتف، وحلول متطورة لضمان وصول شحنتك بـ أمان."
               : "Prise en charge, emballage sécurisé, suivi GPS en direct de vos camions, notifications SMS automatiques et livraison garantie."}
@@ -300,7 +332,7 @@ export default function LandingPage({ onOpenLogin }) {
             <button
               onClick={() => { setActiveTab("tracking"); setShowToolModal(true); }}
               style={{
-                background: "#111827",
+                background: "linear-gradient(135deg, #a855f7, #6366f1)",
                 border: "none",
                 color: "#ffffff",
                 padding: "16px 36px",
@@ -311,7 +343,7 @@ export default function LandingPage({ onOpenLogin }) {
                 display: "flex",
                 alignItems: "center",
                 gap: "10px",
-                boxShadow: "0 6px 20px rgba(17,24,39,0.3)"
+                boxShadow: "0 6px 20px rgba(168,85,247,0.4)"
               }}
             >
               <span>{isAr ? "تتبع طردك الآن" : "Suivre mon colis"}</span>
@@ -321,9 +353,9 @@ export default function LandingPage({ onOpenLogin }) {
             <button
               onClick={() => { setActiveTab("simulator"); setShowToolModal(true); }}
               style={{
-                background: "#ffffff",
-                border: "1px solid rgba(0,0,0,0.08)",
-                color: "#111827",
+                background: "rgba(255,255,255,0.06)",
+                border: "1px solid rgba(255,255,255,0.15)",
+                color: "#ffffff",
                 padding: "16px 30px",
                 borderRadius: "30px",
                 cursor: "pointer",
@@ -331,15 +363,14 @@ export default function LandingPage({ onOpenLogin }) {
                 fontWeight: "800",
                 display: "flex",
                 alignItems: "center",
-                gap: "10px",
-                boxShadow: "0 4px 15px rgba(0,0,0,0.04)"
+                gap: "10px"
               }}
             >
               <div style={{
                 width: "28px",
                 height: "28px",
                 borderRadius: "50%",
-                background: "#f1f5f9",
+                background: "rgba(255,255,255,0.1)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center"
@@ -350,181 +381,236 @@ export default function LandingPage({ onOpenLogin }) {
             </button>
           </div>
 
-          {/* 4 Feature Badges in Footer Grid of Left Column */}
+          {/* 4 Feature Icons Badge Row */}
           <div style={{
             display: "grid",
             gridTemplateColumns: "repeat(auto-fit, minmax(110px, 1fr))",
             gap: "14px",
-            borderTop: "1px solid rgba(0,0,0,0.08)",
+            borderTop: "1px solid rgba(255,255,255,0.1)",
             paddingTop: "24px",
             marginTop: "10px"
           }}>
             <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-              <div style={{ fontSize: "12px", fontWeight: "900", color: "#111827" }}>{isAr ? "نقل سريع" : "Transport rapide"}</div>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#a855f7" strokeWidth="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+              <div style={{ fontSize: "12px", fontWeight: "900", color: "#cbd5e1" }}>{isAr ? "نقل سريع" : "Transport rapide"}</div>
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-              <div style={{ fontSize: "12px", fontWeight: "900", color: "#111827" }}>{isAr ? "تغليف مؤمن" : "Emballage sécurisé"}</div>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6366f1" strokeWidth="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              <div style={{ fontSize: "12px", fontWeight: "900", color: "#cbd5e1" }}>{isAr ? "تغليف مؤمن" : "Emballage sécurisé"}</div>
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-              <div style={{ fontSize: "12px", fontWeight: "900", color: "#111827" }}>{isAr ? "وثيقة موحدة" : "Code-barres unique"}</div>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fd9a63" strokeWidth="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+              <div style={{ fontSize: "12px", fontWeight: "900", color: "#cbd5e1" }}>{isAr ? "وثيقة موحدة" : "Code-barres unique"}</div>
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-              <div style={{ fontSize: "12px", fontWeight: "900", color: "#111827" }}>{isAr ? "توصيل للوجهة" : "Arrivée garantie"}</div>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+              <div style={{ fontSize: "12px", fontWeight: "900", color: "#cbd5e1" }}>{isAr ? "توصيل للوجهة" : "Arrivée garantie"}</div>
             </div>
           </div>
 
         </div>
 
-        {/* RIGHT COLUMN: SPLIT CONTAINER WITH HIGH-QUALITY Logistics Image & Overlay Badges */}
-        <div style={{ position: "relative", width: "100%", height: "100%" }}>
+        {/* RIGHT COLUMN: 3D ENVIRONMENT SHOWCASE CARD WITH FLOATING UI WIDGETS */}
+        <div style={{ position: "relative", width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          
+          {/* Main 3D Framed Showcase Image */}
           <div style={{
             borderRadius: "32px",
             overflow: "hidden",
             width: "100%",
-            height: "480px",
-            boxShadow: "0 30px 70px rgba(0,0,0,0.15)",
-            border: "6px solid #ffffff"
+            height: "440px",
+            boxShadow: "0 30px 70px rgba(0,0,0,0.6)",
+            border: "1.5px solid rgba(255,255,255,0.15)",
+            position: "relative"
           }}>
-            <img src="/boraq_3d_truck.jpg" alt="Boraq Logistics Deliveries" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+            <img src="/boraq_3d_truck.jpg" alt="Boraq Logistics Showcase" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+            
+            {/* Interactive glass bottom dispatch timeline bar inside the container */}
+            <div style={{
+              position: "absolute",
+              bottom: "16px",
+              left: "16px",
+              right: "16px",
+              background: "rgba(8, 7, 16, 0.75)",
+              backdropFilter: "blur(16px)",
+              borderRadius: "20px",
+              padding: "16px",
+              border: "1px solid rgba(255,255,255,0.1)",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              boxSizing: "border-box"
+            }}>
+              <div>
+                <span style={{ fontSize: "11px", fontWeight: "900", color: "#a855f7", textTransform: "uppercase" }}>STATUS REPORT</span>
+                <div style={{ fontSize: "14px", fontWeight: "900", color: "#ffffff" }}>Tanger ➔ Casablanca</div>
+              </div>
+              <span style={{ fontSize: "12px", fontWeight: "800", color: "#10b981", background: "rgba(16,185,129,0.15)", padding: "4px 10px", borderRadius: "12px" }}>
+                En Route
+              </span>
+            </div>
           </div>
 
-          {/* Badge 1: 10+ Years experience (Top Right) */}
+          {/* Floating UI Widget 1: Real-time Dispatch Info (Fades & Fleshes over) */}
           <div style={{
             position: "absolute",
-            top: "24px",
-            right: "24px",
-            background: "rgba(255,255,255,0.9)",
+            top: "30px",
+            left: "-20px",
+            background: "rgba(10, 15, 29, 0.85)",
             backdropFilter: "blur(12px)",
-            padding: "10px 16px",
-            borderRadius: "16px",
-            boxShadow: "0 8px 24px rgba(0,0,0,0.06)",
+            border: "1px solid rgba(255,255,255,0.12)",
+            borderRadius: "20px",
+            padding: "14px 18px",
+            boxShadow: "0 15px 30px rgba(0,0,0,0.4)",
             display: "flex",
             alignItems: "center",
-            gap: "10px"
+            gap: "12px",
+            animation: "floatSlow 4s ease-in-out infinite",
+            zIndex: 10
           }}>
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#111827" strokeWidth="2.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <div style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#10b981" }} />
             <div>
-              <div style={{ fontSize: "13px", fontWeight: "900", color: "#111827" }}>10+ {isAr ? "سنوات خبرة" : "ans d'excellence"}</div>
-              <div style={{ fontSize: "10px", color: "#64748b" }}>{isAr ? "الريادة اللوجستية" : "Leader au Maroc"}</div>
+              <div style={{ fontSize: "11px", color: "#94a3b8", fontWeight: "800" }}>DISPATCH GPS</div>
+              <div style={{ fontSize: "13px", fontWeight: "900", color: "#fff" }}>Camion Connecté 2026</div>
             </div>
           </div>
 
-          {/* Badge 2: Delivery to all cities (Bottom Right) */}
+          {/* Floating UI Widget 2: Fast Shipping Options (Fades & Fleshes over) */}
           <div style={{
             position: "absolute",
-            bottom: "24px",
-            right: "24px",
-            background: "rgba(255,255,255,0.9)",
+            bottom: "80px",
+            right: "-20px",
+            background: "rgba(10, 15, 29, 0.85)",
             backdropFilter: "blur(12px)",
-            padding: "12px 18px",
-            borderRadius: "16px",
-            boxShadow: "0 8px 24px rgba(0,0,0,0.06)",
+            border: "1px solid rgba(255,255,255,0.12)",
+            borderRadius: "20px",
+            padding: "14px 18px",
+            boxShadow: "0 15px 30px rgba(0,0,0,0.4)",
             display: "flex",
             alignItems: "center",
-            gap: "10px"
+            gap: "12px",
+            animation: "floatSlow 4s ease-in-out infinite 2s",
+            zIndex: 10
           }}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#111827" strokeWidth="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-            <div style={{ fontSize: "13px", fontWeight: "900", color: "#111827" }}>
-              {isAr ? "تغطية لكل المدن المغربية" : "Livraison toutes villes"}
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#a855f7" strokeWidth="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <div>
+              <div style={{ fontSize: "11px", color: "#94a3b8", fontWeight: "800" }}>EXPRESS DELIVERY</div>
+              <div style={{ fontSize: "13px", fontWeight: "900", color: "#fff" }}>Livraison sous 24H</div>
             </div>
           </div>
+
         </div>
 
       </main>
 
-      {/* ── 3. BOTTOM CAROUSEL TRACKER / STEP BAR & INDICATOR (ChinaLogist Replica) ── */}
+      {/* ── 3. BOTTOM CAROUSEL TIMELINE BAR & DIRECTIONAL NAVIGATION ── */}
       <footer style={{
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
         width: "100%",
         padding: "20px 0 10px 0",
-        borderTop: "1px solid rgba(0,0,0,0.08)",
+        borderTop: "1px solid rgba(255,255,255,0.1)",
         marginTop: "40px",
-        boxSizing: "border-box"
+        boxSizing: "border-box",
+        zIndex: 5,
+        position: "relative"
       }}>
-        {/* Left Side: Numeric Indicator 01 / 05 */}
-        <div style={{ fontSize: "14px", fontWeight: "800", color: "#64748b" }}>
-          <span style={{ color: "#111827", fontSize: "16px", fontWeight: "900" }}>0{carouselIndex}</span> / 05
+        {/* Left Side: Numeric Indicator 01 to 03 */}
+        <div style={{ fontSize: "14px", fontWeight: "800", color: "#94a3b8" }}>
+          <span style={{ color: "#ffffff", fontSize: "16px", fontWeight: "900" }}>0{carouselIndex}</span> / 03
         </div>
 
-        {/* Center: Horizontal Glass Step List (ChinaLogist Bottom Bar style) */}
+        {/* Center: Horizontal Slide Timeline Pills */}
         <div style={{
           display: "flex",
           alignItems: "center",
           gap: "8px",
-          background: "rgba(255,255,255,0.7)",
+          background: "rgba(255,255,255,0.04)",
           padding: "6px 12px",
           borderRadius: "24px",
-          border: "1px solid rgba(0,0,0,0.05)"
+          border: "1px solid rgba(255,255,255,0.08)"
         }} className="desktop-only-table">
-          {steps.map(s => {
-            const isActive = carouselIndex === s.id;
-            return (
-              <div
-                key={s.id}
-                onClick={() => setCarouselIndex(s.id)}
-                style={{
-                  padding: "8px 16px",
-                  borderRadius: "20px",
-                  background: isActive ? "#ffffff" : "transparent",
-                  color: isActive ? "#111827" : "#64748b",
-                  fontWeight: "800",
-                  fontSize: "12px",
-                  cursor: "pointer",
-                  boxShadow: isActive ? "0 4px 12px rgba(0,0,0,0.06)" : "none",
-                  transition: "all 0.2s ease",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "6px"
-                }}
-              >
-                <span>{s.id}. {s.title}</span>
-                {isActive && (
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-                )}
-              </div>
-            );
-          })}
+          <div
+            onClick={() => setCarouselIndex(1)}
+            style={{
+              padding: "8px 16px",
+              borderRadius: "20px",
+              background: carouselIndex === 1 ? "rgba(255,255,255,0.1)" : "transparent",
+              color: carouselIndex === 1 ? "#ffffff" : "#94a3b8",
+              fontWeight: "800",
+              fontSize: "12px",
+              cursor: "pointer",
+              transition: "all 0.2s ease"
+            }}
+          >
+            01. Fast Routes
+          </div>
+          <div
+            onClick={() => setCarouselIndex(2)}
+            style={{
+              padding: "8px 16px",
+              borderRadius: "20px",
+              background: carouselIndex === 2 ? "rgba(255,255,255,0.1)" : "transparent",
+              color: carouselIndex === 2 ? "#ffffff" : "#94a3b8",
+              fontWeight: "800",
+              fontSize: "12px",
+              cursor: "pointer",
+              transition: "all 0.2s ease"
+            }}
+          >
+            02. Boraq Revolution
+          </div>
+          <div
+            onClick={() => setCarouselIndex(3)}
+            style={{
+              padding: "8px 16px",
+              borderRadius: "20px",
+              background: carouselIndex === 3 ? "rgba(255,255,255,0.1)" : "transparent",
+              color: carouselIndex === 3 ? "#ffffff" : "#94a3b8",
+              fontWeight: "800",
+              fontSize: "12px",
+              cursor: "pointer",
+              transition: "all 0.2s ease"
+            }}
+          >
+            03. Final Call
+          </div>
         </div>
 
-        {/* Right Side: Directional Arrow buttons */}
+        {/* Right Side: Directional Navigation buttons */}
         <div style={{ display: "flex", gap: "8px" }}>
           <button
             onClick={() => setCarouselIndex(prev => Math.max(1, prev - 1))}
             style={{
-              width: "36px",
-              height: "36px",
+              width: "38px",
+              height: "38px",
               borderRadius: "50%",
-              background: "#ffffff",
-              border: "1px solid rgba(0,0,0,0.08)",
+              background: "rgba(255,255,255,0.06)",
+              border: "1px solid rgba(255,255,255,0.12)",
               cursor: "pointer",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              boxShadow: "0 2px 8px rgba(0,0,0,0.04)"
+              color: "#ffffff"
             }}
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
           </button>
 
           <button
-            onClick={() => setCarouselIndex(prev => Math.min(5, prev + 1))}
+            onClick={() => setCarouselIndex(prev => Math.min(3, prev + 1))}
             style={{
-              width: "36px",
-              height: "36px",
+              width: "38px",
+              height: "38px",
               borderRadius: "50%",
-              background: "#ffffff",
-              border: "1px solid rgba(0,0,0,0.08)",
+              background: "rgba(255,255,255,0.06)",
+              border: "1px solid rgba(255,255,255,0.12)",
               cursor: "pointer",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              boxShadow: "0 2px 8px rgba(0,0,0,0.04)"
+              color: "#ffffff"
             }}
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
@@ -540,8 +626,8 @@ export default function LandingPage({ onOpenLogin }) {
           left: 0,
           right: 0,
           bottom: 0,
-          background: "rgba(17, 24, 39, 0.4)",
-          backdropFilter: "blur(12px)",
+          background: "rgba(8, 7, 16, 0.6)",
+          backdropFilter: "blur(16px)",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
@@ -549,17 +635,19 @@ export default function LandingPage({ onOpenLogin }) {
           padding: "20px"
         }}>
           <div style={{
-            background: "#ffffff",
+            background: "#0c0a1e",
             borderRadius: "24px",
             width: "100%",
             maxWidth: "600px",
             padding: "30px",
-            boxShadow: "0 25px 70px rgba(0,0,0,0.15)",
+            boxShadow: "0 25px 70px rgba(0,0,0,0.7)",
+            border: "1.5px solid rgba(255, 255, 255, 0.12)",
             position: "relative",
-            textAlign: isAr ? "right" : "left"
+            textAlign: isAr ? "right" : "left",
+            color: "#ffffff"
           }}>
             {/* Modal Header Tabs */}
-            <div style={{ display: "flex", gap: "16px", marginBottom: "24px", borderBottom: "1px solid #f1f5f9", paddingBottom: "14px" }}>
+            <div style={{ display: "flex", gap: "16px", marginBottom: "24px", borderBottom: "1px solid rgba(255,255,255,0.1)", paddingBottom: "14px" }}>
               <button
                 onClick={() => setActiveTab("tracking")}
                 style={{
@@ -568,8 +656,8 @@ export default function LandingPage({ onOpenLogin }) {
                   paddingBottom: "8px",
                   fontSize: "15px",
                   fontWeight: "800",
-                  color: activeTab === "tracking" ? "#111827" : "#64748b",
-                  borderBottom: activeTab === "tracking" ? "2.5px solid #111827" : "none",
+                  color: activeTab === "tracking" ? "#ffffff" : "#94a3b8",
+                  borderBottom: activeTab === "tracking" ? "2.5px solid #a855f7" : "none",
                   cursor: "pointer"
                 }}
               >
@@ -583,8 +671,8 @@ export default function LandingPage({ onOpenLogin }) {
                   paddingBottom: "8px",
                   fontSize: "15px",
                   fontWeight: "800",
-                  color: activeTab === "agencies" ? "#111827" : "#64748b",
-                  borderBottom: activeTab === "agencies" ? "2.5px solid #111827" : "none",
+                  color: activeTab === "agencies" ? "#ffffff" : "#94a3b8",
+                  borderBottom: activeTab === "agencies" ? "2.5px solid #a855f7" : "none",
                   cursor: "pointer"
                 }}
               >
@@ -598,8 +686,8 @@ export default function LandingPage({ onOpenLogin }) {
                   paddingBottom: "8px",
                   fontSize: "15px",
                   fontWeight: "800",
-                  color: activeTab === "simulator" ? "#111827" : "#64748b",
-                  borderBottom: activeTab === "simulator" ? "2.5px solid #111827" : "none",
+                  color: activeTab === "simulator" ? "#ffffff" : "#94a3b8",
+                  borderBottom: activeTab === "simulator" ? "2.5px solid #a855f7" : "none",
                   cursor: "pointer"
                 }}
               >
@@ -612,7 +700,7 @@ export default function LandingPage({ onOpenLogin }) {
                 style={{
                   marginLeft: isAr ? "none" : "auto",
                   marginRight: isAr ? "auto" : "none",
-                  background: "#f1f5f9",
+                  background: "rgba(255,255,255,0.08)",
                   border: "none",
                   width: "32px",
                   height: "32px",
@@ -620,10 +708,11 @@ export default function LandingPage({ onOpenLogin }) {
                   cursor: "pointer",
                   display: "flex",
                   alignItems: "center",
-                  justifyContent: "center"
+                  justifyContent: "center",
+                  color: "#ffffff"
                 }}
               >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
               </button>
             </div>
 
@@ -640,7 +729,9 @@ export default function LandingPage({ onOpenLogin }) {
                       flex: 1,
                       padding: "14px 18px",
                       borderRadius: "12px",
-                      border: "1.5px solid #cbd5e1",
+                      border: "1.5px solid rgba(255,255,255,0.15)",
+                      background: "rgba(255,255,255,0.05)",
+                      color: "#ffffff",
                       fontSize: "14px",
                       fontWeight: "700",
                       outline: "none"
@@ -650,7 +741,7 @@ export default function LandingPage({ onOpenLogin }) {
                     type="submit"
                     disabled={trackLoading}
                     style={{
-                      background: "#111827",
+                      background: "linear-gradient(135deg, #a855f7, #6366f1)",
                       color: "#fff",
                       border: "none",
                       padding: "14px 24px",
@@ -663,15 +754,15 @@ export default function LandingPage({ onOpenLogin }) {
                   </button>
                 </form>
 
-                {trackError && <div style={{ color: "#ef4444", fontSize: "14px", fontWeight: "700", marginTop: "14px" }}>{trackError}</div>}
+                {trackError && <div style={{ color: "#f87171", fontSize: "14px", fontWeight: "700", marginTop: "14px" }}>{trackError}</div>}
 
                 {trackResult && (
-                  <div style={{ marginTop: "20px", padding: "18px", borderRadius: "14px", background: "#f8fafc", border: "1px solid #e2e8f0" }}>
+                  <div style={{ marginTop: "20px", padding: "18px", borderRadius: "14px", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}>
                     <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "10px" }}>
-                      <span style={{ fontWeight: "900", color: "#111827" }}>{trackResult.tracking_number}</span>
+                      <span style={{ fontWeight: "900", color: "#a855f7" }}>{trackResult.tracking_number}</span>
                       <span style={{ color: "#10b981", fontWeight: "800" }}>{trackResult.status}</span>
                     </div>
-                    <div style={{ fontSize: "13px", color: "#64748b" }}>
+                    <div style={{ fontSize: "13px", color: "#94a3b8" }}>
                       <div><b>{isAr ? "المستلم:" : "Destinataire:"}</b> {trackResult.receiver_name}</div>
                       <div><b>{isAr ? "الوجهة:" : "Origine:"}</b> {trackResult.origin}</div>
                     </div>
@@ -690,7 +781,9 @@ export default function LandingPage({ onOpenLogin }) {
                     width: "100%",
                     padding: "12px",
                     borderRadius: "12px",
-                    border: "1.5px solid #cbd5e1",
+                    border: "1.5px solid rgba(255,255,255,0.15)",
+                    background: "#0c0a1e",
+                    color: "#ffffff",
                     fontWeight: "700",
                     marginBottom: "16px"
                   }}
@@ -706,9 +799,9 @@ export default function LandingPage({ onOpenLogin }) {
                     agencies
                       .filter(a => selectedCity === "all" || a.city === selectedCity)
                       .map(a => (
-                        <div key={a.id} style={{ padding: "12px 0", borderBottom: "1px solid #f1f5f9" }}>
-                          <div style={{ fontWeight: "800", color: "#111827" }}>{a.name}</div>
-                          <div style={{ fontSize: "12px", color: "#64748b" }}>{a.city} {a.phone ? `| Tél: ${a.phone}` : ""}</div>
+                        <div key={a.id} style={{ padding: "12px 0", borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
+                          <div style={{ fontWeight: "800", color: "#ffffff" }}>{a.name}</div>
+                          <div style={{ fontSize: "12px", color: "#94a3b8" }}>{a.city} {a.phone ? `| Tél: ${a.phone}` : ""}</div>
                         </div>
                       ))
                   )}
@@ -721,33 +814,33 @@ export default function LandingPage({ onOpenLogin }) {
               <div>
                 <form onSubmit={handleSimulate} style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
                   <div>
-                    <label style={{ fontSize: "12px", fontWeight: "800", color: "#64748b" }}>{isAr ? "وزن الطرد (كلغ):" : "Poids (kg):"}</label>
+                    <label style={{ fontSize: "12px", fontWeight: "800", color: "#94a3b8" }}>{isAr ? "وزن الطرد (كلغ):" : "Poids (kg):"}</label>
                     <input
                       type="number"
                       min="1"
                       value={weight}
                       onChange={e => setWeight(parseInt(e.target.value) || 1)}
-                      style={{ width: "100%", padding: "12px", borderRadius: "12px", border: "1.5px solid #cbd5e1", fontWeight: "700", marginTop: "4px" }}
+                      style={{ width: "100%", padding: "12px", borderRadius: "12px", border: "1.5px solid rgba(255,255,255,0.15)", background: "rgba(255,255,255,0.05)", color: "#ffffff", fontWeight: "700", marginTop: "4px" }}
                     />
                   </div>
                   <div>
-                    <label style={{ fontSize: "12px", fontWeight: "800", color: "#64748b" }}>{isAr ? "نوع الشحن:" : "Type d'expédition:"}</label>
+                    <label style={{ fontSize: "12px", fontWeight: "800", color: "#94a3b8" }}>{isAr ? "نوع الشحن:" : "Type d'expédition:"}</label>
                     <select
                       value={serviceType}
                       onChange={e => setServiceType(e.target.value)}
-                      style={{ width: "100%", padding: "12px", borderRadius: "12px", border: "1.5px solid #cbd5e1", fontWeight: "700", marginTop: "4px" }}
+                      style={{ width: "100%", padding: "12px", borderRadius: "12px", border: "1.5px solid rgba(255,255,255,0.15)", background: "#0c0a1e", color: "#ffffff", fontWeight: "700", marginTop: "4px" }}
                     >
                       <option value="express">{isAr ? "سريع (24 ساعة)" : "Express (24H)"}</option>
                       <option value="standard">{isAr ? "عادي (48 ساعة)" : "Standard (48H)"}</option>
                     </select>
                   </div>
-                  <button type="submit" style={{ background: "#111827", color: "#fff", border: "none", padding: "14px", borderRadius: "12px", fontWeight: "800", cursor: "pointer" }}>
+                  <button type="submit" style={{ background: "linear-gradient(135deg, #a855f7, #6366f1)", color: "#fff", border: "none", padding: "14px", borderRadius: "12px", fontWeight: "800", cursor: "pointer" }}>
                     {isAr ? "احسب السعر" : "Calculer"}
                   </button>
                 </form>
 
                 {estimatedPrice !== null && (
-                  <div style={{ marginTop: "18px", padding: "14px", borderRadius: "10px", background: "#f0fdf4", border: "1px solid #bbf7d0", color: "#16a34a", fontWeight: "800", display: "flex", justifyContent: "space-between" }}>
+                  <div style={{ marginTop: "18px", padding: "14px", borderRadius: "10px", background: "rgba(16, 185, 129, 0.15)", border: "1px solid rgba(16, 185, 129, 0.3)", color: "#10b981", fontWeight: "800", display: "flex", justifyContent: "space-between" }}>
                     <span>{isAr ? "التسعيرة المقدرة للمغرب:" : "Prix d'envoi estimé:"}</span>
                     <span>{estimatedPrice} MAD</span>
                   </div>
@@ -757,6 +850,28 @@ export default function LandingPage({ onOpenLogin }) {
           </div>
         </div>
       )}
+
+      {/* Mini styles block for animation routines */}
+      <style>{`
+        @keyframes fadeInUp {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        @keyframes floatSlow {
+          0%, 100% {
+            transform: translateY(0px);
+          }
+          50% {
+            transform: translateY(-8px);
+          }
+        }
+      `}</style>
 
     </div>
   );
