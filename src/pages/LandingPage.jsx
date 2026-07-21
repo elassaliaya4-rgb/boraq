@@ -172,13 +172,7 @@ export default function LandingPage({ onOpenLogin }) {
           </span>
         </div>
 
-        {/* Desktop Nav Links (Screenshot 3 style) */}
-        <nav className="desktop-only-table" style={{ display: "flex", alignItems: "center", gap: "32px", fontSize: "15px", fontWeight: "700" }}>
-          <a href="#hero" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} style={{ color: "#ffffff", textDecoration: "none", borderBottom: "2px solid #a855f7", paddingBottom: "4px" }}>{isAr ? "الرئيسية" : "Accueil"}</a>
-          <a href="#process" style={{ color: "#cbd5e1", textDecoration: "none" }}>{isAr ? "مسار الشحنة" : "Nos Prestations"}</a>
-          <a href="#hero-tools" onClick={() => scrollToHeroTool("agencies")} style={{ color: "#cbd5e1", textDecoration: "none" }}>{isAr ? "شبكة الوكالات" : "Notre Structure"}</a>
-          <a href="#hero-tools" onClick={() => scrollToHeroTool("tracking")} style={{ color: "#cbd5e1", textDecoration: "none" }}>{isAr ? "تتبع الشحنة" : "Suivi de Colis"}</a>
-        </nav>
+
 
         {/* Right CTA Actions */}
         <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
