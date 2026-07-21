@@ -8,6 +8,7 @@ export default function LandingPage({ onOpenLogin }) {
 
   // Active Tab state: 'tracking' | 'agencies'
   const [activeTab, setActiveTab] = useState("tracking");
+  const [activeNav, setActiveNav] = useState("accueil");
 
   // Step Timeline tab state: 1 | 2 | 3 | 4 | 5
   const [activeStep, setActiveStep] = useState(1);
@@ -150,31 +151,97 @@ export default function LandingPage({ onOpenLogin }) {
         top: 0,
         zIndex: 1000
       }}>
-        {/* Brand Logo */}
+        {/* Outlined Logo Container (Screenshot replica) */}
         <div
-          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-          style={{ display: "flex", alignItems: "center", gap: "10px", fontWeight: "900", fontSize: "22px", color: "#fff", cursor: "pointer" }}
+          onClick={() => { setActiveNav("accueil"); window.scrollTo({ top: 0, behavior: "smooth" }); }}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "12px",
+            padding: "8px 16px",
+            borderRadius: "8px",
+            border: "1.5px solid rgba(255, 255, 255, 0.45)",
+            background: "rgba(255, 255, 255, 0.05)",
+            cursor: "pointer",
+            transition: "all 0.2s ease"
+          }}
+          onMouseEnter={e => e.currentTarget.style.borderColor = "#ffffff"}
+          onMouseLeave={e => e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.45)"}
         >
           <div style={{
-            width: "38px",
-            height: "38px",
-            borderRadius: "12px",
+            width: "26px",
+            height: "26px",
+            borderRadius: "6px",
             background: "linear-gradient(135deg, #a855f7, #6366f1)",
             display: "flex",
             alignItems: "center",
-            justifyContent: "center",
-            boxShadow: "0 0 16px rgba(168,85,247,0.4)"
+            justifyContent: "center"
           }}>
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="#ffffff"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="#ffffff"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
           </div>
-          <span style={{ fontSize: "22px", fontWeight: "900", color: "#ffffff" }}>
-            Boraq <span style={{ color: "#a855f7", fontSize: "12px", letterSpacing: "0.1em" }}>LOGISTICS</span>
+          <span style={{ fontSize: "17px", fontWeight: "900", color: "#ffffff", letterSpacing: "0.08em" }}>
+            BORAQ LOGISTICS
           </span>
         </div>
 
+        {/* Clean Spaced Navigation Menu Links with Active White Underline */}
+        <nav style={{ display: "flex", alignItems: "center", gap: "36px", fontSize: "14px", fontWeight: "700" }}>
+          <a
+            href="#hero"
+            onClick={(e) => { e.preventDefault(); setActiveNav("accueil"); window.scrollTo({ top: 0, behavior: "smooth" }); }}
+            style={{
+              color: "#ffffff",
+              textDecoration: "none",
+              paddingBottom: "4px",
+              borderBottom: activeNav === "accueil" ? "2px solid #ffffff" : "2px solid transparent",
+              transition: "border-color 0.25s ease"
+            }}
+          >
+            {isAr ? "الرئيسية" : "Accueil"}
+          </a>
 
+          <a
+            href="#services"
+            onClick={(e) => { e.preventDefault(); setActiveNav("prestations"); document.getElementById("process")?.scrollIntoView({ behavior: "smooth" }); }}
+            style={{
+              color: "#ffffff",
+              textDecoration: "none",
+              paddingBottom: "4px",
+              borderBottom: activeNav === "prestations" ? "2px solid #ffffff" : "2px solid transparent",
+              transition: "border-color 0.25s ease"
+            }}
+          >
+            {isAr ? "خدماتنا" : "Nos Prestations"}
+          </a>
 
-        {/* Right CTA Actions */}
+          <a
+            href="#process"
+            onClick={(e) => { e.preventDefault(); setActiveNav("structure"); document.getElementById("process")?.scrollIntoView({ behavior: "smooth" }); }}
+            style={{
+              color: "#ffffff",
+              textDecoration: "none",
+              paddingBottom: "4px",
+              borderBottom: activeNav === "structure" ? "2px solid #ffffff" : "2px solid transparent",
+              transition: "border-color 0.25s ease"
+            }}
+          >
+            {isAr ? "مسارنا" : "Notre Structure"}
+          </a>
+
+          <a
+            href="#hero-tools"
+            onClick={(e) => { e.preventDefault(); setActiveNav("suivi"); scrollToHeroTool("tracking"); }}
+            style={{
+              color: "#ffffff",
+              textDecoration: "none",
+              paddingBottom: "4px",
+              borderBottom: activeNav === "suivi" ? "2px solid #ffffff" : "2px solid transparent",
+              transition: "border-color 0.25s ease"
+            }}
+          >
+            {isAr ? "تتبع الشحنة" : "Suivi de Colis"}
+          </a>
+        </nav>        {/* Right CTA Actions */}
         <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
           <button
             onClick={() => setLang(isAr ? "fr" : "ar")}
