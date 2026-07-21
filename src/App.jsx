@@ -184,7 +184,7 @@ export default function App() {
                 >
                   ✕
                 </button>
-                <Login />
+                <Login isModal={true} />
               </div>
             </div>
           )}

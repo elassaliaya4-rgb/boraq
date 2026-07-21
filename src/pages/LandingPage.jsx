@@ -59,7 +59,7 @@ export default function LandingPage({ onOpenLogin }) {
         .single();
 
       if (error || !data) {
-        setTrackError(isAr ? "لم نجد أي طرد بهاد الرقم" : "Aucun colis trouvé avec ce numéro");
+        setTrackError(isAr ? "لم نجد أي طرد بهذا الرقم" : "Aucun colis trouvé avec ce numéro");
       } else {
         setTrackResult(data);
       }
@@ -73,7 +73,6 @@ export default function LandingPage({ onOpenLogin }) {
   // Handle Tariff Price Simulation
   function calculateTariff() {
     const w = parseFloat(weight) || 1;
-    // Base shipping rate structure (e.g. 35 MAD base + 5 MAD/kg extra)
     let baseRate = 35;
     if (simOrigin !== simDest) {
       baseRate += 15; // Inter-city shipping supplement
@@ -85,7 +84,7 @@ export default function LandingPage({ onOpenLogin }) {
   const cities = Array.from(new Set(agencies.map(a => a.city).filter(Boolean)));
 
   return (
-    <div dir={isAr ? "rtl" : "ltr"} style={{ minHeight: "100vh", background: "#0a0f1d", color: "#e2e8f0", fontFamily: "sans-serif" }}>
+    <div dir={isAr ? "rtl" : "ltr"} style={{ minHeight: "100vh", background: "#0a0f1d", color: "#e2e8f0", fontFamily: "system-ui, -apple-system, sans-serif" }}>
       
       {/* ── CTM-Style Top Navigation Bar ── */}
       <header style={{
@@ -139,17 +138,17 @@ export default function LandingPage({ onOpenLogin }) {
               background: "rgba(255, 255, 255, 0.06)",
               border: "1px solid rgba(255, 255, 255, 0.12)",
               color: "#e2e8f0",
-              padding: "7px 14px",
+              padding: "7px 16px",
               borderRadius: "20px",
               cursor: "pointer",
               fontSize: "13px",
               fontWeight: "700"
             }}
           >
-            {isAr ? "Français 🌐" : "العربية 🌐"}
+            {isAr ? "Français" : "العربية"}
           </button>
 
-          {/* CTM-Style Espace Pro / Espace Client Button */}
+          {/* Sleek Vector Espace Pro / Espace Client Button */}
           <button
             onClick={onOpenLogin}
             style={{
@@ -181,7 +180,7 @@ export default function LandingPage({ onOpenLogin }) {
             }}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
             </div>
-            <span>{isAr ? "فضاء الأطقم والخدامة 👤" : "Espace Pro / Client 👤"}</span>
+            <span>{isAr ? "فضاء الأطقم والخدامة" : "Espace Pro / Client"}</span>
           </button>
         </div>
       </header>
@@ -196,15 +195,6 @@ export default function LandingPage({ onOpenLogin }) {
         textAlign: "center",
         overflow: "hidden"
       }}>
-        {/* Subtle background road grid glow */}
-        <div style={{
-          position: "absolute",
-          inset: 0,
-          backgroundImage: "radial-gradient(rgba(56, 189, 248, 0.12) 1px, transparent 1px)",
-          backgroundSize: "32px 32px",
-          pointerEvents: "none"
-        }} />
-
         <div style={{ maxWidth: "900px", margin: "0 auto", position: "relative", zIndex: 2 }}>
           <h1 style={{
             fontSize: "clamp(28px, 5vw, 52px)",
@@ -219,10 +209,10 @@ export default function LandingPage({ onOpenLogin }) {
           <p style={{ fontSize: "17px", color: "#e2e8f0", maxWidth: "680px", margin: "0 auto 40px auto", lineHeight: 1.6, textShadow: "0 2px 10px rgba(0,0,0,0.8)" }}>
             {isAr
               ? "البراق للمطابقة واللوجستيك السريع فـ المغرب - تتبع فوري، سرعة فائقة، وشبكة موثوقة عبر كُـل المدن."
-              : "Le réseau leader du transport de colis et marchandises au Maroc. Rapidité, sécurité et fiabilité garaties."}
+              : "Le réseau leader du transport de colis et marchandises au Maroc. Rapidité, sécurité et fiabilité garanties."}
           </p>
 
-          {/* ── 3 Interactive CTM Hero Feature Cards ── */}
+          {/* ── 3 Interactive CTM Hero Feature Cards (No Emoji) ── */}
           <div style={{
             display: "grid",
             gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
@@ -238,7 +228,7 @@ export default function LandingPage({ onOpenLogin }) {
                 borderRadius: "18px",
                 background: activeTab === "tracking"
                   ? "linear-gradient(135deg, #0284c7 0%, #0284c7 100%)"
-                  : "rgba(30, 41, 59, 0.7)",
+                  : "rgba(30, 41, 59, 0.85)",
                 border: activeTab === "tracking" ? "2px solid #38bdf8" : "1px solid rgba(255, 255, 255, 0.1)",
                 boxShadow: activeTab === "tracking" ? "0 10px 30px rgba(2, 132, 199, 0.4)" : "0 4px 16px rgba(0,0,0,0.2)",
                 cursor: "pointer",
@@ -256,10 +246,10 @@ export default function LandingPage({ onOpenLogin }) {
                 justifyContent: "center",
                 margin: "0 auto 12px auto"
               }}>
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><path d="M11 8v6"/><path d="M8 11h6"/></svg>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><path d="M11 8v6"/><path d="M8 11h6"/></svg>
               </div>
               <h3 style={{ margin: 0, fontSize: "16px", fontWeight: "800", color: "#fff" }}>
-                {isAr ? "تتبع طردك (Suivi)" : "Suivi de colis"}
+                {isAr ? "تتبع الطرود" : "Suivi de colis"}
               </h3>
             </div>
 
@@ -271,7 +261,7 @@ export default function LandingPage({ onOpenLogin }) {
                 borderRadius: "18px",
                 background: activeTab === "agencies"
                   ? "linear-gradient(135deg, #dc2626 0%, #ef4444 100%)"
-                  : "rgba(30, 41, 59, 0.7)",
+                  : "rgba(30, 41, 59, 0.85)",
                 border: activeTab === "agencies" ? "2px solid #f87171" : "1px solid rgba(255, 255, 255, 0.1)",
                 boxShadow: activeTab === "agencies" ? "0 10px 30px rgba(239, 68, 68, 0.4)" : "0 4px 16px rgba(0,0,0,0.2)",
                 cursor: "pointer",
@@ -289,7 +279,7 @@ export default function LandingPage({ onOpenLogin }) {
                 justifyContent: "center",
                 margin: "0 auto 12px auto"
               }}>
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
               </div>
               <h3 style={{ margin: 0, fontSize: "16px", fontWeight: "800", color: "#fff" }}>
                 {isAr ? "وكالاتنا فـ المغرب" : "Nos agences"}
@@ -304,7 +294,7 @@ export default function LandingPage({ onOpenLogin }) {
                 borderRadius: "18px",
                 background: activeTab === "simulator"
                   ? "linear-gradient(135deg, #0369a1 0%, #0f766e 100%)"
-                  : "rgba(30, 41, 59, 0.7)",
+                  : "rgba(30, 41, 59, 0.85)",
                 border: activeTab === "simulator" ? "2px solid #2dd4bf" : "1px solid rgba(255, 255, 255, 0.1)",
                 boxShadow: activeTab === "simulator" ? "0 10px 30px rgba(45, 212, 191, 0.4)" : "0 4px 16px rgba(0,0,0,0.2)",
                 cursor: "pointer",
@@ -322,7 +312,7 @@ export default function LandingPage({ onOpenLogin }) {
                 justifyContent: "center",
                 margin: "0 auto 12px auto"
               }}>
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="12" y2="14"/><line x1="8" y1="18" x2="10" y2="18"/></svg>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="12" y2="14"/><line x1="8" y1="18" x2="10" y2="18"/></svg>
               </div>
               <h3 style={{ margin: 0, fontSize: "16px", fontWeight: "800", color: "#fff" }}>
                 {isAr ? "حاسبة ثمن الشحن" : "Simulation tarifaire"}
@@ -330,10 +320,10 @@ export default function LandingPage({ onOpenLogin }) {
             </div>
           </div>
 
-          {/* ── Dynamic Tool Panel Content Below Cards ── */}
+          {/* ── Dynamic Tool Panel Content (No Emoji) ── */}
           <div style={{
             marginTop: "28px",
-            background: "rgba(15, 23, 42, 0.9)",
+            background: "rgba(15, 23, 42, 0.95)",
             border: "1px solid rgba(255, 255, 255, 0.12)",
             borderRadius: "24px",
             padding: "28px",
@@ -345,8 +335,9 @@ export default function LandingPage({ onOpenLogin }) {
             {/* Tool 1: Suivi de Colis */}
             {activeTab === "tracking" && (
               <div>
-                <h3 style={{ margin: "0 0 16px 0", fontSize: "18px", color: "#38bdf8", fontWeight: "800" }}>
-                  🔍 {isAr ? "تتبع فوري لـ الشحنة برقم التتبع" : "Recherche Rapide de Colis"}
+                <h3 style={{ margin: "0 0 16px 0", fontSize: "18px", color: "#38bdf8", fontWeight: "800", display: "flex", alignItems: "center", gap: 8 }}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                  <span>{isAr ? "تتبع فوري لـ الشحنة برقم التتبع" : "Recherche Rapide de Colis"}</span>
                 </h3>
                 <form onSubmit={handleTrack} style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
                   <input
@@ -380,13 +371,13 @@ export default function LandingPage({ onOpenLogin }) {
                       cursor: "pointer"
                     }}
                   >
-                    {trackLoading ? (isAr ? "جاري البحث..." : "Recherche...") : (isAr ? "تتبع الآن ⚡" : "Rechercher ⚡")}
+                    {trackLoading ? (isAr ? "جاري البحث..." : "Recherche...") : (isAr ? "تتبع الآن" : "Rechercher")}
                   </button>
                 </form>
 
                 {trackError && (
                   <div style={{ marginTop: "16px", padding: "12px 16px", borderRadius: "10px", background: "rgba(239, 68, 68, 0.15)", border: "1px solid rgba(239, 68, 68, 0.3)", color: "#f87171", fontSize: "14px" }}>
-                    ⚠️ {trackError}
+                    {trackError}
                   </div>
                 )}
 
@@ -411,8 +402,9 @@ export default function LandingPage({ onOpenLogin }) {
             {activeTab === "agencies" && (
               <div id="agencies">
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
-                  <h3 style={{ margin: 0, fontSize: "18px", color: "#f87171", fontWeight: "800" }}>
-                    📍 {isAr ? "شبكة وكالات البراق عبر المدن" : "Réseau des Agences Boraq"}
+                  <h3 style={{ margin: 0, fontSize: "18px", color: "#f87171", fontWeight: "800", display: "flex", alignItems: "center", gap: 8 }}>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                    <span>{isAr ? "شبكة وكالات البراق عبر المدن" : "Réseau des Agences Boraq"}</span>
                   </h3>
                   <select
                     value={selectedCity}
@@ -439,16 +431,16 @@ export default function LandingPage({ onOpenLogin }) {
                       .filter(a => selectedCity === "all" || a.city === selectedCity)
                       .map(a => (
                         <div key={a.id} style={{ padding: "14px", borderRadius: "14px", background: "rgba(30, 41, 59, 0.7)", border: "1px solid rgba(255,255,255,0.08)" }}>
-                          <div style={{ fontWeight: "800", fontSize: "15px", color: "#fff" }}>🏢 {a.name}</div>
-                          <div style={{ fontSize: "12px", color: "#38bdf8", marginTop: "4px" }}>📍 {a.city}</div>
-                          {a.phone && <div style={{ fontSize: "12px", color: "#94a3b8", marginTop: "4px" }}>📞 {a.phone}</div>}
+                          <div style={{ fontWeight: "800", fontSize: "15px", color: "#fff" }}>{a.name}</div>
+                          <div style={{ fontSize: "12px", color: "#38bdf8", marginTop: "4px" }}>{a.city}</div>
+                          {a.phone && <div style={{ fontSize: "12px", color: "#94a3b8", marginTop: "4px" }}>Tél: {a.phone}</div>}
                           <a
                             href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent("Agence " + a.name + " " + (a.city || ""))}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             style={{ display: "inline-block", marginTop: "10px", fontSize: "12px", color: "#10b981", fontWeight: "700", textDecoration: "none" }}
                           >
-                            🗺️ {isAr ? "خريطة Google Maps ➔" : "Google Maps ➔"}
+                            {isAr ? "خريطة Google Maps ➔" : "Google Maps ➔"}
                           </a>
                         </div>
                       ))}
@@ -457,11 +449,12 @@ export default function LandingPage({ onOpenLogin }) {
               </div>
             )}
 
-            {/* Tool 3: Simulation Tarifaire */}
+            {/* Tool 3: Simulation Tarifaire (No Emoji) */}
             {activeTab === "simulator" && (
               <div>
-                <h3 style={{ margin: "0 0 16px 0", fontSize: "18px", color: "#2dd4bf", fontWeight: "800" }}>
-                  🧮 {isAr ? "حساب تقديري لـ ثمن الشحن والتوصيل" : "Simulateur de Tarif d'Expédition"}
+                <h3 style={{ margin: "0 0 16px 0", fontSize: "18px", color: "#2dd4bf", fontWeight: "800", display: "flex", alignItems: "center", gap: 8 }}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="12" y2="14"/><line x1="8" y1="18" x2="10" y2="18"/></svg>
+                  <span>{isAr ? "حساب تقديري لـ ثمن الشحن والتوصيل" : "Simulateur de Tarif d'Expédition"}</span>
                 </h3>
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "14px", marginBottom: "20px" }}>
                   <div>
@@ -520,12 +513,12 @@ export default function LandingPage({ onOpenLogin }) {
                     cursor: "pointer"
                   }}
                 >
-                  {isAr ? "احسب الثمن التقديري 🧮" : "Calculer le tarif 🧮"}
+                  {isAr ? "احسب الثمن التقديري" : "Calculer le tarif"}
                 </button>
 
                 {simPrice !== null && (
                   <div style={{ marginTop: "16px", padding: "16px", borderRadius: "14px", background: "rgba(13, 148, 136, 0.2)", border: "1px solid rgba(13, 148, 136, 0.4)", color: "#2dd4bf", fontSize: "18px", fontWeight: "900" }}>
-                    💰 {isAr ? `الثمن التقديري للشحن: ${simPrice} درهم مغربي (MAD)` : `Tarif Estimé : ${simPrice} MAD`}
+                    {isAr ? `الثمن التقديري للشحن: ${simPrice} MAD` : `Tarif Estimé : ${simPrice} MAD`}
                   </div>
                 )}
               </div>
@@ -534,7 +527,7 @@ export default function LandingPage({ onOpenLogin }) {
         </div>
       </section>
 
-      {/* ── CTM-Style Services & Info Section ── */}
+      {/* ── CTM-Style Services & Info Section (No Emoji) ── */}
       <section id="services" style={{ padding: "80px 20px", background: "#0a0f1d", borderTop: "1px solid rgba(255,255,255,0.06)" }}>
         <div style={{ maxWidth: "1000px", margin: "0 auto", textAlign: "center" }}>
           <span style={{ fontSize: "12px", fontWeight: "900", textTransform: "uppercase", letterSpacing: "0.1em", color: "#38bdf8" }}>
@@ -547,8 +540,8 @@ export default function LandingPage({ onOpenLogin }) {
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "24px", textAlign: isAr ? "right" : "left" }}>
             {/* Service 1 */}
             <div style={{ padding: "28px 22px", borderRadius: "20px", background: "rgba(30, 41, 59, 0.6)", border: "1px solid rgba(255,255,255,0.08)", boxShadow: "0 10px 30px rgba(0,0,0,0.2)" }}>
-              <div style={{ width: "44px", height: "44px", borderRadius: "12px", background: "rgba(56, 189, 248, 0.15)", color: "#38bdf8", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "20px", marginBottom: "16px" }}>
-                📱
+              <div style={{ width: "44px", height: "44px", borderRadius: "12px", background: "rgba(56, 189, 248, 0.15)", color: "#38bdf8", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "16px" }}>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
               </div>
               <h3 style={{ fontSize: "17px", fontWeight: "800", color: "#fff", marginBottom: "8px" }}>
                 {isAr ? "تنبيهات SMS وإشعارات حية" : "Notifications & Suivi SMS Live"}
@@ -562,8 +555,8 @@ export default function LandingPage({ onOpenLogin }) {
 
             {/* Service 2 */}
             <div style={{ padding: "28px 22px", borderRadius: "20px", background: "rgba(30, 41, 59, 0.6)", border: "1px solid rgba(255,255,255,0.08)", boxShadow: "0 10px 30px rgba(0,0,0,0.2)" }}>
-              <div style={{ width: "44px", height: "44px", borderRadius: "12px", background: "rgba(245, 158, 11, 0.15)", color: "#f59e0b", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "20px", marginBottom: "16px" }}>
-                🚚
+              <div style={{ width: "44px", height: "44px", borderRadius: "12px", background: "rgba(245, 158, 11, 0.15)", color: "#f59e0b", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "16px" }}>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
               </div>
               <h3 style={{ fontSize: "17px", fontWeight: "800", color: "#fff", marginBottom: "8px" }}>
                 {isAr ? "نقل البضائع والفرِيط السريع" : "Transport Fret & Messagerie Express"}
@@ -577,8 +570,8 @@ export default function LandingPage({ onOpenLogin }) {
 
             {/* Service 3 */}
             <div style={{ padding: "28px 22px", borderRadius: "20px", background: "rgba(30, 41, 59, 0.6)", border: "1px solid rgba(255,255,255,0.08)", boxShadow: "0 10px 30px rgba(0,0,0,0.2)" }}>
-              <div style={{ width: "44px", height: "44px", borderRadius: "12px", background: "rgba(239, 68, 68, 0.15)", color: "#ef4444", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "20px", marginBottom: "16px" }}>
-                🏢
+              <div style={{ width: "44px", height: "44px", borderRadius: "12px", background: "rgba(239, 68, 68, 0.15)", color: "#ef4444", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "16px" }}>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M3 21h18"/><path d="M9 8h1"/><path d="M9 12h1"/><path d="M9 16h1"/><path d="M14 8h1"/><path d="M14 12h1"/><path d="M14 16h1"/><path d="M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16"/></svg>
               </div>
               <h3 style={{ fontSize: "17px", fontWeight: "800", color: "#fff", marginBottom: "8px" }}>
                 {isAr ? "شبكة وكالات محلية مقربة" : "Réseau d'Agences de Proximité"}
@@ -592,8 +585,8 @@ export default function LandingPage({ onOpenLogin }) {
 
             {/* Service 4 */}
             <div style={{ padding: "28px 22px", borderRadius: "20px", background: "rgba(30, 41, 59, 0.6)", border: "1px solid rgba(255,255,255,0.08)", boxShadow: "0 10px 30px rgba(0,0,0,0.2)" }}>
-              <div style={{ width: "44px", height: "44px", borderRadius: "12px", background: "rgba(16, 185, 129, 0.15)", color: "#10b981", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "20px", marginBottom: "16px" }}>
-                🔒
+              <div style={{ width: "44px", height: "44px", borderRadius: "12px", background: "rgba(16, 185, 129, 0.15)", color: "#10b981", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "16px" }}>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
               </div>
               <h3 style={{ fontSize: "17px", fontWeight: "800", color: "#fff", marginBottom: "8px" }}>
                 {isAr ? "أمان 100% وضمان الشحنات" : "Sécurité & Assurance Colis 100%"}
