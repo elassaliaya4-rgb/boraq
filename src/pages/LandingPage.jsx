@@ -6,8 +6,14 @@ export default function LandingPage({ onOpenLogin }) {
   const { lang, setLang } = useApp();
   const isAr = lang === "ar";
 
-  // Tab State inside the main view: 'tracking' | 'agencies' | 'simulator'
+  // Tab State inside the tool modal: 'tracking' | 'agencies' | 'simulator'
   const [activeTab, setActiveTab] = useState("tracking");
+
+  // Show tool modal overlay
+  const [showToolModal, setShowToolModal] = useState(false);
+
+  // Active step slider index: 1 to 5 (Bottom pagination indicator)
+  const [carouselIndex, setCarouselIndex] = useState(1);
 
   // Tracking database states
   const [trackCode, setTrackCode] = useState("");
@@ -58,12 +64,12 @@ export default function LandingPage({ onOpenLogin }) {
         .single();
 
       if (error || !data) {
-        setTrackError(isAr ? "لم نجد أي شحنة بهذا الرقم، يرجى التحقق" : "Aucune expédition trouvée avec ce numéro");
+        setTrackError(isAr ? "لم نجد أي شحنة بهذا الرقم" : "Aucun colis trouvé");
       } else {
         setTrackResult(data);
       }
     } catch (err) {
-      setTrackError(isAr ? "خطأ في الاتصال بالخادم" : "Erreur de connexion au serveur");
+      setTrackError(isAr ? "خطأ في البحث" : "Erreur de recherche");
     } finally {
       setTrackLoading(false);
     }
@@ -79,471 +85,668 @@ export default function LandingPage({ onOpenLogin }) {
 
   const cities = Array.from(new Set(agencies.map(a => a.city).filter(Boolean)));
 
+  // 5 Step Steps for the right sidebar carousel
+  const steps = [
+    { id: 1, title: isAr ? "دفع الطرود" : "Dépôt colis", desc: isAr ? "استلام الطرود وتسجيلها بالباركود" : "Réception et enregistrement" },
+    { id: 2, title: isAr ? "الفرز والتعبئة" : "Tri & Emballage", desc: isAr ? "تجهيز وتغليف الشحنات" : "Préparation et emballage" },
+    { id: 3, title: isAr ? "الشحن البري" : "Transport routier", desc: isAr ? "انطلاق شاحنات النقل" : "Expédition et camionnage" },
+    { id: 4, title: isAr ? "الوصول للوجهة" : "Arrivée agence", desc: isAr ? "توزيع الشحنات بالوكالات" : "Arrivée et notifications SMS" },
+    { id: 5, title: isAr ? "تسليم الطرد" : "Remise destinataire", desc: isAr ? "التسليم للعميل بالرمز الموثق" : "Livraison finale sécurisée" }
+  ];
+
   return (
     <div dir={isAr ? "rtl" : "ltr"} style={{
       minHeight: "100vh",
-      background: "#0f172a", // Clean professional slate dark theme
-      color: "#f8fafc",
-      fontFamily: "Inter, system-ui, -apple-system, sans-serif",
+      background: "#f3f4f6", // Off-white clean light background matching ChinaLogist
+      color: "#1f2937",
+      fontFamily: "system-ui, -apple-system, sans-serif",
       margin: 0,
-      padding: 0,
+      padding: "20px 40px",
+      display: "flex",
+      flexDirection: "column",
+      justifyContent: "space-between",
       boxSizing: "border-box"
     }}>
       
-      {/* ── 1. CLEAN CORPORATE NAVBAR ── */}
+      {/* ── 1. NAVBAR (Exact ChinaLogist Replica) ── */}
       <header style={{
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
-        padding: "20px 40px",
-        background: "#1e293b",
-        borderBottom: "1px solid rgba(255,255,255,0.06)",
-        position: "sticky",
-        top: 0,
-        zIndex: 1000
+        width: "100%",
+        padding: "10px 0",
+        boxSizing: "border-box"
       }}>
-        {/* Brand Identity */}
+        {/* Brand Logo */}
         <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
           <div style={{
-            width: "36px",
-            height: "36px",
-            borderRadius: "8px",
-            background: "#6366f1",
+            width: "42px",
+            height: "42px",
+            borderRadius: "10px",
+            background: "#111827",
             display: "flex",
             alignItems: "center",
             justifyContent: "center"
           }}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffffff" strokeWidth="2.5">
-              <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
-              <line x1="8" y1="21" x2="16" y2="21"/>
-              <line x1="12" y1="17" x2="12" y2="21"/>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ffffff" strokeWidth="2.5">
+              <polygon points="12 2 2 7 12 12 22 7 12 2"/>
+              <polyline points="2 17 12 22 22 17"/>
+              <polyline points="2 12 12 17 22 12"/>
             </svg>
           </div>
           <div>
-            <div style={{ fontSize: "18px", fontWeight: "800", color: "#ffffff", letterSpacing: "-0.01em" }}>BORAQ LOGISTICS</div>
-            <div style={{ fontSize: "11px", color: "#94a3b8", fontWeight: "600" }}>
-              {isAr ? "نقل البضائع والإرساليات بالمغرب" : "Commissionnaire de Transport National"}
+            <div style={{ fontSize: "20px", fontWeight: "900", color: "#111827", letterSpacing: "-0.02em" }}>BoraqLogist</div>
+            <div style={{ fontSize: "11px", color: "#6b7280", fontWeight: "700" }}>
+              {isAr ? "شحن لوجستي سريع بالمغرب" : "Livraison colis express au Maroc"}
             </div>
           </div>
         </div>
 
-        {/* Navigation Menu */}
-        <nav style={{ display: "flex", alignItems: "center", gap: "28px" }} className="desktop-only-table">
-          <a href="#prestations" style={{ color: "#cbd5e1", textDecoration: "none", fontSize: "14px", fontWeight: "600" }}>
-            {isAr ? "خدماتنا" : "Prestations"}
-          </a>
-          <a href="#agencies-section" style={{ color: "#cbd5e1", textDecoration: "none", fontSize: "14px", fontWeight: "600" }}>
-            {isAr ? "شبكة الوكالات" : "Réseau National"}
-          </a>
-          <a href="#simulator-section" style={{ color: "#cbd5e1", textDecoration: "none", fontSize: "14px", fontWeight: "600" }}>
-            {isAr ? "حاسبة الأسعار" : "Tarifs"}
-          </a>
-        </nav>
-
-        {/* Actions */}
-        <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+        {/* Central Menu Links (Exact Style: rounded black pill for active link) */}
+        <nav style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "28px",
+          fontSize: "14px",
+          fontWeight: "700"
+        }} className="desktop-only-table">
+          <button style={{
+            background: "#111827",
+            color: "#ffffff",
+            border: "none",
+            padding: "8px 20px",
+            borderRadius: "20px",
+            fontWeight: "800",
+            cursor: "pointer"
+          }}>
+            {isAr ? "الرئيسية" : "Accueil"}
+          </button>
+          <button
+            onClick={() => { setActiveTab("tracking"); setShowToolModal(true); }}
+            style={{ background: "transparent", color: "#4b5563", border: "none", cursor: "pointer", fontWeight: "800" }}
+          >
+            {isAr ? "تتبع الشحنات" : "Suivi colis"}
+          </button>
+          <button
+            onClick={() => { setActiveTab("agencies"); setShowToolModal(true); }}
+            style={{ background: "transparent", color: "#4b5563", border: "none", cursor: "pointer", fontWeight: "800" }}
+          >
+            {isAr ? "الوكالات المعتمدة" : "Nos agences"}
+          </button>
+          <button
+            onClick={() => { setActiveTab("simulator"); setShowToolModal(true); }}
+            style={{ background: "transparent", color: "#4b5563", border: "none", cursor: "pointer", fontWeight: "800" }}
+          >
+            {isAr ? "حاسبة الأسعار" : "Simulateur"}
+          </button>
           <button
             onClick={() => setLang(isAr ? "fr" : "ar")}
-            style={{
-              background: "rgba(255,255,255,0.06)",
-              border: "1px solid rgba(255,255,255,0.12)",
-              color: "#ffffff",
-              padding: "6px 14px",
-              borderRadius: "6px",
-              cursor: "pointer",
-              fontSize: "13px",
-              fontWeight: "600"
-            }}
+            style={{ background: "transparent", color: "#4b5563", border: "none", cursor: "pointer", fontWeight: "800" }}
           >
             {isAr ? "Français" : "العربية"}
           </button>
+        </nav>
 
+        {/* Right Actions */}
+        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+          {/* Phone Circle button */}
+          <a href="tel:+212522000000" style={{
+            width: "44px",
+            height: "44px",
+            borderRadius: "50%",
+            background: "#ffffff",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            boxShadow: "0 4px 15px rgba(0,0,0,0.06)",
+            border: "1px solid rgba(0,0,0,0.03)",
+            color: "#111827"
+          }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+          </a>
+
+          {/* Espace Pro Rounded Pill Button */}
           <button
             onClick={onOpenLogin}
             style={{
-              background: "#6366f1",
-              border: "none",
-              color: "#ffffff",
-              padding: "8px 18px",
-              borderRadius: "6px",
+              background: "#ffffff",
+              border: "1px solid rgba(0,0,0,0.08)",
+              color: "#111827",
+              padding: "10px 24px",
+              borderRadius: "30px",
               cursor: "pointer",
               fontSize: "14px",
-              fontWeight: "700",
-              boxShadow: "0 2px 10px rgba(99,102,241,0.2)"
+              fontWeight: "800",
+              boxShadow: "0 4px 18px rgba(0,0,0,0.05)",
+              display: "flex",
+              alignItems: "center",
+              gap: "10px"
             }}
           >
-            {isAr ? "فضاء الخدامة" : "Espace Pro"}
+            <span>{isAr ? "فضاء الخدامة" : "Espace Pro"}</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
           </button>
         </div>
       </header>
 
-      {/* ── 2. HERO / DIRECT TRACKING WIDGET SECTION ── */}
-      <section style={{
-        padding: "80px 40px",
-        background: "linear-gradient(180deg, #1e293b 0%, #0f172a 100%)",
-        textAlign: "center"
-      }}>
-        <div style={{ maxWidth: "800px", margin: "0 auto" }}>
-          <h1 style={{ fontSize: "clamp(28px, 4vw, 46px)", fontWeight: "800", color: "#ffffff", marginBottom: "16px", letterSpacing: "-0.02em" }}>
-            {isAr ? "تتبع وتسليم الشحنات والطرود عبر المغرب" : "Transport & Livraison de Marchandises au Maroc"}
-          </h1>
+      {/* ── 2. SPLIT HERO SECTION (Exact ChinaLogist Layout) ── */}
+      <main style={{
+        display: "grid",
+        gridTemplateColumns: "1.1fr 0.9fr",
+        gap: "40px",
+        alignItems: "center",
+        width: "100%",
+        marginTop: "30px",
+        boxSizing: "border-box"
+      }} className="responsive-grid-landing">
+        
+        {/* Left Side: Content Column */}
+        <div style={{ display: "flex", flexDirection: "column", gap: "28px", textAlign: isAr ? "right" : "left" }}>
           
-          <p style={{ fontSize: "16px", color: "#94a3b8", maxWidth: "600px", margin: "0 auto 36px auto", lineHeight: 1.6 }}>
+          <h1 style={{
+            fontSize: "clamp(38px, 5.5vw, 68px)",
+            fontWeight: "900",
+            lineHeight: 1.08,
+            color: "#111827",
+            margin: 0,
+            letterSpacing: "-0.03em"
+          }}>
+            {isAr ? "توصيل طرود البضائع" : "Livraison de colis"}<br/>
+            {isAr ? "بالمغرب" : "au Maroc"}<br/>
+            <span style={{ color: "#6b7280" }}>{isAr ? "تسليم مفتاح" : "clé en main"}</span>
+
+            {/* Satisfaction Badge */}
+            <div style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "8px",
+              background: "#ffffff",
+              padding: "6px 14px",
+              borderRadius: "24px",
+              border: "1px solid rgba(0,0,0,0.06)",
+              marginLeft: isAr ? "0" : "16px",
+              marginRight: isAr ? "16px" : "0",
+              fontSize: "13px",
+              verticalAlign: "middle"
+            }}>
+              <div style={{ display: "flex", alignItems: "center" }}>
+                <div style={{ width: "24px", height: "24px", borderRadius: "50%", background: "#a855f7", border: "2px solid #fff" }} />
+                <div style={{ width: "24px", height: "24px", borderRadius: "50%", background: "#6366f1", border: "2px solid #fff", marginLeft: "-8px" }} />
+                <div style={{ width: "24px", height: "24px", borderRadius: "50%", background: "#10b981", border: "2px solid #fff", marginLeft: "-8px" }} />
+              </div>
+              <span style={{ fontWeight: "800", color: "#111827" }}>5000+ {isAr ? "عميل راضٍ" : "clients satisfaits"}</span>
+            </div>
+          </h1>
+
+          <p style={{ fontSize: "16px", color: "#4b5563", lineHeight: 1.6, margin: 0, maxWidth: "520px" }}>
             {isAr
-              ? "نؤمن نقل الإرساليات والطرود بين جميع المدن المغربية مع توفير تتبع فوري بـ كود باركود موحد وإشعارات حالة الشحنة."
-              : "Suivi en temps réel de vos expéditions. Saisissez votre numéro de colis pour localiser votre marchandise instantanément."}
+              ? "نقل وتغليف الطرود، تتبع مباشر عبر خريطة GPS المباشرة، إشعارات تلقائية للهاتف، وحلول متطورة لضمان وصول شحنتك بـ أمان."
+              : "Prise en charge, emballage sécurisé, suivi GPS en direct de vos camions, notifications SMS automatiques et livraison garantie."}
           </p>
 
-          {/* Clean Real-world Tracking Input Box */}
+          {/* Action Buttons */}
+          <div style={{ display: "flex", gap: "14px", flexWrap: "wrap" }}>
+            <button
+              onClick={() => { setActiveTab("tracking"); setShowToolModal(true); }}
+              style={{
+                background: "#111827",
+                border: "none",
+                color: "#ffffff",
+                padding: "16px 36px",
+                borderRadius: "30px",
+                cursor: "pointer",
+                fontSize: "15px",
+                fontWeight: "900",
+                display: "flex",
+                alignItems: "center",
+                gap: "10px",
+                boxShadow: "0 6px 20px rgba(17,24,39,0.3)"
+              }}
+            >
+              <span>{isAr ? "احسب تسعيرة الشحن" : "Calculer la livraison"}</span>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </button>
+
+            <button
+              onClick={() => { setActiveTab("tracking"); setShowToolModal(true); }}
+              style={{
+                background: "#ffffff",
+                border: "1px solid rgba(0,0,0,0.08)",
+                color: "#111827",
+                padding: "16px 30px",
+                borderRadius: "30px",
+                cursor: "pointer",
+                fontSize: "15px",
+                fontWeight: "800",
+                display: "flex",
+                alignItems: "center",
+                gap: "10px",
+                boxShadow: "0 4px 15px rgba(0,0,0,0.04)"
+              }}
+            >
+              <div style={{
+                width: "28px",
+                height: "28px",
+                borderRadius: "50%",
+                background: "#f3f4f6",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center"
+              }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              </div>
+              <span>{isAr ? "تتبع شحنتك" : "Suivre mon colis"}</span>
+            </button>
+          </div>
+
+          {/* Bottom 4 Feature Items */}
           <div style={{
-            background: "#1e293b",
-            border: "1px solid rgba(255,255,255,0.08)",
-            borderRadius: "12px",
-            padding: "24px",
-            boxShadow: "0 10px 30px rgba(0,0,0,0.15)",
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(110px, 1fr))",
+            gap: "14px",
+            borderTop: "1px solid rgba(0,0,0,0.08)",
+            paddingTop: "24px",
+            marginTop: "10px"
+          }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4b5563" strokeWidth="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+              <div style={{ fontSize: "12px", fontWeight: "900", color: "#111827" }}>{isAr ? "نقل سريع" : "Transport rapide"}</div>
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4b5563" strokeWidth="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              <div style={{ fontSize: "12px", fontWeight: "900", color: "#111827" }}>{isAr ? "تغليف مؤمن" : "Emballage sécurisé"}</div>
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4b5563" strokeWidth="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              <div style={{ fontSize: "12px", fontWeight: "900", color: "#111827" }}>{isAr ? "رمز موحد" : "Code-barres unique"}</div>
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4b5563" strokeWidth="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+              <div style={{ fontSize: "12px", fontWeight: "900", color: "#111827" }}>{isAr ? "توصيل للوجهة" : "Arrivée garantie"}</div>
+            </div>
+          </div>
+
+        </div>
+
+        {/* Right Side: Showcase Image Card with overlapping badges */}
+        <div style={{ position: "relative", width: "100%", height: "100%" }}>
+          <div style={{
+            borderRadius: "32px",
+            overflow: "hidden",
+            width: "100%",
+            height: "480px",
+            boxShadow: "0 30px 70px rgba(0,0,0,0.1)",
+            border: "6px solid #ffffff"
+          }}>
+            <img src="/boraq_3d_truck.jpg" alt="Boraq Logistics" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+          </div>
+
+          {/* Badge 1: 10+ Years (Top Right) */}
+          <div style={{
+            position: "absolute",
+            top: "24px",
+            right: "24px",
+            background: "rgba(255,255,255,0.9)",
+            backdropFilter: "blur(12px)",
+            padding: "10px 16px",
+            borderRadius: "16px",
+            boxShadow: "0 8px 24px rgba(0,0,0,0.06)",
+            display: "flex",
+            alignItems: "center",
+            gap: "10px"
+          }}>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#111827" strokeWidth="2.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <div>
+              <div style={{ fontSize: "13px", fontWeight: "900", color: "#111827" }}>10+ {isAr ? "سنوات خبرة" : "ans d'excellence"}</div>
+              <div style={{ fontSize: "10px", color: "#6b7280" }}>{isAr ? "الريادة اللوجستية" : "Leader au Maroc"}</div>
+            </div>
+          </div>
+
+          {/* Badge 2: Delivery All Over Morocco (Bottom Right) */}
+          <div style={{
+            position: "absolute",
+            bottom: "24px",
+            right: "24px",
+            background: "rgba(255,255,255,0.9)",
+            backdropFilter: "blur(12px)",
+            padding: "12px 18px",
+            borderRadius: "16px",
+            boxShadow: "0 8px 24px rgba(0,0,0,0.06)",
+            display: "flex",
+            alignItems: "center",
+            gap: "10px"
+          }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#111827" strokeWidth="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            <div style={{ fontSize: "13px", fontWeight: "900", color: "#111827" }}>
+              {isAr ? "توصيل لكافة المدن" : "Livraison partout"}
+            </div>
+          </div>
+        </div>
+
+      </main>
+
+      {/* ── 3. BOTTOM SLIDER PROCESS INDICATOR (Exact ChinaLogist Style) ── */}
+      <footer style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        width: "100%",
+        padding: "20px 0 10px 0",
+        borderTop: "1px solid rgba(0,0,0,0.08)",
+        marginTop: "40px",
+        boxSizing: "border-box"
+      }}>
+        {/* Left Side: Numeric Indicator 01 / 05 */}
+        <div style={{ fontSize: "14px", fontWeight: "800", color: "#6b7280" }}>
+          <span style={{ color: "#111827", fontSize: "16px", fontWeight: "900" }}>0{carouselIndex}</span> / 05
+        </div>
+
+        {/* Center: Horizontal Slide steps */}
+        <div style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "8px",
+          background: "rgba(255,255,255,0.7)",
+          padding: "6px 12px",
+          borderRadius: "24px",
+          border: "1px solid rgba(0,0,0,0.05)"
+        }} className="desktop-only-table">
+          {steps.map(s => {
+            const isActive = carouselIndex === s.id;
+            return (
+              <div
+                key={s.id}
+                onClick={() => setCarouselIndex(s.id)}
+                style={{
+                  padding: "8px 16px",
+                  borderRadius: "20px",
+                  background: isActive ? "#ffffff" : "transparent",
+                  color: isActive ? "#111827" : "#4b5563",
+                  fontWeight: "800",
+                  fontSize: "12px",
+                  cursor: "pointer",
+                  boxShadow: isActive ? "0 4px 12px rgba(0,0,0,0.06)" : "none",
+                  transition: "all 0.2s ease",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "6px"
+                }}
+              >
+                <span>{s.id}. {s.title}</span>
+                {isActive && (
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Right Side: Directional Arrow buttons */}
+        <div style={{ display: "flex", gap: "8px" }}>
+          <button
+            onClick={() => setCarouselIndex(prev => Math.max(1, prev - 1))}
+            style={{
+              width: "36px",
+              height: "36px",
+              borderRadius: "50%",
+              background: "#ffffff",
+              border: "1px solid rgba(0,0,0,0.08)",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              boxShadow: "0 2px 8px rgba(0,0,0,0.04)"
+            }}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+          </button>
+
+          <button
+            onClick={() => setCarouselIndex(prev => Math.min(5, prev + 1))}
+            style={{
+              width: "36px",
+              height: "36px",
+              borderRadius: "50%",
+              background: "#ffffff",
+              border: "1px solid rgba(0,0,0,0.08)",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              boxShadow: "0 2px 8px rgba(0,0,0,0.04)"
+            }}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </button>
+        </div>
+      </footer>
+
+      {/* ── 4. POPUP TOOL MODAL OVERLAY (For Clean interactive tracking/agencies panels) ── */}
+      {showToolModal && (
+        <div style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: "rgba(17, 24, 39, 0.4)",
+          backdropFilter: "blur(12px)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          zIndex: 9999,
+          padding: "20px"
+        }}>
+          <div style={{
+            background: "#ffffff",
+            borderRadius: "24px",
+            width: "100%",
+            maxWidth: "600px",
+            padding: "30px",
+            boxShadow: "0 25px 70px rgba(0,0,0,0.15)",
+            position: "relative",
             textAlign: isAr ? "right" : "left"
           }}>
-            <h3 style={{ margin: "0 0 16px 0", fontSize: "15px", color: "#ffffff", fontWeight: "700" }}>
-              {isAr ? "أدخل رقم تتبع الشحنة الخاص بك:" : "Suivi d'envoi / Saisir le numéro de colis"}
-            </h3>
-            
-            <form onSubmit={handleTrack} style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
-              <input
-                type="text"
-                value={trackCode}
-                onChange={e => setTrackCode(e.target.value)}
-                placeholder={isAr ? "مثال: BRQ-897162-CAS" : "Exemple: BRQ-897162-CAS"}
-                style={{
-                  flex: 1,
-                  minWidth: "250px",
-                  padding: "14px 18px",
-                  borderRadius: "6px",
-                  border: "1px solid #475569",
-                  background: "#0f172a",
-                  color: "#ffffff",
-                  fontSize: "14px",
-                  outline: "none"
-                }}
-              />
+            {/* Modal Header Tabs */}
+            <div style={{ display: "flex", gap: "16px", marginBottom: "24px", borderBottom: "1px solid #f1f5f9", paddingBottom: "14px" }}>
               <button
-                type="submit"
-                disabled={trackLoading}
+                onClick={() => setActiveTab("tracking")}
                 style={{
-                  padding: "14px 28px",
-                  borderRadius: "6px",
+                  background: "transparent",
                   border: "none",
-                  background: "#6366f1",
-                  color: "#ffffff",
-                  fontWeight: "700",
-                  fontSize: "14px",
+                  paddingBottom: "8px",
+                  fontSize: "15px",
+                  fontWeight: "800",
+                  color: activeTab === "tracking" ? "#111827" : "#64748b",
+                  borderBottom: activeTab === "tracking" ? "2.5px solid #111827" : "none",
                   cursor: "pointer"
                 }}
               >
-                {trackLoading ? "..." : (isAr ? "بحث" : "Rechercher")}
+                {isAr ? "تتبع الشحنة" : "Suivi de colis"}
               </button>
-            </form>
-
-            {trackError && (
-              <div style={{ marginTop: "16px", color: "#f87171", fontSize: "13px", fontWeight: "600" }}>
-                {trackError}
-              </div>
-            )}
-
-            {trackResult && (
-              <div style={{
-                marginTop: "20px",
-                padding: "18px",
-                borderRadius: "8px",
-                background: "rgba(255,255,255,0.02)",
-                border: "1px solid rgba(255,255,255,0.06)"
-              }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
-                  <span style={{ fontWeight: "700", color: "#6366f1" }}>{trackResult.tracking_number}</span>
-                  <span style={{
-                    fontSize: "12px",
-                    fontWeight: "700",
-                    background: "rgba(16,185,129,0.15)",
-                    color: "#10b981",
-                    padding: "4px 10px",
-                    borderRadius: "4px"
-                  }}>{trackResult.status}</span>
-                </div>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px", fontSize: "13px", color: "#cbd5e1" }}>
-                  <div><b>{isAr ? "المرسل إليه:" : "Destinataire:"}</b> {trackResult.receiver_name || "—"}</div>
-                  <div><b>{isAr ? "مدينة المنشأ:" : "Origine:"}</b> {trackResult.origin}</div>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      </section>
-
-      {/* ── 3. REALISTIC PRESTATIONS GRID SECTION ── */}
-      <section id="prestations" style={{ padding: "80px 40px", background: "#0f172a" }}>
-        <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
-          
-          <div style={{ textAlign: "center", marginBottom: "48px" }}>
-            <h2 style={{ fontSize: "28px", fontWeight: "800", color: "#ffffff", margin: 0 }}>
-              {isAr ? "خدمات النقل والخدمات اللوجستية المعتمدة" : "Prestations & Solutions de Transport"}
-            </h2>
-            <p style={{ color: "#94a3b8", fontSize: "15px", marginTop: "8px" }}>
-              {isAr ? "حلول شحن متكاملة لـ الأفراد والشركات عبر التراب الوطني" : "Des solutions fiables pour l'expédition de vos marchandises au Maroc."}
-            </p>
-          </div>
-
-          <div style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
-            gap: "24px"
-          }}>
-            {/* Prestation 1 */}
-            <div style={{ padding: "24px", borderRadius: "8px", background: "#1e293b", border: "1px solid rgba(255,255,255,0.04)" }}>
-              <div style={{ width: "40px", height: "40px", borderRadius: "6px", background: "rgba(99,102,241,0.1)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "16px", color: "#6366f1" }}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-              </div>
-              <h3 style={{ fontSize: "17px", fontWeight: "700", color: "#ffffff", margin: "0 0 10px 0" }}>
-                {isAr ? "شحن الإرساليات السريع" : "Messagerie Express"}
-              </h3>
-              <p style={{ fontSize: "14px", color: "#94a3b8", lineHeight: 1.5, margin: 0 }}>
-                {isAr ? "شحن وتوصيل الطرود الصغيرة والوثائق في أقل من 24 ساعة بـ تغليف مؤمن." : "Livraison garantie sous 24H de vos colis et enveloppes à travers nos agences."}
-              </p>
-            </div>
-
-            {/* Prestation 2 */}
-            <div style={{ padding: "24px", borderRadius: "8px", background: "#1e293b", border: "1px solid rgba(255,255,255,0.04)" }}>
-              <div style={{ width: "40px", height: "40px", borderRadius: "6px", background: "rgba(99,102,241,0.1)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "16px", color: "#6366f1" }}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
-              </div>
-              <h3 style={{ fontSize: "17px", fontWeight: "700", color: "#ffffff", margin: "0 0 10px 0" }}>
-                {isAr ? "شحن الحمولات الكبيرة" : "Affrètement & Lots"}
-              </h3>
-              <p style={{ fontSize: "14px", color: "#94a3b8", lineHeight: 1.5, margin: 0 }}>
-                {isAr ? "حلول مخصصة لنقل البضائع والمعدات ذات الوزن الثقيل عبر شاحنات مجهزة." : "Solutions d'affrètement complet ou partiel pour les expéditions volumineuses."}
-              </p>
-            </div>
-
-            {/* Prestation 3 */}
-            <div style={{ padding: "24px", borderRadius: "8px", background: "#1e293b", border: "1px solid rgba(255,255,255,0.04)" }}>
-              <div style={{ width: "40px", height: "40px", borderRadius: "6px", background: "rgba(99,102,241,0.1)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "16px", color: "#6366f1" }}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-              </div>
-              <h3 style={{ fontSize: "17px", fontWeight: "700", color: "#ffffff", margin: "0 0 10px 0" }}>
-                {isAr ? "التتبع الجغرافي للأسطول" : "Suivi GPS Flotte"}
-              </h3>
-              <p style={{ fontSize: "14px", color: "#94a3b8", lineHeight: 1.5, margin: 0 }}>
-                {isAr ? "أجهزة تتبع متطورة مدمجة بشاحناتنا لمراقبة تحركات البضائع بشكل مباشر." : "Géolocalisation constante des véhicules de transport pour assurer le suivi."}
-              </p>
-            </div>
-          </div>
-
-        </div>
-      </section>
-
-      {/* ── 4. REALISTIC MOROCCAN AGENCIES GRID ── */}
-      <section id="agencies-section" style={{ padding: "80px 40px", background: "#1e293b" }}>
-        <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
-          
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "36px", flexWrap: "wrap", gap: "16px" }}>
-            <div>
-              <h2 style={{ fontSize: "28px", fontWeight: "800", color: "#ffffff", margin: 0 }}>
-                {isAr ? "شبكة وكالات البراق بالمغرب" : "Nos Agences de Dépôt & Retrait"}
-              </h2>
-              <p style={{ color: "#cbd5e1", fontSize: "14px", marginTop: "4px" }}>
-                {isAr ? "اعثر على أقرب وكالة إليك في مدينتك" : "Retrouvez les adresses et contacts de nos points de services."}
-              </p>
-            </div>
-
-            <select
-              value={selectedCity}
-              onChange={e => setSelectedCity(e.target.value)}
-              style={{
-                padding: "10px 16px",
-                borderRadius: "6px",
-                background: "#0f172a",
-                border: "1px solid #475569",
-                color: "#ffffff",
-                fontWeight: "600"
-              }}
-            >
-              <option value="all">{isAr ? "كل المدن" : "Toutes les villes"}</option>
-              {cities.map(c => <option key={c} value={c}>{c}</option>)}
-            </select>
-          </div>
-
-          {agenciesLoading ? (
-            <div style={{ color: "#cbd5e1" }}>{isAr ? "جاري تحميل الوكالات..." : "Chargement des agences..."}</div>
-          ) : (
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: "20px" }}>
-              {agencies
-                .filter(a => selectedCity === "all" || a.city === selectedCity)
-                .map(a => (
-                  <div key={a.id} style={{ padding: "20px", borderRadius: "8px", background: "#0f172a", border: "1px solid rgba(255,255,255,0.04)" }}>
-                    <div style={{ fontWeight: "800", fontSize: "16px", color: "#ffffff" }}>{a.name}</div>
-                    <div style={{ fontSize: "13px", color: "#6366f1", marginTop: "4px", fontWeight: "700" }}>{a.city}</div>
-                    {a.phone && <div style={{ fontSize: "13px", color: "#94a3b8", marginTop: "4px" }}>Tél: {a.phone}</div>}
-                    <a
-                      href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent("Agence " + a.name + " " + (a.city || ""))}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={{ display: "inline-block", marginTop: "12px", fontSize: "13px", color: "#10b981", fontWeight: "700", textDecoration: "none" }}
-                    >
-                      {isAr ? "الاتجاهات على الخريطة ➔" : "Google Maps ➔"}
-                    </a>
-                  </div>
-                ))}
-            </div>
-          )}
-
-        </div>
-      </section>
-
-      {/* ── 5. REALISTIC SHIPPINGS TARIFF SIMULATOR SECTION ── */}
-      <section id="simulator-section" style={{ padding: "80px 40px", background: "#0f172a" }}>
-        <div style={{ maxWidth: "700px", margin: "0 auto" }}>
-          
-          <div style={{ textAlign: "center", marginBottom: "36px" }}>
-            <h2 style={{ fontSize: "28px", fontWeight: "800", color: "#ffffff", margin: 0 }}>
-              {isAr ? "حاسبة تكاليف الشحن التقريبية" : "Simulateur de Tarifs d'expédition"}
-            </h2>
-            <p style={{ color: "#94a3b8", fontSize: "14px", marginTop: "4px" }}>
-              {isAr ? "أدخل الوزن ونوع الخدمة لمعرفة التكلفة المقدرة" : "Estimez rapidement les frais de livraison de vos colis."}
-            </p>
-          </div>
-
-          <div style={{
-            background: "#1e293b",
-            border: "1px solid rgba(255,255,255,0.06)",
-            borderRadius: "12px",
-            padding: "30px",
-            boxShadow: "0 10px 30px rgba(0,0,0,0.1)",
-            textAlign: isAr ? "right" : "left"
-          }}>
-            <form onSubmit={handleSimulate} style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-              <div>
-                <label style={{ fontSize: "13px", fontWeight: "700", color: "#cbd5e1" }}>{isAr ? "وزن الطرد (كلغ):" : "Poids estimé du colis (kg):"}</label>
-                <input
-                  type="number"
-                  min="1"
-                  value={weight}
-                  onChange={e => setWeight(Math.max(1, parseInt(e.target.value) || 1))}
-                  style={{
-                    width: "100%",
-                    padding: "12px",
-                    borderRadius: "6px",
-                    border: "1px solid #475569",
-                    background: "#0f172a",
-                    color: "#ffffff",
-                    fontWeight: "600",
-                    marginTop: "6px",
-                    boxSizing: "border-box"
-                  }}
-                />
-              </div>
-
-              <div>
-                <label style={{ fontSize: "13px", fontWeight: "700", color: "#cbd5e1" }}>{isAr ? "نوع خدمة الشحن:" : "Mode d'envoi:"}</label>
-                <select
-                  value={serviceType}
-                  onChange={e => setServiceType(e.target.value)}
-                  style={{
-                    width: "100%",
-                    padding: "12px",
-                    borderRadius: "6px",
-                    border: "1px solid #475569",
-                    background: "#0f172a",
-                    color: "#ffffff",
-                    fontWeight: "600",
-                    marginTop: "6px",
-                    boxSizing: "border-box"
-                  }}
-                >
-                  <option value="express">{isAr ? "شحن سريع (خلال 24 ساعة)" : "Expédition Express (24H)"}</option>
-                  <option value="standard">{isAr ? "شحن عادي (خلال 48 ساعة)" : "Expédition Standard (48H)"}</option>
-                </select>
-              </div>
-
               <button
-                type="submit"
+                onClick={() => setActiveTab("agencies")}
                 style={{
-                  background: "#6366f1",
-                  color: "#ffffff",
+                  background: "transparent",
                   border: "none",
-                  padding: "14px",
-                  borderRadius: "6px",
-                  fontWeight: "700",
+                  paddingBottom: "8px",
                   fontSize: "15px",
-                  cursor: "pointer",
-                  width: "100%"
+                  fontWeight: "800",
+                  color: activeTab === "agencies" ? "#111827" : "#64748b",
+                  borderBottom: activeTab === "agencies" ? "2.5px solid #111827" : "none",
+                  cursor: "pointer"
                 }}
               >
-                {isAr ? "احسب التكلفة التقريبية" : "Calculer le tarif estimé"}
+                {isAr ? "الوكالات المعتمدة" : "Nos agences"}
               </button>
-            </form>
+              <button
+                onClick={() => setActiveTab("simulator")}
+                style={{
+                  background: "transparent",
+                  border: "none",
+                  paddingBottom: "8px",
+                  fontSize: "15px",
+                  fontWeight: "800",
+                  color: activeTab === "simulator" ? "#111827" : "#64748b",
+                  borderBottom: activeTab === "simulator" ? "2.5px solid #111827" : "none",
+                  cursor: "pointer"
+                }}
+              >
+                {isAr ? "حاسبة الشحن" : "Simulation"}
+              </button>
 
-            {estimatedPrice !== null && (
-              <div style={{
-                marginTop: "24px",
-                padding: "16px",
-                borderRadius: "6px",
-                background: "rgba(16,185,129,0.1)",
-                border: "1px solid rgba(16,185,129,0.2)",
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center"
-              }}>
-                <span style={{ fontWeight: "700", color: "#cbd5e1" }}>{isAr ? "التسعيرة المقدرة للمغرب:" : "Frais de port estimés:"}</span>
-                <span style={{ fontSize: "20px", fontWeight: "800", color: "#10b981" }}>{estimatedPrice} MAD</span>
+              {/* Close Modal button */}
+              <button
+                onClick={() => setShowToolModal(false)}
+                style={{
+                  marginLeft: isAr ? "none" : "auto",
+                  marginRight: isAr ? "auto" : "none",
+                  background: "#f1f5f9",
+                  border: "none",
+                  width: "32px",
+                  height: "32px",
+                  borderRadius: "50%",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center"
+                }}
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
+            </div>
+
+            {/* TAB CONTENT 1: Tracking */}
+            {activeTab === "tracking" && (
+              <div>
+                <form onSubmit={handleTrack} style={{ display: "flex", gap: "10px" }}>
+                  <input
+                    type="text"
+                    value={trackCode}
+                    onChange={e => setTrackCode(e.target.value)}
+                    placeholder={isAr ? "أدخل رقم التتبع (مثال: BRQ-0917629)" : "Entrez votre numéro de suivi (ex: BRQ-0917629)"}
+                    style={{
+                      flex: 1,
+                      padding: "14px 18px",
+                      borderRadius: "12px",
+                      border: "1.5px solid #cbd5e1",
+                      fontSize: "14px",
+                      fontWeight: "700",
+                      outline: "none"
+                    }}
+                  />
+                  <button
+                    type="submit"
+                    disabled={trackLoading}
+                    style={{
+                      background: "#111827",
+                      color: "#fff",
+                      border: "none",
+                      padding: "14px 24px",
+                      borderRadius: "12px",
+                      fontWeight: "800",
+                      cursor: "pointer"
+                    }}
+                  >
+                    {trackLoading ? "..." : (isAr ? "تتبع" : "Rechercher")}
+                  </button>
+                </form>
+
+                {trackError && <div style={{ color: "#ef4444", fontSize: "14px", fontWeight: "700", marginTop: "14px" }}>{trackError}</div>}
+
+                {trackResult && (
+                  <div style={{ marginTop: "20px", padding: "18px", borderRadius: "14px", background: "#f8fafc", border: "1px solid #e2e8f0" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "10px" }}>
+                      <span style={{ fontWeight: "900", color: "#111827" }}>{trackResult.tracking_number}</span>
+                      <span style={{ color: "#10b981", fontWeight: "800" }}>{trackResult.status}</span>
+                    </div>
+                    <div style={{ fontSize: "13px", color: "#64748b" }}>
+                      <div><b>{isAr ? "المستلم:" : "Destinataire:"}</b> {trackResult.receiver_name}</div>
+                      <div><b>{isAr ? "الوجهة:" : "Origine:"}</b> {trackResult.origin}</div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* TAB CONTENT 2: Agencies */}
+            {activeTab === "agencies" && (
+              <div>
+                <select
+                  value={selectedCity}
+                  onChange={e => setSelectedCity(e.target.value)}
+                  style={{
+                    width: "100%",
+                    padding: "12px",
+                    borderRadius: "12px",
+                    border: "1.5px solid #cbd5e1",
+                    fontWeight: "700",
+                    marginBottom: "16px"
+                  }}
+                >
+                  <option value="all">{isAr ? "كل المدن" : "Toutes les villes"}</option>
+                  {cities.map(c => <option key={c} value={c}>{c}</option>)}
+                </select>
+
+                <div style={{ maxHeight: "250px", overflowY: "auto" }}>
+                  {agenciesLoading ? (
+                    <div>{isAr ? "جاري التحميل..." : "Chargement..."}</div>
+                  ) : (
+                    agencies
+                      .filter(a => selectedCity === "all" || a.city === selectedCity)
+                      .map(a => (
+                        <div key={a.id} style={{ padding: "12px 0", borderBottom: "1px solid #f1f5f9" }}>
+                          <div style={{ fontWeight: "800", color: "#111827" }}>{a.name}</div>
+                          <div style={{ fontSize: "12px", color: "#64748b" }}>{a.city} {a.phone ? `| Tél: ${a.phone}` : ""}</div>
+                        </div>
+                      ))
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* TAB CONTENT 3: Price Simulator */}
+            {activeTab === "simulator" && (
+              <div>
+                <form onSubmit={handleSimulate} style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+                  <div>
+                    <label style={{ fontSize: "12px", fontWeight: "800", color: "#64748b" }}>{isAr ? "وزن الطرد (كلغ):" : "Poids (kg):"}</label>
+                    <input
+                      type="number"
+                      min="1"
+                      value={weight}
+                      onChange={e => setWeight(parseInt(e.target.value) || 1)}
+                      style={{ width: "100%", padding: "12px", borderRadius: "12px", border: "1.5px solid #cbd5e1", fontWeight: "700", marginTop: "4px" }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: "12px", fontWeight: "800", color: "#64748b" }}>{isAr ? "نوع الشحن:" : "Type d'expédition:"}</label>
+                    <select
+                      value={serviceType}
+                      onChange={e => setServiceType(e.target.value)}
+                      style={{ width: "100%", padding: "12px", borderRadius: "12px", border: "1.5px solid #cbd5e1", fontWeight: "700", marginTop: "4px" }}
+                    >
+                      <option value="express">{isAr ? "سريع (24 ساعة)" : "Express (24H)"}</option>
+                      <option value="standard">{isAr ? "عادي (48 ساعة)" : "Standard (48H)"}</option>
+                    </select>
+                  </div>
+                  <button type="submit" style={{ background: "#111827", color: "#fff", border: "none", padding: "14px", borderRadius: "12px", fontWeight: "800", cursor: "pointer" }}>
+                    {isAr ? "احسب السعر" : "Calculer"}
+                  </button>
+                </form>
+
+                {estimatedPrice !== null && (
+                  <div style={{ marginTop: "18px", padding: "14px", borderRadius: "10px", background: "#f0fdf4", border: "1px solid #bbf7d0", color: "#16a34a", fontWeight: "800", display: "flex", justifyContent: "space-between" }}>
+                    <span>{isAr ? "التسعيرة المقدرة للمغرب:" : "Prix d'envoi estimé:"}</span>
+                    <span>{estimatedPrice} MAD</span>
+                  </div>
+                )}
               </div>
             )}
           </div>
-
         </div>
-      </section>
+      )}
 
-      {/* ── 6. REAL CLIENTS LOGISTICS TESTIMONIALS ── */}
-      <section style={{ padding: "80px 40px", background: "#1e293b", textAlign: "center" }}>
-        <div style={{ maxWidth: "900px", margin: "0 auto" }}>
-          <h2 style={{ fontSize: "28px", fontWeight: "800", color: "#ffffff", marginBottom: "36px" }}>
-            {isAr ? "شركاء النجاح يثقون بنا" : "Ils font confiance à Boraq Logistics"}
-          </h2>
-          
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "24px", textAlign: isAr ? "right" : "left" }}>
-            <div style={{ padding: "20px", borderRadius: "8px", background: "#0f172a", border: "1px solid rgba(255,255,255,0.04)" }}>
-              <p style={{ fontSize: "14px", color: "#cbd5e1", fontStyle: "italic", lineHeight: 1.5 }}>
-                {isAr 
-                  ? "« نعتمد بالكامل على خدمات البراق لشحن سلع متجرنا الإلكتروني. تتبع ممتاز ودقة متناهية فـ المواعيد »"
-                  : "« Nous expédions tous les colis de notre boutique e-commerce via Boraq Logistics. Le suivi est parfait et nos clients sont livrés à temps. »"}
-              </p>
-              <div style={{ marginTop: "14px", fontWeight: "700", color: "#ffffff", fontSize: "13px" }}>
-                {isAr ? "أحمد س. - صاحب متجر إلكتروني، الدار البيضاء" : "Ahmed S. - Gérant e-Commerce, Casablanca"}
-              </div>
-            </div>
-
-            <div style={{ padding: "20px", borderRadius: "8px", background: "#0f172a", border: "1px solid rgba(255,255,255,0.04)" }}>
-              <p style={{ fontSize: "14px", color: "#cbd5e1", fontStyle: "italic", lineHeight: 1.5 }}>
-                {isAr 
-                  ? "« وكالات البراق متواجدة فـ كُـل المدن الرئيسية، نرسل البضائع والملفات بـ أمان وسرعة فائقة »"
-                  : "« Réseau national très réactif. Pratique pour envoyer nos documents administratifs et petits lots de marchandises entre agences. »"}
-              </p>
-              <div style={{ marginTop: "14px", fontWeight: "700", color: "#ffffff", fontSize: "13px" }}>
-                {isAr ? "كريمة ب. - مسؤولة إدارية، طنجة" : "Karima B. - Responsable Administrative, Tanger"}
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── FOOTER ── */}
-      <footer style={{
-        padding: "36px 40px",
-        textAlign: "center",
-        background: "#0f172a",
-        color: "#64748b",
-        borderTop: "1px solid rgba(255,255,255,0.06)",
-        fontSize: "13px"
-      }}>
-        © {new Date().getFullYear()} BORAQ LOGISTICS. Tous droits réservés. Commissionnaire de Transport National agréé au Maroc.
-      </footer>
     </div>
   );
 }
