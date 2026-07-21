@@ -3,10 +3,11 @@ import { useApp } from "../lib/context";
 import { supabase } from "../lib/supabase";
 
 export default function LandingPage({ onOpenLogin }) {
-  const { lang, setLang } = useApp();
+  const { lang, setLang, theme, toggleTheme } = useApp();
   const isAr = lang === "ar";
+  const isLight = theme === "light";
 
-  // Active Tool state: 'tracking' | 'agencies' (Simulation tarifaire removed per request)
+  // Active Tool state: 'tracking' | 'agencies'
   const [activeTab, setActiveTab] = useState("tracking");
   
   // Tracking tool state
@@ -78,27 +79,27 @@ export default function LandingPage({ onOpenLogin }) {
   const cities = Array.from(new Set(agencies.map(a => a.city).filter(Boolean)));
 
   return (
-    <div dir={isAr ? "rtl" : "ltr"} style={{ minHeight: "100vh", background: "#030712", color: "#f3f4f6", fontFamily: "system-ui, -apple-system, sans-serif" }}>
+    <div dir={isAr ? "rtl" : "ltr"} style={{ minHeight: "100vh", background: isLight ? "#f8fafc" : "#030712", color: isLight ? "#0f172a" : "#f3f4f6", fontFamily: "system-ui, -apple-system, sans-serif" }}>
       
-      {/* ── 2026 Next-Gen Header Navigation Bar ── */}
+      {/* ── SECTION 1 (DARK): 2026 Next-Gen Header Navigation Bar ── */}
       <header style={{
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
         padding: "16px 36px",
-        background: "rgba(3, 7, 18, 0.85)",
+        background: isLight ? "rgba(255, 255, 255, 0.9)" : "rgba(3, 7, 18, 0.9)",
         backdropFilter: "blur(20px)",
         WebkitBackdropFilter: "blur(20px)",
-        borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
+        borderBottom: isLight ? "1px solid #e2e8f0" : "1px solid rgba(255, 255, 255, 0.08)",
         position: "sticky",
         top: 0,
         zIndex: 500,
-        boxShadow: "0 10px 30px rgba(0,0,0,0.5)"
+        boxShadow: "0 10px 30px rgba(0,0,0,0.1)"
       }}>
         {/* Brand Logo - Interactive Click to Scroll Top */}
         <div
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-          style={{ display: "flex", alignItems: "center", gap: "12px", fontWeight: "900", fontSize: "24px", color: "#fff", cursor: "pointer" }}
+          style={{ display: "flex", alignItems: "center", gap: "12px", fontWeight: "900", fontSize: "24px", color: isLight ? "#0f172a" : "#fff", cursor: "pointer" }}
           title={isAr ? "العودة للأعلى" : "Retour en haut"}
         >
           <div style={{
@@ -109,12 +110,12 @@ export default function LandingPage({ onOpenLogin }) {
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            boxShadow: "0 0 20px rgba(56,189,248,0.5)"
+            boxShadow: "0 0 20px rgba(56,189,248,0.4)"
           }}>
             <svg width="24" height="24" viewBox="0 0 24 24" fill="#ffffff"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
           </div>
           <div style={{ display: "flex", flexDirection: "column", lineHeight: 1 }}>
-            <span style={{ background: "linear-gradient(135deg, #ffffff 0%, #38bdf8 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", fontSize: "22px", fontWeight: "900" }}>
+            <span style={{ background: isLight ? "linear-gradient(135deg, #0f172a 0%, #2563eb 100%)" : "linear-gradient(135deg, #ffffff 0%, #38bdf8 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", fontSize: "22px", fontWeight: "900" }}>
               Boraq
             </span>
             <span style={{ fontSize: "10px", fontWeight: "800", color: "#38bdf8", letterSpacing: "0.15em", marginTop: "3px" }}>
@@ -128,52 +129,66 @@ export default function LandingPage({ onOpenLogin }) {
           <a
             href="#hero"
             onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-            style={{ color: "#ffffff", textDecoration: "none", transition: "color 0.2s ease" }}
+            style={{ color: isLight ? "#0f172a" : "#ffffff", textDecoration: "none" }}
           >
             {isAr ? "الرئيسية" : "Accueil"}
           </a>
           <a
-            href="#services"
-            style={{ color: "#9ca3af", textDecoration: "none", transition: "color 0.2s ease" }}
-            onMouseEnter={e => e.currentTarget.style.color = "#38bdf8"}
-            onMouseLeave={e => e.currentTarget.style.color = "#9ca3af"}
+            href="#services-white"
+            style={{ color: isLight ? "#475569" : "#9ca3af", textDecoration: "none" }}
           >
             {isAr ? "خدماتنا" : "Services"}
           </a>
           <a
             href="#hero-tools"
             onClick={() => scrollToHeroTool("agencies")}
-            style={{ color: "#9ca3af", textDecoration: "none", transition: "color 0.2s ease" }}
-            onMouseEnter={e => e.currentTarget.style.color = "#38bdf8"}
-            onMouseLeave={e => e.currentTarget.style.color = "#9ca3af"}
+            style={{ color: isLight ? "#475569" : "#9ca3af", textDecoration: "none" }}
           >
             {isAr ? "شبكة الوكالات" : "Réseau d'Agences"}
           </a>
           <a
-            href="#services"
+            href="#hero-tools"
             onClick={() => scrollToHeroTool("tracking")}
-            style={{ color: "#9ca3af", textDecoration: "none", transition: "color 0.2s ease" }}
-            onMouseEnter={e => e.currentTarget.style.color = "#38bdf8"}
-            onMouseLeave={e => e.currentTarget.style.color = "#9ca3af"}
+            style={{ color: isLight ? "#475569" : "#9ca3af", textDecoration: "none" }}
           >
             {isAr ? "تتبع الشحنة" : "Suivi de Colis"}
           </a>
         </nav>
 
-        {/* Right Section: Language Toggle & Espace Pro Button */}
-        <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
+        {/* Right Section: Language Toggle, Theme Toggle & Espace Pro Button */}
+        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+          {/* Theme Mode Toggle (White vs Black/Dark) */}
           <button
-            onClick={() => setLang(isAr ? "fr" : "ar")}
+            onClick={toggleTheme}
             style={{
-              background: "rgba(255, 255, 255, 0.05)",
-              border: "1px solid rgba(255, 255, 255, 0.12)",
-              color: "#f3f4f6",
-              padding: "8px 16px",
+              background: isLight ? "#f1f5f9" : "rgba(255, 255, 255, 0.08)",
+              border: isLight ? "1px solid #cbd5e1" : "1px solid rgba(255, 255, 255, 0.15)",
+              color: isLight ? "#0f172a" : "#f3f4f6",
+              padding: "8px 14px",
               borderRadius: "30px",
               cursor: "pointer",
               fontSize: "13px",
               fontWeight: "800",
-              transition: "all 0.2s ease"
+              display: "flex",
+              alignItems: "center",
+              gap: "6px"
+            }}
+            title={isAr ? "تغيير الألوان (أبيض / أسود)" : "Mode Clair / Sombre"}
+          >
+            <span>{isLight ? "🌙 Sombre" : "☀️ Clair"}</span>
+          </button>
+
+          <button
+            onClick={() => setLang(isAr ? "fr" : "ar")}
+            style={{
+              background: isLight ? "#f1f5f9" : "rgba(255, 255, 255, 0.05)",
+              border: isLight ? "1px solid #cbd5e1" : "1px solid rgba(255, 255, 255, 0.12)",
+              color: isLight ? "#0f172a" : "#f3f4f6",
+              padding: "8px 14px",
+              borderRadius: "30px",
+              cursor: "pointer",
+              fontSize: "13px",
+              fontWeight: "800"
             }}
           >
             {isAr ? "Français" : "العربية"}
@@ -186,7 +201,7 @@ export default function LandingPage({ onOpenLogin }) {
               background: "linear-gradient(135deg, #0284c7 0%, #2563eb 100%)",
               border: "1px solid rgba(56, 189, 248, 0.4)",
               color: "#ffffff",
-              padding: "11px 24px",
+              padding: "11px 22px",
               borderRadius: "14px",
               cursor: "pointer",
               fontSize: "14px",
@@ -216,11 +231,11 @@ export default function LandingPage({ onOpenLogin }) {
         </div>
       </header>
 
-      {/* ── 2026 Next-Gen Hero Banner Section ── */}
+      {/* ── SECTION 2 (DARK HERO): 3D Truck Background & Hero Tools ── */}
       <section id="hero" style={{
         position: "relative",
         padding: "80px 20px 120px",
-        backgroundImage: "linear-gradient(180deg, rgba(3, 7, 18, 0.75) 0%, rgba(3, 7, 18, 0.98) 100%), url('/boraq_3d_truck.jpg')",
+        backgroundImage: "linear-gradient(180deg, rgba(3, 7, 18, 0.8) 0%, rgba(3, 7, 18, 0.98) 100%), url('/boraq_3d_truck.jpg')",
         backgroundSize: "cover",
         backgroundPosition: "center",
         textAlign: "center",
@@ -228,7 +243,6 @@ export default function LandingPage({ onOpenLogin }) {
       }}>
         <div style={{ maxWidth: "960px", margin: "0 auto", position: "relative", zIndex: 2 }}>
           
-          {/* Badge */}
           <div style={{
             display: "inline-flex",
             alignItems: "center",
@@ -266,7 +280,7 @@ export default function LandingPage({ onOpenLogin }) {
               : "Le réseau leader du transport de colis et marchandises au Maroc. Rapidité, sécurité et fiabilité garanties."}
           </p>
 
-          {/* ── 2 Primary Interactive Hero Feature Cards (Simulation Removed) ── */}
+          {/* ── 2 Primary Interactive Hero Feature Cards ── */}
           <div id="hero-tools" style={{
             display: "grid",
             gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
@@ -289,8 +303,6 @@ export default function LandingPage({ onOpenLogin }) {
                 transition: "all 0.25s cubic-bezier(0.16, 1, 0.3, 1)",
                 textAlign: "center"
               }}
-              onMouseEnter={e => { if (activeTab !== "tracking") e.currentTarget.style.transform = "translateY(-3px)"; }}
-              onMouseLeave={e => { if (activeTab !== "tracking") e.currentTarget.style.transform = "translateY(0)"; }}
             >
               <div style={{
                 width: "52px",
@@ -324,8 +336,6 @@ export default function LandingPage({ onOpenLogin }) {
                 transition: "all 0.25s cubic-bezier(0.16, 1, 0.3, 1)",
                 textAlign: "center"
               }}
-              onMouseEnter={e => { if (activeTab !== "agencies") e.currentTarget.style.transform = "translateY(-3px)"; }}
-              onMouseLeave={e => { if (activeTab !== "agencies") e.currentTarget.style.transform = "translateY(0)"; }}
             >
               <div style={{
                 width: "52px",
@@ -480,10 +490,25 @@ export default function LandingPage({ onOpenLogin }) {
         </div>
       </section>
 
-      {/* ── 2026 Next-Gen Alternating Service Feature Rows ── */}
-      <section id="services" style={{ padding: "90px 24px", background: "#030712" }}>
+      {/* ── SECTION 3 (BRIGHT WHITE CONTRAST): CTM-Style Services Showcase ── */}
+      <section id="services-white" style={{
+        padding: "90px 24px",
+        background: isLight ? "#ffffff" : "#0f172a",
+        borderTop: isLight ? "1px solid #e2e8f0" : "1px solid rgba(255,255,255,0.08)",
+        borderBottom: isLight ? "1px solid #e2e8f0" : "1px solid rgba(255,255,255,0.08)"
+      }}>
         <div style={{ maxWidth: "1100px", margin: "0 auto", display: "flex", flexDirection: "column", gap: "80px" }}>
           
+          {/* Section Header */}
+          <div style={{ textAlign: "center", maxWidth: "700px", margin: "0 auto" }}>
+            <span style={{ fontSize: "12px", fontWeight: "900", textTransform: "uppercase", letterSpacing: "0.12em", color: "#2563eb", background: "rgba(37, 99, 235, 0.1)", padding: "6px 16px", borderRadius: "20px" }}>
+              {isAr ? "خدمات البراق اللوجستية" : "SERVICES EXCLUSIFS BORAQ"}
+            </span>
+            <h2 style={{ fontSize: "clamp(26px, 4vw, 38px)", fontWeight: "900", color: isLight ? "#0f172a" : "#ffffff", marginTop: "14px", lineHeight: 1.2 }}>
+              {isAr ? "حلول شحن متكاملة لـ الأفراد والشركات" : "Des solutions de transport sur-mesure pour vous"}
+            </h2>
+          </div>
+
           {/* Row 1: Notification Par SMS */}
           <div
             onClick={() => scrollToHeroTool("tracking")}
@@ -493,31 +518,30 @@ export default function LandingPage({ onOpenLogin }) {
               gap: "44px",
               alignItems: "center",
               cursor: "pointer",
-              padding: "32px",
+              padding: "36px",
               borderRadius: "28px",
-              background: "rgba(15, 23, 42, 0.6)",
-              border: "1px solid rgba(255, 255, 255, 0.08)",
+              background: isLight ? "#ffffff" : "rgba(30, 41, 59, 0.6)",
+              border: isLight ? "1px solid #e2e8f0" : "1px solid rgba(255, 255, 255, 0.08)",
+              boxShadow: isLight ? "0 20px 40px rgba(0,0,0,0.06)" : "0 20px 40px rgba(0,0,0,0.3)",
               transition: "all 0.3s cubic-bezier(0.16, 1, 0.3, 1)"
             }}
-            onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-6px)"; e.currentTarget.style.boxShadow = "0 25px 50px rgba(14,165,233,0.2)"; }}
-            onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "none"; }}
           >
-            <div style={{ borderRadius: "22px", overflow: "hidden", boxShadow: "0 20px 45px rgba(0,0,0,0.6)", border: "1px solid rgba(255,255,255,0.12)" }}>
+            <div style={{ borderRadius: "22px", overflow: "hidden", boxShadow: "0 20px 45px rgba(0,0,0,0.15)", border: "1px solid rgba(0,0,0,0.08)" }}>
               <img src="/boraq_sms_notif.jpg" alt="Notification SMS Boraq" style={{ width: "100%", height: "280px", objectFit: "cover", display: "block" }} />
             </div>
             <div>
-              <div style={{ display: "inline-flex", padding: "6px 16px", borderRadius: "30px", background: "rgba(14,165,233,0.15)", color: "#38bdf8", fontSize: "12px", fontWeight: "900", textTransform: "uppercase", marginBottom: "14px" }}>
+              <div style={{ display: "inline-flex", padding: "6px 16px", borderRadius: "30px", background: "rgba(14,165,233,0.15)", color: "#0284c7", fontSize: "12px", fontWeight: "900", textTransform: "uppercase", marginBottom: "14px" }}>
                 {isAr ? "خدمة التنبيهات المباشرة" : "SERVICE NOTIFICATION LIVE"}
               </div>
-              <h2 style={{ fontSize: "26px", fontWeight: "900", color: "#fff", marginBottom: "14px", lineHeight: 1.3 }}>
+              <h2 style={{ fontSize: "26px", fontWeight: "900", color: isLight ? "#0f172a" : "#fff", marginBottom: "14px", lineHeight: 1.3 }}>
                 NOTIFICATION PAR SMS & PUSH
               </h2>
-              <p style={{ fontSize: "15px", color: "#9ca3af", lineHeight: 1.7 }}>
+              <p style={{ fontSize: "15px", color: isLight ? "#475569" : "#9ca3af", lineHeight: 1.7 }}>
                 {isAr
                   ? "تتبع مباشر للطرد عبر إشعارات فورية ورسائل حالة الشحنة لحظة بلحظة. إخبار المستلم بتاريخ الوصول ومكان الاستلام بـ كل سهولة وإتقان!"
                   : "INFORMEZ VOTRE DESTINATAIRE DE LA DATE D'ARRIVÉE ET DU LIEU DE RÉCEPTION DE VOTRE COLIS, EN TOUTE SIMPLICITÉ ! Grâce au service Notification SMS & Live Push de Boraq Logistics."}
               </p>
-              <div style={{ marginTop: "20px", color: "#38bdf8", fontWeight: "800", fontSize: "15px", display: "flex", alignItems: "center", gap: "8px" }}>
+              <div style={{ marginTop: "20px", color: "#0284c7", fontWeight: "800", fontSize: "15px", display: "flex", alignItems: "center", gap: "8px" }}>
                 <span>{isAr ? "جرب تتبع الطرد الآن ➔" : "Essayer le suivi en direct ➔"}</span>
               </div>
             </div>
@@ -532,32 +556,31 @@ export default function LandingPage({ onOpenLogin }) {
               gap: "44px",
               alignItems: "center",
               cursor: "pointer",
-              padding: "32px",
+              padding: "36px",
               borderRadius: "28px",
-              background: "rgba(15, 23, 42, 0.6)",
-              border: "1px solid rgba(255, 255, 255, 0.08)",
+              background: isLight ? "#ffffff" : "rgba(30, 41, 59, 0.6)",
+              border: isLight ? "1px solid #e2e8f0" : "1px solid rgba(255, 255, 255, 0.08)",
+              boxShadow: isLight ? "0 20px 40px rgba(0,0,0,0.06)" : "0 20px 40px rgba(0,0,0,0.3)",
               transition: "all 0.3s cubic-bezier(0.16, 1, 0.3, 1)"
             }}
-            onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-6px)"; e.currentTarget.style.boxShadow = "0 25px 50px rgba(245,158,11,0.2)"; }}
-            onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "none"; }}
           >
             <div>
-              <div style={{ display: "inline-flex", padding: "6px 16px", borderRadius: "30px", background: "rgba(245,158,11,0.15)", color: "#f59e0b", fontSize: "12px", fontWeight: "900", textTransform: "uppercase", marginBottom: "14px" }}>
+              <div style={{ display: "inline-flex", padding: "6px 16px", borderRadius: "30px", background: "rgba(245,158,11,0.15)", color: "#d97706", fontSize: "12px", fontWeight: "900", textTransform: "uppercase", marginBottom: "14px" }}>
                 {isAr ? "التغليف والشحن السريع" : "SERVICE EMBALLAGE & FRET"}
               </div>
-              <h2 style={{ fontSize: "26px", fontWeight: "900", color: "#fff", marginBottom: "14px", lineHeight: 1.3 }}>
+              <h2 style={{ fontSize: "26px", fontWeight: "900", color: isLight ? "#0f172a" : "#fff", marginBottom: "14px", lineHeight: 1.3 }}>
                 SERVICE EMBALLAGE EXPRESS
               </h2>
-              <p style={{ fontSize: "15px", color: "#9ca3af", lineHeight: 1.7 }}>
+              <p style={{ fontSize: "15px", color: isLight ? "#475569" : "#9ca3af", lineHeight: 1.7 }}>
                 {isAr
                   ? "حلول تغليف متينة ومجهزة خصيصاً لـ حماية جميع أنواع الطرود والبضائع فـ وكالاتنا. كُـل شحنة محمية بـ كود باركود فريد يضمن وصولها سالمة فـ الوقت المحدد!"
                   : "Avec les nouvelles solutions d'emballages Boraq Logistics, vous disposez d'un large choix de formats d'emballages résistants et adaptés à tous vos envois dans nos agences agréées."}
               </p>
-              <div style={{ marginTop: "20px", color: "#f59e0b", fontWeight: "800", fontSize: "15px", display: "flex", alignItems: "center", gap: "8px" }}>
+              <div style={{ marginTop: "20px", color: "#d97706", fontWeight: "800", fontSize: "15px", display: "flex", alignItems: "center", gap: "8px" }}>
                 <span>{isAr ? "تصفح خدمات التغليف والشحن ➔" : "Découvrir nos solutions emballage ➔"}</span>
               </div>
             </div>
-            <div style={{ borderRadius: "22px", overflow: "hidden", boxShadow: "0 20px 45px rgba(0,0,0,0.6)", border: "1px solid rgba(255,255,255,0.12)" }}>
+            <div style={{ borderRadius: "22px", overflow: "hidden", boxShadow: "0 20px 45px rgba(0,0,0,0.15)", border: "1px solid rgba(0,0,0,0.08)" }}>
               <img src="/boraq_packaging.jpg" alt="Service Emballage Boraq" style={{ width: "100%", height: "280px", objectFit: "cover", display: "block" }} />
             </div>
           </div>
@@ -571,31 +594,30 @@ export default function LandingPage({ onOpenLogin }) {
               gap: "44px",
               alignItems: "center",
               cursor: "pointer",
-              padding: "32px",
+              padding: "36px",
               borderRadius: "28px",
-              background: "rgba(15, 23, 42, 0.6)",
-              border: "1px solid rgba(255, 255, 255, 0.08)",
+              background: isLight ? "#ffffff" : "rgba(30, 41, 59, 0.6)",
+              border: isLight ? "1px solid #e2e8f0" : "1px solid rgba(255, 255, 255, 0.08)",
+              boxShadow: isLight ? "0 20px 40px rgba(0,0,0,0.06)" : "0 20px 40px rgba(0,0,0,0.3)",
               transition: "all 0.3s cubic-bezier(0.16, 1, 0.3, 1)"
             }}
-            onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-6px)"; e.currentTarget.style.boxShadow = "0 25px 50px rgba(16,185,129,0.2)"; }}
-            onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "none"; }}
           >
-            <div style={{ borderRadius: "22px", overflow: "hidden", boxShadow: "0 20px 45px rgba(0,0,0,0.6)", border: "1px solid rgba(255,255,255,0.12)" }}>
+            <div style={{ borderRadius: "22px", overflow: "hidden", boxShadow: "0 20px 45px rgba(0,0,0,0.15)", border: "1px solid rgba(0,0,0,0.08)" }}>
               <img src="/boraq_map_tracking.jpg" alt="Service Tracking Boraq" style={{ width: "100%", height: "280px", objectFit: "cover", display: "block" }} />
             </div>
             <div>
-              <div style={{ display: "inline-flex", padding: "6px 16px", borderRadius: "30px", background: "rgba(16,185,129,0.15)", color: "#10b981", fontSize: "12px", fontWeight: "900", textTransform: "uppercase", marginBottom: "14px" }}>
+              <div style={{ display: "inline-flex", padding: "6px 16px", borderRadius: "30px", background: "rgba(16,185,129,0.15)", color: "#059669", fontSize: "12px", fontWeight: "900", textTransform: "uppercase", marginBottom: "14px" }}>
                 {isAr ? "تتبع الخريطة والوكالات" : "SERVICE DE TRACKING GPS"}
               </div>
-              <h2 style={{ fontSize: "26px", fontWeight: "900", color: "#fff", marginBottom: "14px", lineHeight: 1.3 }}>
+              <h2 style={{ fontSize: "26px", fontWeight: "900", color: isLight ? "#0f172a" : "#fff", marginBottom: "14px", lineHeight: 1.3 }}>
                 GÉOLOCALISATION & RÉSEAU D'AGENCES
               </h2>
-              <p style={{ fontSize: "15px", color: "#9ca3af", lineHeight: 1.7 }}>
+              <p style={{ fontSize: "15px", color: isLight ? "#475569" : "#9ca3af", lineHeight: 1.7 }}>
                 {isAr
                   ? "تتبع الجغرافي الفوري لشاحنات البراق وطرودك على الخريطة المباشرة مع استعراض كُـل الوكالات المعتمدة ومواقعها الجغرافية على Google Maps."
                   : "Suivez en temps réel la géolocalisation de vos expéditions et retrouvez facilement la position exacte de toutes nos agences partenaires sur la carte."}
               </p>
-              <div style={{ marginTop: "20px", color: "#10b981", fontWeight: "800", fontSize: "15px", display: "flex", alignItems: "center", gap: "8px" }}>
+              <div style={{ marginTop: "20px", color: "#059669", fontWeight: "800", fontSize: "15px", display: "flex", alignItems: "center", gap: "8px" }}>
                 <span>{isAr ? "استعرض وكالاتنا على الخريطة ➔" : "Voir le réseau des agences ➔"}</span>
               </div>
             </div>
@@ -604,8 +626,15 @@ export default function LandingPage({ onOpenLogin }) {
         </div>
       </section>
 
-      {/* ── Footer ── */}
-      <footer style={{ padding: "36px 20px", textAlign: "center", borderTop: "1px solid rgba(255,255,255,0.08)", color: "#6b7280", fontSize: "14px" }}>
+      {/* ── SECTION 4 (DARK): Footer ── */}
+      <footer style={{
+        padding: "40px 20px",
+        textAlign: "center",
+        background: isLight ? "#0f172a" : "#030712",
+        color: isLight ? "#94a3b8" : "#6b7280",
+        borderTop: "1px solid rgba(255,255,255,0.08)",
+        fontSize: "14px"
+      }}>
         © {new Date().getFullYear()} Boraq Logistics & Merchandise. Tous droits réservés.
       </footer>
     </div>
