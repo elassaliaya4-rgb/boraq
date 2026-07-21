@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useApp } from "./lib/context";
+import LandingPage from "./pages/LandingPage";
 import Login from "./pages/Login";
 import AdminPanel from "./pages/AdminPanel";
 import AgencyPanel from "./pages/AgencyPanel";
@@ -12,6 +13,7 @@ import { initPushNotifications } from "./lib/pushNotifications";
 export default function App() {
   const { user, profile, loading, dir, lang, signOut, t, toast, theme } = useApp();
   const [minSplashDone, setMinSplashDone] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   useEffect(() => {
     initPushNotifications();
@@ -150,7 +152,46 @@ export default function App() {
           <div className="toast-body">{toast}</div>
         </div>
       )}
-      {!user && <Login />}
+
+      {/* Unauthenticated View: CTM-Style Public Landing Page */}
+      {!user && (
+        <>
+          <LandingPage onOpenLogin={() => setShowLoginModal(true)} />
+
+          {/* Espace Pro Code Login Modal Overlay */}
+          {showLoginModal && (
+            <div className="modal-bg" onClick={() => setShowLoginModal(false)}>
+              <div className="modal" onClick={e => e.stopPropagation()} style={{ maxWidth: "420px", padding: "16px", position: "relative" }}>
+                <button
+                  onClick={() => setShowLoginModal(false)}
+                  style={{
+                    position: "absolute",
+                    top: "14px",
+                    right: "14px",
+                    background: "rgba(255,255,255,0.08)",
+                    border: "none",
+                    color: "var(--text-dim)",
+                    borderRadius: "50%",
+                    width: "30px",
+                    height: "30px",
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: "16px",
+                    zIndex: 10
+                  }}
+                >
+                  ✕
+                </button>
+                <Login />
+              </div>
+            </div>
+          )}
+        </>
+      )}
+
+      {/* Authenticated Views */}
       {user && profile?.role === "admin" && <AdminPanel />}
       {user && profile?.role === "agency" && <AgencyPanel />}
       {user && profile?.role === "driver" && <DriverPanel />}
