@@ -118,25 +118,13 @@ export default function LandingPage({ onOpenLogin }) {
         boxSizing: "border-box"
       }}>
         {/* Brand Logo */}
-        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-          <div style={{
-            width: "42px",
-            height: "42px",
-            borderRadius: "10px",
-            background: "#111827",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center"
-          }}>
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ffffff" strokeWidth="2.5">
-              <polygon points="12 2 2 7 12 12 22 7 12 2"/>
-              <polyline points="2 17 12 22 22 17"/>
-              <polyline points="2 12 12 17 22 12"/>
-            </svg>
-          </div>
+        <div style={{ display: "flex", alignItems: "center", gap: "10px", cursor: "pointer" }} onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
+          <svg className="logo-lightning-bolt" width="28" height="28" viewBox="0 0 24 24" fill="#3b82f6">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+          </svg>
           <div>
-            <div style={{ fontSize: "20px", fontWeight: "900", color: "#111827", letterSpacing: "-0.02em" }}>BoraqLogist</div>
-            <div style={{ fontSize: "11px", color: "#6b7280", fontWeight: "700" }}>
+            <div className="logo-text-shift" style={{ fontSize: "28px", fontWeight: "900", letterSpacing: "-0.04em", lineHeight: "1" }}>Boraq</div>
+            <div style={{ fontSize: "11px", color: "#6b7280", fontWeight: "700", marginTop: "2px" }}>
               {isAr ? "شحن لوجستي سريع بالمغرب" : "Livraison colis express au Maroc"}
             </div>
           </div>
@@ -378,7 +366,7 @@ export default function LandingPage({ onOpenLogin }) {
             boxShadow: "0 30px 70px rgba(0,0,0,0.1)",
             border: "6px solid #ffffff"
           }}>
-            <img src="/boraq_3d_truck.jpg" alt="Boraq Logistics" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+            <img src="/boraq_collage.jpg" alt="Boraq Logistics" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
           </div>
 
           {/* Badge 1: 10+ Years (Top Right) */}

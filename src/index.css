@@ -1788,7 +1788,45 @@ input, select, textarea {
     flex-direction: column !important;
     gap: 16px !important;
     align-items: center !important;
-    text-align: center !important;
   }
+}
+/* Color shifting gradient for Logo text */
+@keyframes logoColorShift {
+  0% {
+    color: #3b82f6; /* Blue */
+  }
+  33% {
+    color: #a855f7; /* Purple */
+  }
+  66% {
+    color: #fd9a63; /* Orange */
+  }
+  100% {
+    color: #3b82f6; /* Blue */
+  }
+}
+
+/* Pulsing animation for the lightning bolt logo icon */
+@keyframes boltPulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.95;
+  }
+  50% {
+    transform: scale(1.2) translateY(-2px);
+    opacity: 1;
+    filter: drop-shadow(0 0 10px #3b82f6);
+  }
+}
+
+.logo-lightning-bolt {
+  animation: boltPulse 1.8s ease-in-out infinite;
+  display: inline-block;
+}
+
+.logo-text-shift {
+  animation: logoColorShift 5s ease-in-out infinite;
+  font-weight: 900;
+  letter-spacing: -0.02em;
 }
 
