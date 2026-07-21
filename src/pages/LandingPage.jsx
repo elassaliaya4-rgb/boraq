@@ -95,7 +95,7 @@ export default function LandingPage({ onOpenLogin }) {
   ];
 
   return (
-    <div dir={isAr ? "rtl" : "ltr"} style={{
+    <div dir={isAr ? "rtl" : "ltr"} className="landing-page-wrapper" style={{
       minHeight: "100vh",
       background: "#f3f4f6", // Off-white clean light background matching ChinaLogist
       color: "#1f2937",
@@ -109,7 +109,7 @@ export default function LandingPage({ onOpenLogin }) {
     }}>
       
       {/* ── 1. NAVBAR (Exact ChinaLogist Replica) ── */}
-      <header style={{
+      <header className="landing-page-header" style={{
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
@@ -426,7 +426,7 @@ export default function LandingPage({ onOpenLogin }) {
       </main>
 
       {/* ── 3. BOTTOM SLIDER PROCESS INDICATOR (Exact ChinaLogist Style) ── */}
-      <footer style={{
+      <footer className="landing-page-footer" style={{
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",

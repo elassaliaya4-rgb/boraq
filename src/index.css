@@ -1753,3 +1753,42 @@ input, select, textarea {
   100% { transform: translateX(-50%); }
 }
 
+/* ── Mobile Responsive Rules for Landing Page & APK view ── */
+@media (max-width: 768px) {
+  .desktop-only-table {
+    display: none !important;
+  }
+  
+  .landing-page-wrapper {
+    padding: 16px 20px !important;
+  }
+
+  .landing-page-header {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 16px !important;
+  }
+
+  .landing-page-header div {
+    width: 100% !important;
+    justify-content: space-between !important;
+  }
+
+  .responsive-grid-landing {
+    grid-template-columns: 1fr !important;
+    gap: 32px !important;
+    margin-top: 16px !important;
+  }
+
+  .responsive-grid-landing img {
+    height: 300px !important;
+  }
+
+  .landing-page-footer {
+    flex-direction: column !important;
+    gap: 16px !important;
+    align-items: center !important;
+    text-align: center !important;
+  }
+}
+
