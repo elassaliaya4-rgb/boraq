@@ -186,11 +186,13 @@ export default function LandingPage({ onOpenLogin }) {
         </div>
       </header>
 
-      {/* ── CTM-Style Hero Banner Section ── */}
+      {/* ── CTM-Style Hero Banner Section with 3D Truck Background ── */}
       <section id="hero" style={{
         position: "relative",
-        padding: "60px 20px 100px",
-        background: "radial-gradient(circle at top center, #1e293b 0%, #0a0f1d 80%)",
+        padding: "70px 20px 110px",
+        backgroundImage: "linear-gradient(180deg, rgba(10, 15, 29, 0.75) 0%, rgba(10, 15, 29, 0.95) 100%), url('/boraq_3d_truck.jpg')",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
         textAlign: "center",
         overflow: "hidden"
       }}>
@@ -198,22 +200,23 @@ export default function LandingPage({ onOpenLogin }) {
         <div style={{
           position: "absolute",
           inset: 0,
-          backgroundImage: "radial-gradient(rgba(56, 189, 248, 0.08) 1px, transparent 1px)",
+          backgroundImage: "radial-gradient(rgba(56, 189, 248, 0.12) 1px, transparent 1px)",
           backgroundSize: "32px 32px",
           pointerEvents: "none"
         }} />
 
         <div style={{ maxWidth: "900px", margin: "0 auto", position: "relative", zIndex: 2 }}>
           <h1 style={{
-            fontSize: "clamp(28px, 5vw, 48px)",
+            fontSize: "clamp(28px, 5vw, 52px)",
             fontWeight: "900",
             lineHeight: 1.2,
             marginBottom: "16px",
-            color: "#ffffff"
+            color: "#ffffff",
+            textShadow: "0 4px 20px rgba(0,0,0,0.8)"
           }}>
             {isAr ? "شحناتك وبضاعتك بأمان وفخامة إلى جميع المدن" : "Votre colis jusqu'à chez vous."}
           </h1>
-          <p style={{ fontSize: "16px", color: "#94a3b8", maxWidth: "680px", margin: "0 auto 40px auto", lineHeight: 1.6 }}>
+          <p style={{ fontSize: "17px", color: "#e2e8f0", maxWidth: "680px", margin: "0 auto 40px auto", lineHeight: 1.6, textShadow: "0 2px 10px rgba(0,0,0,0.8)" }}>
             {isAr
               ? "البراق للمطابقة واللوجستيك السريع فـ المغرب - تتبع فوري، سرعة فائقة، وشبكة موثوقة عبر كُـل المدن."
               : "Le réseau leader du transport de colis et marchandises au Maroc. Rapidité, sécurité et fiabilité garaties."}
@@ -527,6 +530,80 @@ export default function LandingPage({ onOpenLogin }) {
                 )}
               </div>
             )}
+          </div>
+        </div>
+      </section>
+
+      {/* ── CTM-Style Services & Info Section ── */}
+      <section id="services" style={{ padding: "80px 20px", background: "#0a0f1d", borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+        <div style={{ maxWidth: "1000px", margin: "0 auto", textAlign: "center" }}>
+          <span style={{ fontSize: "12px", fontWeight: "900", textTransform: "uppercase", letterSpacing: "0.1em", color: "#38bdf8" }}>
+            {isAr ? "خدمات البراق اللوجستية" : "SERVICES BORAQ LOGISTICS"}
+          </span>
+          <h2 style={{ fontSize: "clamp(24px, 4vw, 36px)", fontWeight: "900", color: "#fff", marginTop: "8px", marginBottom: "40px" }}>
+            {isAr ? "حلول شحن متكاملة لـ الأفراد والشركات" : "Des solutions de transport sur-mesure pour vous"}
+          </h2>
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "24px", textAlign: isAr ? "right" : "left" }}>
+            {/* Service 1 */}
+            <div style={{ padding: "28px 22px", borderRadius: "20px", background: "rgba(30, 41, 59, 0.6)", border: "1px solid rgba(255,255,255,0.08)", boxShadow: "0 10px 30px rgba(0,0,0,0.2)" }}>
+              <div style={{ width: "44px", height: "44px", borderRadius: "12px", background: "rgba(56, 189, 248, 0.15)", color: "#38bdf8", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "20px", marginBottom: "16px" }}>
+                📱
+              </div>
+              <h3 style={{ fontSize: "17px", fontWeight: "800", color: "#fff", marginBottom: "8px" }}>
+                {isAr ? "تنبيهات SMS وإشعارات حية" : "Notifications & Suivi SMS Live"}
+              </h3>
+              <p style={{ fontSize: "14px", color: "#94a3b8", lineHeight: 1.6 }}>
+                {isAr
+                  ? "تتبع مباشر للطرد عبر إشعارات فورية ورسائل حالة الشحنة لحظة بلحظة."
+                  : "Informez vos destinataires en temps réel de la date d'arrivée et du lieu de réception de votre colis."}
+              </p>
+            </div>
+
+            {/* Service 2 */}
+            <div style={{ padding: "28px 22px", borderRadius: "20px", background: "rgba(30, 41, 59, 0.6)", border: "1px solid rgba(255,255,255,0.08)", boxShadow: "0 10px 30px rgba(0,0,0,0.2)" }}>
+              <div style={{ width: "44px", height: "44px", borderRadius: "12px", background: "rgba(245, 158, 11, 0.15)", color: "#f59e0b", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "20px", marginBottom: "16px" }}>
+                🚚
+              </div>
+              <h3 style={{ fontSize: "17px", fontWeight: "800", color: "#fff", marginBottom: "8px" }}>
+                {isAr ? "نقل البضائع والفرِيط السريع" : "Transport Fret & Messagerie Express"}
+              </h3>
+              <p style={{ fontSize: "14px", color: "#94a3b8", lineHeight: 1.6 }}>
+                {isAr
+                  ? "شاحنات رموك ومركبات حديثة لنقل البضائع والطرود بين جميع المدن فـ 24 ساعة."
+                  : "Acheminement rapide et sécurisé de vos marchandises et colis lourds à travers toutes les villes."}
+              </p>
+            </div>
+
+            {/* Service 3 */}
+            <div style={{ padding: "28px 22px", borderRadius: "20px", background: "rgba(30, 41, 59, 0.6)", border: "1px solid rgba(255,255,255,0.08)", boxShadow: "0 10px 30px rgba(0,0,0,0.2)" }}>
+              <div style={{ width: "44px", height: "44px", borderRadius: "12px", background: "rgba(239, 68, 68, 0.15)", color: "#ef4444", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "20px", marginBottom: "16px" }}>
+                🏢
+              </div>
+              <h3 style={{ fontSize: "17px", fontWeight: "800", color: "#fff", marginBottom: "8px" }}>
+                {isAr ? "شبكة وكالات محلية مقربة" : "Réseau d'Agences de Proximité"}
+              </h3>
+              <p style={{ fontSize: "14px", color: "#94a3b8", lineHeight: 1.6 }}>
+                {isAr
+                  ? "استلام وتسليم الطرود فـ أقرب وكالة للمستلم مع مسح الرمز الضوئي السريع."
+                  : "Dépôt et retrait simplifiés dans nos agences agréées réparties sur tout le royaume."}
+              </p>
+            </div>
+
+            {/* Service 4 */}
+            <div style={{ padding: "28px 22px", borderRadius: "20px", background: "rgba(30, 41, 59, 0.6)", border: "1px solid rgba(255,255,255,0.08)", boxShadow: "0 10px 30px rgba(0,0,0,0.2)" }}>
+              <div style={{ width: "44px", height: "44px", borderRadius: "12px", background: "rgba(16, 185, 129, 0.15)", color: "#10b981", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "20px", marginBottom: "16px" }}>
+                🔒
+              </div>
+              <h3 style={{ fontSize: "17px", fontWeight: "800", color: "#fff", marginBottom: "8px" }}>
+                {isAr ? "أمان 100% وضمان الشحنات" : "Sécurité & Assurance Colis 100%"}
+              </h3>
+              <p style={{ fontSize: "14px", color: "#94a3b8", lineHeight: 1.6 }}>
+                {isAr
+                  ? "حماية تامة للبضائع مع كود باركود فريد يضمن وصول الطرد سالماً بدون خطأ."
+                  : "Chaque expédition est identifiée par un code-barres unique garantissant un suivi rigoureux."}
+              </p>
+            </div>
           </div>
         </div>
       </section>
