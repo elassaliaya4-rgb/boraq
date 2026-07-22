@@ -182,16 +182,7 @@ export default function LandingPage({ onOpenLogin }) {
         }}>
           
           {/* WHITE TOP PORTION */}
-          <div style={{
-            minHeight: "100vh",
-            width: "100%",
-            padding: "120px 80px 40px 80px",
-            boxSizing: "border-box",
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "center",
-            position: "relative"
-          }}>
+          <div className="section-hero-white">
             <div style={{
               display: "flex",
               alignItems: "center",
@@ -267,17 +258,11 @@ export default function LandingPage({ onOpenLogin }) {
               </div>
 
               {/* Right angled floating 3D container illustration */}
-              <div style={{
-                position: "relative",
-                width: "460px",
-                height: "380px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
+              <div className="hero-visual-wrapper" style={{
                 transform: `translateY(${scrollY * 0.1}px)`,
                 transition: "transform 0.1s ease-out"
               }}>
-                <img src="/boraq_container.jpg" alt="Boraq Container" style={{
+                <img src="boraq_container.jpg" alt="Boraq Container" style={{
                   width: "100%",
                   objectFit: "contain",
                   filter: "drop-shadow(0 20px 40px rgba(0,0,0,0.1))"
@@ -310,15 +295,7 @@ export default function LandingPage({ onOpenLogin }) {
           </div>
 
           {/* DARK BOTTOM PORTION */}
-          <div style={{
-            background: "#090e1a",
-            borderTopLeftRadius: "40px",
-            borderTopRightRadius: "40px",
-            padding: "80px 80px",
-            boxSizing: "border-box",
-            position: "relative",
-            zIndex: 20
-          }}>
+          <div className="section-hero-dark">
             {/* Partners Logo row */}
             <div style={{
               display: "flex",
@@ -350,7 +327,7 @@ export default function LandingPage({ onOpenLogin }) {
                 overflow: "hidden",
                 boxShadow: "0 25px 50px rgba(0,0,0,0.4)"
               }}>
-                <img src="/boraq_crane_lift.jpg" style={{ width: "100%", display: "block" }} />
+                <img src="boraq_crane_lift.jpg" style={{ width: "100%", display: "block" }} />
               </div>
 
               {/* Right text details */}
@@ -459,7 +436,7 @@ export default function LandingPage({ onOpenLogin }) {
                 position: "relative",
                 height: "380px"
               }}>
-                <img src="/boraq_ship.jpg" style={{ width: "100%", height: "70%", objectFit: "cover" }} />
+                <img src="boraq_ship.jpg" style={{ width: "100%", height: "70%", objectFit: "cover" }} />
                 <div style={{ padding: "20px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                   <div style={{ textAlign: "left" }}>
                     <h4 style={{ fontSize: "18px", fontWeight: "800", margin: 0 }}>Sea Shipping</h4>
@@ -478,7 +455,7 @@ export default function LandingPage({ onOpenLogin }) {
                 position: "relative",
                 height: "380px"
               }}>
-                <img src="/boraq_route_map.jpg" style={{ width: "100%", height: "70%", objectFit: "cover" }} />
+                <img src="boraq_route_map.jpg" style={{ width: "100%", height: "70%", objectFit: "cover" }} />
                 <div style={{ padding: "20px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                   <div style={{ textAlign: "left" }}>
                     <h4 style={{ fontSize: "18px", fontWeight: "800", margin: 0 }}>Air Shipping</h4>
@@ -497,7 +474,7 @@ export default function LandingPage({ onOpenLogin }) {
                 position: "relative",
                 height: "380px"
               }}>
-                <img src="/boraq_truck_train.jpg" style={{ width: "100%", height: "70%", objectFit: "cover" }} />
+                <img src="boraq_truck_train.jpg" style={{ width: "100%", height: "70%", objectFit: "cover" }} />
                 <div style={{ padding: "20px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                   <div style={{ textAlign: "left" }}>
                     <h4 style={{ fontSize: "18px", fontWeight: "800", margin: 0 }}>Train Shipping</h4>
@@ -553,7 +530,7 @@ export default function LandingPage({ onOpenLogin }) {
                 overflow: "hidden",
                 boxShadow: "0 20px 40px rgba(0,0,0,0.05)"
               }}>
-                <img src="/boraq_warehouse.jpg" style={{ width: "100%", display: "block" }} />
+                <img src="boraq_warehouse.jpg" style={{ width: "100%", display: "block" }} />
               </div>
 
             </div>
@@ -583,7 +560,7 @@ export default function LandingPage({ onOpenLogin }) {
               border: "1.5px solid #e2e8f0",
               boxShadow: "0 15px 35px rgba(0,0,0,0.03)"
             }}>
-              <img src="/boraq_map_tracking.jpg" style={{ width: "100%", display: "block", filter: "grayscale(1) brightness(0.95)" }} />
+              <img src="boraq_map_tracking.jpg" style={{ width: "100%", display: "block", filter: "grayscale(1) brightness(0.95)" }} />
               
               {/* Floating popup badge */}
               <div style={{
@@ -624,7 +601,7 @@ export default function LandingPage({ onOpenLogin }) {
             left: 0,
             right: 0,
             bottom: 0,
-            backgroundImage: "url('/boraq_ship.jpg')",
+            backgroundImage: "url('boraq_ship.jpg')",
             backgroundSize: "cover",
             backgroundPosition: "center",
             opacity: 0.15,
@@ -828,18 +805,18 @@ export default function LandingPage({ onOpenLogin }) {
             {/* Grid of 3 Facility Cards */}
             <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "24px" }} className="responsive-grid-landing">
               
-              {/* Card 1 */}
+              {/* Card 1: Reefer Container */}
               <div style={{ border: "1.5px solid #e2e8f0", borderRadius: "24px", overflow: "hidden", background: "#ffffff" }}>
-                <img src="/boraq_container.jpg" style={{ width: "100%", height: "220px", objectFit: "cover" }} />
+                <img src="boraq_warehouse.jpg" style={{ width: "100%", height: "220px", objectFit: "cover" }} />
                 <div style={{ padding: "20px", textAlign: "left" }}>
-                  <h4 style={{ fontSize: "16px", fontWeight: "850", margin: "0 0 6px 0" }}>40ft Flat Rack Container</h4>
-                  <span style={{ fontSize: "14px", fontWeight: "900", color: "#ff6b00" }}>$3,170 <span style={{ fontSize: "12px", color: "#64748b", fontWeight: "600" }}>/ year</span></span>
+                  <h4 style={{ fontSize: "16px", fontWeight: "850", margin: "0 0 6px 0" }}>40ft Reefer Container</h4>
+                  <span style={{ fontSize: "14px", fontWeight: "900", color: "#ff6b00" }}>$3,820 <span style={{ fontSize: "12px", color: "#64748b", fontWeight: "600" }}>/ year</span></span>
                 </div>
               </div>
 
-              {/* Card 2 */}
+              {/* Card 2: Open Top Container */}
               <div style={{ border: "1.5px solid #ff6b00", borderRadius: "24px", overflow: "hidden", background: "#ffffff", position: "relative" }}>
-                <img src="/boraq_crane_lift.jpg" style={{ width: "100%", height: "220px", objectFit: "cover" }} />
+                <img src="boraq_crane_lift.jpg" style={{ width: "100%", height: "220px", objectFit: "cover" }} />
                 <div style={{ padding: "20px", textAlign: "left", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                   <div>
                     <h4 style={{ fontSize: "16px", fontWeight: "850", margin: "0 0 6px 0" }}>20ft Open Top Container</h4>
@@ -849,12 +826,12 @@ export default function LandingPage({ onOpenLogin }) {
                 </div>
               </div>
 
-              {/* Card 3 */}
+              {/* Card 3: Flat Rack Container */}
               <div style={{ border: "1.5px solid #e2e8f0", borderRadius: "24px", overflow: "hidden", background: "#ffffff" }}>
-                <img src="/boraq_warehouse.jpg" style={{ width: "100%", height: "220px", objectFit: "cover" }} />
+                <img src="boraq_container.jpg" style={{ width: "100%", height: "220px", objectFit: "cover" }} />
                 <div style={{ padding: "20px", textAlign: "left" }}>
-                  <h4 style={{ fontSize: "16px", fontWeight: "850", margin: "0 0 6px 0" }}>40ft Reefer Container</h4>
-                  <span style={{ fontSize: "14px", fontWeight: "900", color: "#ff6b00" }}>$3,820 <span style={{ fontSize: "12px", color: "#64748b", fontWeight: "600" }}>/ year</span></span>
+                  <h4 style={{ fontSize: "16px", fontWeight: "850", margin: "0 0 6px 0" }}>40ft Flat Rack Container</h4>
+                  <span style={{ fontSize: "14px", fontWeight: "900", color: "#ff6b00" }}>$3,170 <span style={{ fontSize: "12px", color: "#64748b", fontWeight: "600" }}>/ year</span></span>
                 </div>
               </div>
 
@@ -1025,7 +1002,7 @@ export default function LandingPage({ onOpenLogin }) {
           left: 0,
           right: 0,
           height: "150px",
-          backgroundImage: "url('/boraq_ship.jpg')",
+          backgroundImage: "url('boraq_ship.jpg')",
           backgroundSize: "cover",
           backgroundPosition: "center bottom",
           opacity: 0.05,
