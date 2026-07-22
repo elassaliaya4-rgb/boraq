@@ -144,11 +144,11 @@ export default function LandingPage({ onOpenLogin }) {
             <circle cx="12" cy="12" r="10" stroke="#ff6b00" strokeWidth="2" fill="none" />
             <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" fill="#ff6b00" />
           </svg>
-          <span style={{ fontSize: "20px", fontWeight: "950", color: scrollY > 100 ? "#0f172a" : "#ffffff", letterSpacing: "-0.04em", transition: "color 0.3s ease" }}>Boraq.</span>
+          <span style={{ fontSize: "20px", fontWeight: "950", color: "#0f172a", letterSpacing: "-0.04em" }}>Boraq.</span>
         </div>
 
         {/* Links */}
-        <div style={{ display: "flex", alignItems: "center", fontSize: "13px", fontWeight: "800", color: scrollY > 100 ? "#64748b" : "#f1f5f9", transition: "color 0.3s ease" }} className="desktop-only-table">
+        <div style={{ display: "flex", alignItems: "center", fontSize: "13px", fontWeight: "800", color: "#64748b" }} className="desktop-only-table">
           <a href="#services" style={{ textDecoration: "none", color: "inherit", margin: "0 12px" }}>{isAr ? "الخدمات" : "Services"}</a>
           <a href="#powering" style={{ textDecoration: "none", color: "inherit", margin: "0 12px" }}>{isAr ? "مزايانا" : "Powering"}</a>
           <a href="#agencies" style={{ textDecoration: "none", color: "inherit", margin: "0 12px" }}>{isAr ? "فروعنا" : "Locations"}</a>
@@ -159,7 +159,7 @@ export default function LandingPage({ onOpenLogin }) {
         <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
           <button
             onClick={() => setLang(isAr ? "fr" : "ar")}
-            style={{ background: "transparent", color: scrollY > 100 ? "#64748b" : "#f1f5f9", border: "none", cursor: "pointer", fontWeight: "800", transition: "color 0.3s ease" }}
+            style={{ background: "transparent", color: "#64748b", border: "none", cursor: "pointer", fontWeight: "800" }}
           >
             {isAr ? "Français" : "العربية"}
           </button>
@@ -168,14 +168,13 @@ export default function LandingPage({ onOpenLogin }) {
             onClick={onOpenLogin}
             style={{
               background: "transparent",
-              color: scrollY > 100 ? "#0f172a" : "#ffffff",
-              border: `1px solid ${scrollY > 100 ? "#0f172a" : "rgba(255,255,255,0.4)"}`,
+              color: "#0f172a",
+              border: "1px solid #0f172a",
               padding: "6px 18px",
               borderRadius: "20px",
               fontWeight: "800",
               cursor: "pointer",
-              fontSize: "12px",
-              transition: "all 0.3s ease"
+              fontSize: "12px"
             }}
           >
             Espace Pro
@@ -199,38 +198,8 @@ export default function LandingPage({ onOpenLogin }) {
         }}>
           
           {/* WHITE TOP PORTION */}
-          <div className="section-hero-white" style={{ position: "relative", overflow: "hidden" }}>
-            {/* Parallax Triptych Background */}
+          <div className="section-hero-white">
             <div style={{
-              position: "absolute",
-              top: "-15%",
-              left: 0,
-              right: 0,
-              bottom: "-15%",
-              backgroundImage: "url('boraq_promise.jpg')",
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-              transform: `translateY(${scrollY * 0.12}px)`,
-              zIndex: 1,
-              pointerEvents: "none"
-            }} />
-            {/* Dark premium gradient overlay for high contrast readability without blurring */}
-            <div style={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              background: isAr 
-                ? "linear-gradient(to left, rgba(9, 14, 26, 0.92) 35%, rgba(9, 14, 26, 0.45) 100%)"
-                : "linear-gradient(to right, rgba(9, 14, 26, 0.92) 35%, rgba(9, 14, 26, 0.45) 100%)",
-              zIndex: 2,
-              pointerEvents: "none"
-            }} />
-
-            <div style={{
-              position: "relative",
-              zIndex: 10,
               display: "flex",
               alignItems: "center",
               justifyContent: "space-between",
@@ -242,7 +211,7 @@ export default function LandingPage({ onOpenLogin }) {
                 <h1 style={{
                   fontSize: "clamp(42px, 7vw, 76px)",
                   fontWeight: "900",
-                  color: "#ffffff",
+                  color: "#0f172a",
                   lineHeight: "1.02",
                   margin: "0 0 16px 0",
                   letterSpacing: "-0.04em"
@@ -259,12 +228,11 @@ export default function LandingPage({ onOpenLogin }) {
                 <div style={{
                   display: "flex",
                   alignItems: "center",
-                  background: "rgba(255, 255, 255, 0.12)",
-                  backdropFilter: "blur(10px)",
+                  background: "#ffffff",
                   borderRadius: "30px",
                   padding: "8px 16px",
-                  boxShadow: "0 15px 35px rgba(0,0,0,0.25)",
-                  border: "1.5px solid rgba(255, 255, 255, 0.2)",
+                  boxShadow: "0 15px 35px rgba(0,0,0,0.06)",
+                  border: "1.5px solid #e2e8f0",
                   gap: "10px",
                   maxWidth: "460px",
                   width: "100%",
@@ -276,16 +244,16 @@ export default function LandingPage({ onOpenLogin }) {
                     onChange={e => setPickupCity(e.target.value)}
                     placeholder={isAr ? "منين باغي تصيفط؟" : "Pickup location"}
                     className="hero-search-input"
-                    style={{ border: "none", outline: "none", fontSize: "14px", flex: 1, minWidth: "100px", color: "#ffffff", background: "transparent", fontWeight: "700" }}
+                    style={{ border: "none", outline: "none", fontSize: "14px", flex: 1, minWidth: "100px", color: "#1e293b", background: "transparent", fontWeight: "700" }}
                   />
-                  <div style={{ width: "1px", height: "24px", background: "rgba(255, 255, 255, 0.2)" }} />
+                  <div style={{ width: "1px", height: "24px", background: "#e2e8f0" }} />
                   <input
                     type="text"
                     value={destCity}
                     onChange={e => setDestCity(e.target.value)}
                     placeholder={isAr ? "لفين باغي توصل؟" : "Destination location"}
                     className="hero-search-input"
-                    style={{ border: "none", outline: "none", fontSize: "14px", flex: 1, minWidth: "100px", color: "#ffffff", background: "transparent", fontWeight: "700" }}
+                    style={{ border: "none", outline: "none", fontSize: "14px", flex: 1, minWidth: "100px", color: "#1e293b", background: "transparent", fontWeight: "700" }}
                   />
                   <button
                     onClick={() => { setActiveTab("simulator"); setShowToolModal(true); }}
@@ -322,7 +290,7 @@ export default function LandingPage({ onOpenLogin }) {
                   cursor: "pointer"
                 }}
               >
-                <img src="boraq_container.jpg" alt="Boraq Container" style={{
+                <img src="boraq_3d_truck.jpg" alt="Boraq 3D Truck" style={{
                   width: "100%",
                   objectFit: "contain",
                   filter: "drop-shadow(0 20px 40px rgba(0,0,0,0.1))"
