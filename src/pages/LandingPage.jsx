@@ -869,44 +869,13 @@ export default function LandingPage({ onOpenLogin }) {
 
         {/* ── SECTION 7: LET US DELIVER YOUR PACKAGE (New!) ── */}
         <section style={{
-          position: "relative",
-          padding: "120px 40px",
-          overflow: "hidden",
+          padding: "80px 40px",
+          background: "#fff9f6", // Clean warm white background matching original Bankar mockup
           textAlign: "center",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          minHeight: "400px",
           borderTop: "1px solid #f2e2dc"
         }}>
-          {/* Parallax Triptych Background */}
-          <div style={{
-            position: "absolute",
-            top: "-10%",
-            left: 0,
-            right: 0,
-            bottom: "-10%",
-            backgroundImage: "url('boraq_promise.jpg')",
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-            transform: `translateY(${(scrollY - 2000) * 0.05}px)`,
-            zIndex: 1,
-            pointerEvents: "none"
-          }} />
-          {/* Dark Overlay for superior text contrast */}
-          <div style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: "linear-gradient(to bottom, rgba(9, 14, 26, 0.78), rgba(9, 14, 26, 0.73))",
-            zIndex: 2,
-            pointerEvents: "none"
-          }} />
-
-          <div style={{ position: "relative", zIndex: 10, maxWidth: "800px", margin: "0 auto" }}>
-            <h2 style={{ fontSize: "38px", fontWeight: "950", color: "#ffffff", margin: "0 0 24px 0", lineHeight: 1.15 }}>
+          <div style={{ maxWidth: "800px", margin: "0 auto" }}>
+            <h2 style={{ fontSize: "38px", fontWeight: "950", color: "#0f172a", margin: "0 0 24px 0", lineHeight: 1.15 }}>
               Let Us Deliver Your Package To Its Destination
             </h2>
             <div style={{ display: "flex", justifyContent: "center", gap: "16px" }}>
@@ -920,7 +889,7 @@ export default function LandingPage({ onOpenLogin }) {
                   borderRadius: "30px",
                   fontWeight: "800",
                   cursor: "pointer",
-                  boxShadow: "0 4px 15px rgba(255,107,0,0.4)"
+                  boxShadow: "0 4px 15px rgba(255,107,0,0.3)"
                 }}
               >
                 Order Now
@@ -929,8 +898,8 @@ export default function LandingPage({ onOpenLogin }) {
                 onClick={() => { setActiveTab("tracking"); setShowToolModal(true); }}
                 style={{
                   background: "transparent",
-                  border: "1.5px solid #ffffff",
-                  color: "#ffffff",
+                  border: "1.5px solid #0f172a",
+                  color: "#0f172a",
                   padding: "14px 32px",
                   borderRadius: "30px",
                   fontWeight: "800",
