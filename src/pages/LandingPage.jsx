@@ -3,7 +3,7 @@ import { useApp } from "../lib/context";
 import { supabase } from "../lib/supabase";
 
 export default function LandingPage({ onOpenLogin }) {
-  const { lang } = useApp();
+  const { lang, setLang } = useApp();
   const isAr = lang === "ar";
 
   // Tab State inside tool modal: 'tracking' | 'agencies' | 'simulator'
@@ -39,6 +39,10 @@ export default function LandingPage({ onOpenLogin }) {
   const [trackResult, setTrackResult] = useState(null);
   const [trackLoading, setTrackLoading] = useState(false);
   const [trackError, setTrackError] = useState("");
+
+  // Input states for the Bankar widget
+  const [pickupCity, setPickupCity] = useState("");
+  const [destCity, setDestCity] = useState("");
 
   const [agencies, setAgencies] = useState([]);
   const [selectedCity, setSelectedCity] = useState("all");
@@ -97,7 +101,7 @@ export default function LandingPage({ onOpenLogin }) {
       overflowX: "hidden"
     }}>
 
-      {/* ── CONSISTENT TOP FLOATING NAVBAR (For quick sub-page jump) ── */}
+      {/* ── CONSTISTENT FLOATING HEADER (Appears after scrolling past Hero) ── */}
       <header style={{
         position: "fixed",
         top: 0,
@@ -108,13 +112,16 @@ export default function LandingPage({ onOpenLogin }) {
         alignItems: "center",
         justifyContent: "space-between",
         padding: "0 40px",
-        background: "rgba(9, 14, 26, 0.7)",
+        background: "rgba(9, 14, 26, 0.8)",
         backdropFilter: "blur(12px)",
         borderBottom: "1px solid rgba(255,255,255,0.06)",
+        opacity: scrollY > 600 ? 1 : 0,
+        transform: scrollY > 600 ? "translateY(0)" : "translateY(-10px)",
+        transition: "all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1)",
+        pointerEvents: scrollY > 600 ? "auto" : "none",
         zIndex: 1000
       }}>
-        {/* Navigation links matching the 6 numbered pages */}
-        <div style={{ display: "flex", alignItems: "center", gap: "24px" }} className="desktop-only-table">
+        <div style={{ display: "flex", alignItems: "center", gap: "24px" }}>
           <a href="#slide-1" style={{ color: "#ffffff", textDecoration: "none", fontSize: "13px", fontWeight: "800" }}>{isAr ? "الرئيسية" : "Accueil"}</a>
           <a href="#slide-2" style={{ color: "#94a3b8", textDecoration: "none", fontSize: "13px", fontWeight: "800" }}>{isAr ? "لماذا نحن" : "Engagement"}</a>
           <a href="#slide-3" style={{ color: "#94a3b8", textDecoration: "none", fontSize: "13px", fontWeight: "800" }}>{isAr ? "الحمولات" : "Fret"}</a>
@@ -123,133 +130,313 @@ export default function LandingPage({ onOpenLogin }) {
           <a href="#slide-6" style={{ color: "#94a3b8", textDecoration: "none", fontSize: "13px", fontWeight: "800" }}>{isAr ? "اتصل بنا" : "Contacts"}</a>
         </div>
 
-        {/* Brand & Language actions */}
         <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
           <button
-            onClick={() => { setActiveTab("tracking"); setShowToolModal(true); }}
-            style={{
-              background: "#3b82f6",
-              color: "#ffffff",
-              border: "none",
-              padding: "6px 18px",
-              borderRadius: "20px",
-              fontWeight: "800",
-              cursor: "pointer",
-              fontSize: "12px"
-            }}
+            onClick={() => setLang(isAr ? "fr" : "ar")}
+            style={{ background: "transparent", color: "#94a3b8", border: "none", cursor: "pointer", fontWeight: "800" }}
           >
-            {isAr ? "تتبع الشحنة ➔" : "Suivre cargo ➔"}
+            {isAr ? "Français" : "العربية"}
           </button>
-
           <button
-            onClick={onOpenLogin}
-            style={{
-              background: "rgba(255,255,255,0.06)",
-              border: "1px solid rgba(255,255,255,0.12)",
-              color: "#ffffff",
-              padding: "6px 18px",
-              borderRadius: "20px",
-              fontWeight: "700",
-              cursor: "pointer",
-              fontSize: "12px"
-            }}
+            onClick={() => { setActiveTab("tracking"); setShowToolModal(true); }}
+            style={{ background: "#3b82f6", color: "#ffffff", border: "none", padding: "6px 18px", borderRadius: "20px", fontWeight: "800", cursor: "pointer", fontSize: "12px" }}
           >
-            Espace Pro
+            {isAr ? "تتبع الشحنة" : "Suivre cargo"}
           </button>
         </div>
       </header>
 
-      {/* ── VERTICAL STACK OF 6 VIEWPORT SLIDES IN USER-NUMBERED ORDER ── */}
+      {/* ── VERTICAL STACK OF 6 VIEWPORT SLIDES ── */}
       <main style={{ width: "100%" }}>
 
-        {/* ── SLIDE 1: COVER (User Number 1) ── */}
+        {/* ── NEW HERO / COVER SECTION (Bankar Style - Slide 1) ── */}
         <section id="slide-1" style={{
-          height: "100vh",
+          minHeight: "180vh",
+          background: "#ffffff", // Pure crisp white top background
+          color: "#1e293b",
           position: "relative",
-          overflow: "hidden",
           display: "flex",
-          alignItems: "center",
+          flexDirection: "column",
+          justifyContent: "space-between",
           boxSizing: "border-box"
         }}>
-          {/* Background image parallax */}
+          
+          {/* WHITE TOP PORTION (approx 100vh) */}
           <div style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundImage: "url('/boraq_truck.jpg')",
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-            transform: `scale(${1 + scrollY * 0.0003}) translateY(${scrollY * 0.12}px)`,
-            zIndex: 1
-          }} />
-          {/* Dark blue/black overlay */}
-          <div style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: "linear-gradient(to right, rgba(9, 14, 26, 0.85) 30%, rgba(9, 14, 26, 0.5) 100%)",
-            zIndex: 2
-          }} />
-
-          {/* Top Contacts Info row (mockup style) */}
-          <div style={{
-            position: "absolute",
-            top: "100px",
-            left: "80px",
-            right: "80px",
-            display: "flex",
-            justifyContent: "space-between",
-            fontSize: "13px",
-            color: "#94a3b8",
-            borderBottom: "1px solid rgba(255,255,255,0.06)",
-            paddingBottom: "14px",
-            zIndex: 10
-          }} className="desktop-only-table">
-            <span>{isAr ? "جهات الاتصال:" : "Contacts:"}</span>
-            <span>+212 522 000 000</span>
-            <span>contact@boraq.online</span>
-          </div>
-
-          {/* Center-left main Brand Logo block */}
-          <div style={{
+            minHeight: "100vh",
+            width: "100%",
+            padding: "20px 80px",
+            boxSizing: "border-box",
             position: "relative",
-            zIndex: 10,
-            paddingLeft: "80px",
-            textAlign: isAr ? "right" : "left",
-            transform: `translateY(${-scrollY * 0.05}px)`,
-            transition: "transform 0.1s ease-out"
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "space-between"
           }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "16px", marginBottom: "10px" }}>
-              {/* Globe Icon */}
-              <svg width="48" height="48" viewBox="0 0 24 24" fill="#3b82f6">
-                <circle cx="12" cy="12" r="10" stroke="#3b82f6" strokeWidth="2" fill="none" />
-                <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" stroke="#3b82f6" strokeWidth="2" fill="none" />
-              </svg>
-              <div>
-                <h1 style={{ fontSize: "56px", fontWeight: "900", color: "#ffffff", margin: 0, letterSpacing: "-0.04em", lineHeight: "1" }}>Boraq</h1>
-                <span style={{ fontSize: "12px", color: "#3b82f6", fontWeight: "800", letterSpacing: "3px", textTransform: "uppercase" }}>Transport & Logistics</span>
+            
+            {/* Local white Navbar */}
+            <div style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              width: "100%",
+              borderBottom: "1px solid rgba(0,0,0,0.06)",
+              paddingBottom: "14px",
+              zIndex: 10
+            }}>
+              {/* Logo block */}
+              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="#ff6b00">
+                  <circle cx="12" cy="12" r="10" stroke="#ff6b00" strokeWidth="2" fill="none" />
+                  <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" fill="#ff6b00" />
+                </svg>
+                <span style={{ fontSize: "24px", fontWeight: "900", color: "#090e1a", letterSpacing: "-0.04em" }}>Boraq.</span>
               </div>
+
+              {/* Links */}
+              <div style={{ display: "flex", gap: "24px", fontSize: "13px", fontWeight: "800", color: "#64748b" }} className="desktop-only-table">
+                <span style={{ cursor: "pointer", color: "#ff6b00" }} onClick={() => { setActiveTab("tracking"); setShowToolModal(true); }}>Track Package</span>
+                <a href="#slide-5" style={{ textDecoration: "none", color: "inherit" }}>Services</a>
+                <span style={{ cursor: "pointer" }} onClick={() => { setActiveTab("agencies"); setShowToolModal(true); }}>Locations</span>
+                <span style={{ cursor: "pointer" }} onClick={() => { setActiveTab("simulator"); setShowToolModal(true); }}>Simulator</span>
+              </div>
+
+              {/* Orange pill button */}
+              <button
+                onClick={() => { setActiveTab("tracking"); setShowToolModal(true); }}
+                style={{
+                  background: "#ff6b00",
+                  color: "#ffffff",
+                  border: "none",
+                  padding: "10px 24px",
+                  borderRadius: "20px",
+                  fontWeight: "800",
+                  fontSize: "13px",
+                  cursor: "pointer",
+                  boxShadow: "0 4px 15px rgba(255,107,0,0.3)"
+                }}
+              >
+                {isAr ? "اتصل بنا" : "Contact us"}
+              </button>
             </div>
+
+            {/* Hero Main Content */}
+            <div style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              width: "100%",
+              marginTop: "40px",
+              zIndex: 10
+            }} className="responsive-grid-landing">
+              
+              {/* Left text column */}
+              <div style={{ maxWidth: "550px", textAlign: isAr ? "right" : "left" }}>
+                <h1 style={{
+                  fontSize: "clamp(36px, 6vw, 68px)",
+                  fontWeight: "900",
+                  color: "#0f172a",
+                  lineHeight: "1.05",
+                  margin: "0 0 10px 0",
+                  letterSpacing: "-0.03em"
+                }}>
+                  Delivering Your Cargo
+                </h1>
+                
+                {/* Worldwide orange tag */}
+                <div style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "28px", fontWeight: "800", color: "#ff6b00", marginBottom: "30px" }}>
+                  <span>🌐</span>
+                  <span>Maroc - Europe</span>
+                </div>
+
+                {/* Pickup & destination search bar */}
+                <div style={{
+                  display: "flex",
+                  alignItems: "center",
+                  background: "#ffffff",
+                  borderRadius: "30px",
+                  padding: "6px 10px 6px 20px",
+                  boxShadow: "0 10px 30px rgba(0,0,0,0.08)",
+                  border: "1.5px solid #e2e8f0",
+                  gap: "10px"
+                }}>
+                  <input
+                    type="text"
+                    value={pickupCity}
+                    onChange={e => setPickupCity(e.target.value)}
+                    placeholder={isAr ? "مدينة الإرسال" : "Enter pickup location"}
+                    style={{ border: "none", outline: "none", fontSize: "13px", width: "160px", color: "#1e293b", fontWeight: "700" }}
+                  />
+                  <div style={{ width: "1px", height: "24px", background: "#e2e8f0" }} />
+                  <input
+                    type="text"
+                    value={destCity}
+                    onChange={e => setDestCity(e.target.value)}
+                    placeholder={isAr ? "مدينة الاستلام" : "Enter destination location"}
+                    style={{ border: "none", outline: "none", fontSize: "13px", width: "160px", color: "#1e293b", fontWeight: "700" }}
+                  />
+                  <button
+                    onClick={() => { setActiveTab("simulator"); setShowToolModal(true); }}
+                    style={{
+                      background: "#0f172a",
+                      border: "none",
+                      width: "40px",
+                      height: "40px",
+                      borderRadius: "50%",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      cursor: "pointer",
+                      color: "#ffffff"
+                    }}
+                  >
+                    🔍
+                  </button>
+                </div>
+              </div>
+
+              {/* Right angled floating 3D container illustration */}
+              <div style={{
+                position: "relative",
+                width: "440px",
+                height: "360px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                transform: `translateY(${scrollY * 0.1}px)`,
+                transition: "transform 0.1s ease-out"
+              }}>
+                <img src="/boraq_container.jpg" alt="Boraq Container" style={{
+                  width: "100%",
+                  objectFit: "contain",
+                  filter: "drop-shadow(0 20px 40px rgba(0,0,0,0.15))"
+                }} className="hero-floating-visual" />
+                
+                {/* 360° circular orange badge */}
+                <div style={{
+                  position: "absolute",
+                  top: "60px",
+                  left: "20px",
+                  width: "64px",
+                  height: "64px",
+                  borderRadius: "50%",
+                  background: "#ff6b00",
+                  color: "#ffffff",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: "12px",
+                  fontWeight: "900",
+                  boxShadow: "0 10px 20px rgba(255,107,0,0.4)"
+                }}>
+                  <span>360°</span>
+                  <span>🔄</span>
+                </div>
+              </div>
+
+            </div>
+
+            {/* Spacer */}
+            <div style={{ height: "40px" }} />
           </div>
 
-          {/* Bottom Tagline Row */}
+          {/* DARK BOTTOM PORTION (Slide-down card) */}
           <div style={{
-            position: "absolute",
-            bottom: "60px",
-            left: "80px",
-            right: "80px",
-            zIndex: 10,
-            textAlign: "center",
-            borderTop: "1px solid rgba(255,255,255,0.12)",
-            paddingTop: "20px"
+            background: "#090e1a",
+            borderTopLeftRadius: "40px",
+            borderTopRightRadius: "40px",
+            padding: "80px 80px",
+            boxSizing: "border-box",
+            position: "relative",
+            zIndex: 20
           }}>
-            <p style={{ fontSize: "18px", fontStyle: "italic", color: "#cbd5e1", margin: 0 }}>
-              {isAr ? "حمولتكم - مسؤوليتنا" : "Votre cargaison - notre responsabilité"}
-            </p>
+            {/* Partners Logo row */}
+            <div style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              flexWrap: "wrap",
+              gap: "20px",
+              opacity: 0.5,
+              borderBottom: "1px solid rgba(255,255,255,0.06)",
+              paddingBottom: "40px",
+              marginBottom: "60px"
+            }}>
+              <span style={{ fontSize: "16px", fontWeight: "900", color: "#ffffff" }}>OXFAM</span>
+              <span style={{ fontSize: "16px", fontWeight: "900", color: "#ffffff" }}>DT Global</span>
+              <span style={{ fontSize: "16px", fontWeight: "900", color: "#ffffff" }}>NAYBA</span>
+              <span style={{ fontSize: "16px", fontWeight: "900", color: "#ffffff" }}>MOVE</span>
+              <span style={{ fontSize: "16px", fontWeight: "900", color: "#ffffff" }}>Winsupply</span>
+              <span style={{ fontSize: "16px", fontWeight: "900", color: "#ffffff" }}>FERGUSON</span>
+            </div>
+
+            {/* 2-Column Info layout */}
+            <div style={{
+              display: "grid",
+              gridTemplateColumns: "1fr 1.2fr",
+              gap: "60px",
+              alignItems: "center"
+            }} className="responsive-grid-landing">
+              
+              {/* Left container visual */}
+              <div style={{
+                borderRadius: "24px",
+                overflow: "hidden",
+                boxShadow: "0 20px 40px rgba(0,0,0,0.5)"
+              }}>
+                <img src="/boraq_crane_lift.jpg" style={{ width: "100%", display: "block" }} />
+              </div>
+
+              {/* Right text details */}
+              <div style={{ textAlign: isAr ? "right" : "left" }}>
+                <div style={{ fontSize: "28px", fontWeight: "800", color: "#ff6b00", marginBottom: "10px" }}>
+                  #1 Morocco-Europe Logistics Solution
+                </div>
+                
+                <h3 style={{ fontSize: "36px", fontWeight: "900", color: "#ffffff", margin: "0 0 20px 0" }}>
+                  {isAr ? "حلول النقل البري والبحري المتكاملة" : "Nationwide Delivery Logistics Solution"}
+                </h3>
+
+                <p style={{ fontSize: "15px", color: "#94a3b8", lineHeight: 1.7, marginBottom: "30px" }}>
+                  {isAr
+                    ? "تلتزم شركة البراق بتقديم خطوط ربط تجارية يومية ودائمة لنقل البضائع والمعدات الصناعية والسلع من المغرب إلى شتى الوجهات الأوروبية بدقة واحترافية متناهية."
+                    : "Boraq Logistics is a premium international cargo company specializing in freight connections between Morocco and Europe. We provide daily links, secure customs operations, and custom transport services for all cargo categories."}
+                </p>
+
+                {/* Call to actions */}
+                <div style={{ display: "flex", gap: "16px" }}>
+                  <button
+                    onClick={() => { setActiveTab("simulator"); setShowToolModal(true); }}
+                    style={{
+                      background: "#ff6b00",
+                      color: "#ffffff",
+                      border: "none",
+                      padding: "14px 30px",
+                      borderRadius: "30px",
+                      fontWeight: "800",
+                      cursor: "pointer"
+                    }}
+                  >
+                    {isAr ? "احسب التسعيرة ➔" : "Get a Quote ➔"}
+                  </button>
+                  <button
+                    onClick={() => { setActiveTab("agencies"); setShowToolModal(true); }}
+                    style={{
+                      background: "rgba(255,255,255,0.06)",
+                      border: "1px solid rgba(255,255,255,0.12)",
+                      color: "#ffffff",
+                      padding: "14px 30px",
+                      borderRadius: "30px",
+                      fontWeight: "800",
+                      cursor: "pointer"
+                    }}
+                  >
+                    {isAr ? "اعرف المزيد" : "Learn More"}
+                  </button>
+                </div>
+              </div>
+
+            </div>
           </div>
         </section>
 
@@ -272,7 +459,7 @@ export default function LandingPage({ onOpenLogin }) {
             backgroundImage: "url('/boraq_port_terminal.jpg')",
             backgroundSize: "cover",
             backgroundPosition: "center",
-            transform: `scale(${1.1 - (scrollY - 600) * 0.0001}) translateY(${(scrollY - 600) * 0.08}px)`,
+            transform: `scale(${1.1 - (scrollY - 1400) * 0.0001}) translateY(${(scrollY - 1400) * 0.08}px)`,
             zIndex: 1
           }} />
           <div style={{
@@ -292,20 +479,6 @@ export default function LandingPage({ onOpenLogin }) {
           </div>
 
           <div style={{
-            position: "absolute",
-            top: "100px",
-            right: "80px",
-            display: "flex",
-            gap: "30px",
-            fontSize: "13px",
-            color: "#94a3b8",
-            zIndex: 10
-          }} className="desktop-only-table">
-            <span>+212 522 000 000</span>
-            <span>contact@boraq.online</span>
-          </div>
-
-          <div style={{
             position: "relative",
             zIndex: 10,
             paddingLeft: "80px",
@@ -319,19 +492,19 @@ export default function LandingPage({ onOpenLogin }) {
 
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "30px", maxWidth: "900px" }}>
               <div>
-                <h4 style={{ fontSize: "18px", color: "#3b82f6", margin: "0 0 8px 0" }}>{isAr ? "الموثوقية والأمان" : "Fiabilité & Sécurité"}</h4>
+                <h4 style={{ fontSize: "18px", color: "#ff6b00", margin: "0 0 8px 0" }}>{isAr ? "الموثوقية والأمان" : "Fiabilité & Sécurité"}</h4>
                 <p style={{ fontSize: "13px", color: "#94a3b8", margin: 0, lineHeight: 1.6 }}>{isAr ? "تأمين وحماية كاملة للبضائع المشحونة" : "Gestion de transport sécurisé avec suivi constant"}</p>
               </div>
               <div>
-                <h4 style={{ fontSize: "18px", color: "#3b82f6", margin: "0 0 8px 0" }}>{isAr ? "أسعار منافسة" : "Prix Compétitif"}</h4>
+                <h4 style={{ fontSize: "18px", color: "#ff6b00", margin: "0 0 8px 0" }}>{isAr ? "أسعار منافسة" : "Prix Compétitif"}</h4>
                 <p style={{ fontSize: "13px", color: "#94a3b8", margin: 0, lineHeight: 1.6 }}>{isAr ? "تكلفة شحن محسوبة دون رسوم خفية" : "Fret optimisé pour l'Europe et le Maroc"}</p>
               </div>
               <div>
-                <h4 style={{ fontSize: "18px", color: "#3b82f6", margin: "0 0 8px 0" }}>{isAr ? "السرعة والدقة" : "Vitesse d'expédition"}</h4>
+                <h4 style={{ fontSize: "18px", color: "#ff6b00", margin: "0 0 8px 0" }}>{isAr ? "السرعة والدقة" : "Vitesse d'expédition"}</h4>
                 <p style={{ fontSize: "13px", color: "#94a3b8", margin: 0, lineHeight: 1.6 }}>{isAr ? "احترام تام لمواعيد التسليم المحددة" : "Respect strict des délais d'expédition"}</p>
               </div>
               <div>
-                <h4 style={{ fontSize: "18px", color: "#3b82f6", margin: "0 0 8px 0" }}>{isAr ? "خدمة متكاملة" : "Service 24/7"}</h4>
+                <h4 style={{ fontSize: "18px", color: "#ff6b00", margin: "0 0 8px 0" }}>{isAr ? "خدمة متكاملة" : "Service 24/7"}</h4>
                 <p style={{ fontSize: "13px", color: "#94a3b8", margin: 0, lineHeight: 1.6 }}>{isAr ? "متابعة وتخليص جمركي دون تعقيدات" : "Support opérationnel dédié pour tous vos chargements"}</p>
               </div>
             </div>
@@ -357,7 +530,7 @@ export default function LandingPage({ onOpenLogin }) {
             backgroundImage: "url('/boraq_warehouse.jpg')",
             backgroundSize: "cover",
             backgroundPosition: "center",
-            transform: `scale(${1.1 - (scrollY - 1200) * 0.0001}) translateY(${(scrollY - 1200) * 0.08}px)`,
+            transform: `scale(${1.1 - (scrollY - 2000) * 0.0001}) translateY(${(scrollY - 2000) * 0.08}px)`,
             zIndex: 1
           }} />
           <div style={{
@@ -429,7 +602,7 @@ export default function LandingPage({ onOpenLogin }) {
             backgroundImage: "url('/boraq_crane_lift.jpg')",
             backgroundSize: "cover",
             backgroundPosition: "center",
-            transform: `scale(${1.1 - (scrollY - 1800) * 0.0001}) translateY(${(scrollY - 1800) * 0.08}px)`,
+            transform: `scale(${1.1 - (scrollY - 2600) * 0.0001}) translateY(${(scrollY - 2600) * 0.08}px)`,
             zIndex: 1
           }} />
           <div style={{
@@ -478,7 +651,7 @@ export default function LandingPage({ onOpenLogin }) {
           </div>
         </section>
 
-        {/* ── SLIDE 5: SERVICES & WHERE WE OPERATE (User Number 5) ── */}
+        {/* ── SLIDE 5: SERVICES (User Number 5) ── */}
         <section id="slide-5" style={{
           height: "100vh",
           position: "relative",
@@ -496,7 +669,7 @@ export default function LandingPage({ onOpenLogin }) {
             backgroundImage: "url('/boraq_route_map.jpg')",
             backgroundSize: "cover",
             backgroundPosition: "center",
-            transform: `scale(${1.1 - (scrollY - 2400) * 0.0001}) translateY(${(scrollY - 2400) * 0.08}px)`,
+            transform: `scale(${1.1 - (scrollY - 3200) * 0.0001}) translateY(${(scrollY - 3200) * 0.08}px)`,
             zIndex: 1
           }} />
           <div style={{
@@ -511,7 +684,7 @@ export default function LandingPage({ onOpenLogin }) {
 
           {/* Small logo top-left */}
           <div style={{ position: "absolute", top: "100px", left: "80px", display: "flex", alignItems: "center", gap: "8px", zIndex: 10 }}>
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="#3b82f6"><circle cx="12" cy="12" r="10" stroke="#3b82f6" strokeWidth="2" fill="none" /><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" stroke="#3b82f6" strokeWidth="2" fill="none" /></svg>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="#3b82f6"><circle cx="12" cy="12" r="10" stroke="#3b82f6" strokeWidth="2" fill="none" /><path d="M2 12h20M12 2a15.3(15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" stroke="#3b82f6" strokeWidth="2" fill="none" /></svg>
             <span style={{ fontSize: "16px", fontWeight: "900", color: "#ffffff" }}>Boraq</span>
           </div>
 
@@ -566,7 +739,7 @@ export default function LandingPage({ onOpenLogin }) {
             backgroundImage: "url('/boraq_truck_train.jpg')",
             backgroundSize: "cover",
             backgroundPosition: "center",
-            transform: `scale(${1.1 - (scrollY - 3000) * 0.0001}) translateY(${(scrollY - 3000) * 0.08}px)`,
+            transform: `scale(${1.1 - (scrollY - 3800) * 0.0001}) translateY(${(scrollY - 3800) * 0.08}px)`,
             zIndex: 1
           }} />
           <div style={{
@@ -609,7 +782,7 @@ export default function LandingPage({ onOpenLogin }) {
                 <button
                   onClick={() => { setActiveTab("tracking"); setShowToolModal(true); }}
                   style={{
-                    background: "#3b82f6",
+                    background: "#ff6b00", // Branded orange button
                     color: "#ffffff",
                     border: "none",
                     padding: "16px 30px",
@@ -617,7 +790,7 @@ export default function LandingPage({ onOpenLogin }) {
                     fontWeight: "800",
                     fontSize: "14px",
                     cursor: "pointer",
-                    boxShadow: "0 4px 15px rgba(59,130,246,0.4)"
+                    boxShadow: "0 4px 15px rgba(255,107,0,0.4)"
                   }}
                 >
                   {isAr ? "تتبع شحنتك الآن ➔" : "Suivre mon cargo ➔"}
@@ -668,7 +841,7 @@ export default function LandingPage({ onOpenLogin }) {
                   fontSize: "15px",
                   fontWeight: "800",
                   color: activeTab === "tracking" ? "#ffffff" : "#94a3b8",
-                  borderBottom: activeTab === "tracking" ? "2.5px solid #3b82f6" : "none",
+                  borderBottom: activeTab === "tracking" ? "2.5px solid #ff6b00" : "none",
                   cursor: "pointer"
                 }}
               >
@@ -683,7 +856,7 @@ export default function LandingPage({ onOpenLogin }) {
                   fontSize: "15px",
                   fontWeight: "800",
                   color: activeTab === "agencies" ? "#ffffff" : "#94a3b8",
-                  borderBottom: activeTab === "agencies" ? "2.5px solid #3b82f6" : "none",
+                  borderBottom: activeTab === "agencies" ? "2.5px solid #ff6b00" : "none",
                   cursor: "pointer"
                 }}
               >
@@ -698,7 +871,7 @@ export default function LandingPage({ onOpenLogin }) {
                   fontSize: "15px",
                   fontWeight: "800",
                   color: activeTab === "simulator" ? "#ffffff" : "#94a3b8",
-                  borderBottom: activeTab === "simulator" ? "2.5px solid #3b82f6" : "none",
+                  borderBottom: activeTab === "simulator" ? "2.5px solid #ff6b00" : "none",
                   cursor: "pointer"
                 }}
               >
@@ -752,7 +925,7 @@ export default function LandingPage({ onOpenLogin }) {
                     type="submit"
                     disabled={trackLoading}
                     style={{
-                      background: "#3b82f6",
+                      background: "#ff6b00",
                       color: "#fff",
                       border: "none",
                       padding: "14px 24px",
@@ -770,7 +943,7 @@ export default function LandingPage({ onOpenLogin }) {
                 {trackResult && (
                   <div style={{ marginTop: "20px", padding: "18px", borderRadius: "14px", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}>
                     <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "10px" }}>
-                      <span style={{ fontWeight: "900", color: "#3b82f6" }}>{trackResult.tracking_number}</span>
+                      <span style={{ fontWeight: "900", color: "#ff6b00" }}>{trackResult.tracking_number}</span>
                       <span style={{ color: "#10b981", fontWeight: "800" }}>{trackResult.status}</span>
                     </div>
                     <div style={{ fontSize: "13px", color: "#94a3b8" }}>
@@ -845,7 +1018,7 @@ export default function LandingPage({ onOpenLogin }) {
                       <option value="standard">{isAr ? "عادي (48 ساعة)" : "Standard (48H)"}</option>
                     </select>
                   </div>
-                  <button type="submit" style={{ background: "#3b82f6", color: "#fff", border: "none", padding: "14px", borderRadius: "12px", fontWeight: "800", cursor: "pointer" }}>
+                  <button type="submit" style={{ background: "#ff6b00", color: "#fff", border: "none", padding: "14px", borderRadius: "12px", fontWeight: "800", cursor: "pointer" }}>
                     {isAr ? "احسب السعر" : "Calculer"}
                   </button>
                 </form>
