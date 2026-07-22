@@ -1753,6 +1753,10 @@ input, select, textarea {
   100% { transform: translateX(-50%); }
 }
 
+.landing-page-wrapper {
+  padding: 20px 40px;
+}
+
 /* ── Mobile Responsive Rules for Landing Page & APK view ── */
 @media (max-width: 768px) {
   .desktop-only-table {

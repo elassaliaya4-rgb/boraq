@@ -84,13 +84,12 @@ export default function LandingPage({ onOpenLogin }) {
   const cities = Array.from(new Set(agencies.map(a => a.city).filter(Boolean)));
 
   return (
-    <div dir={isAr ? "rtl" : "ltr"} style={{
+    <div dir={isAr ? "rtl" : "ltr"} className="landing-page-wrapper" style={{
       minHeight: "100vh",
       background: "#030712", // Pure premium Shiftler black background
       color: "#ffffff",
       fontFamily: "system-ui, -apple-system, sans-serif",
       margin: 0,
-      padding: "20px 40px",
       boxSizing: "border-box",
       overflowX: "hidden"
     }}>
@@ -342,7 +341,7 @@ export default function LandingPage({ onOpenLogin }) {
           
           {/* Card 1: Rail Freight */}
           <div className="tilt-card-3d" style={{
-            height: "420px",
+            height: "380px",
             borderRadius: "16px",
             overflow: "hidden",
             position: "relative",
@@ -350,25 +349,33 @@ export default function LandingPage({ onOpenLogin }) {
             border: "1px solid rgba(255,255,255,0.08)",
             cursor: "pointer"
           }}>
-            <img src="/boraq_train.jpg" style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.85 }} />
+            <img src="/boraq_train.jpg" style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.8 }} />
             <div style={{
               position: "absolute",
-              bottom: "20px",
-              left: "20px",
-              color: "#ffffff",
-              fontSize: "20px",
-              fontWeight: "800",
-              writingMode: "vertical-rl",
-              transform: "rotate(180deg)",
-              letterSpacing: "2px"
+              bottom: 0,
+              left: 0,
+              right: 0,
+              height: "45%",
+              background: "linear-gradient(to top, rgba(3,7,18,0.95) 0%, transparent 100%)",
+              display: "flex",
+              alignItems: "flex-end",
+              padding: "20px",
+              boxSizing: "border-box"
             }}>
-              Rail Freight
+              <div>
+                <div style={{ fontSize: "11px", color: "#3b82f6", fontWeight: "800", textTransform: "uppercase", letterSpacing: "1.5px", marginBottom: "4px" }}>
+                  Boraq Logistics
+                </div>
+                <div style={{ fontSize: "20px", fontWeight: "900", color: "#ffffff" }}>
+                  Rail Freight
+                </div>
+              </div>
             </div>
           </div>
 
           {/* Card 2: Air Freight */}
           <div className="tilt-card-3d" style={{
-            height: "420px",
+            height: "380px",
             borderRadius: "16px",
             overflow: "hidden",
             position: "relative",
@@ -376,25 +383,33 @@ export default function LandingPage({ onOpenLogin }) {
             border: "1px solid rgba(255,255,255,0.08)",
             cursor: "pointer"
           }}>
-            <img src="/boraq_plane.jpg" style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.85 }} />
+            <img src="/boraq_plane.jpg" style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.8 }} />
             <div style={{
               position: "absolute",
-              bottom: "20px",
-              left: "20px",
-              color: "#ffffff",
-              fontSize: "20px",
-              fontWeight: "800",
-              writingMode: "vertical-rl",
-              transform: "rotate(180deg)",
-              letterSpacing: "2px"
+              bottom: 0,
+              left: 0,
+              right: 0,
+              height: "45%",
+              background: "linear-gradient(to top, rgba(3,7,18,0.95) 0%, transparent 100%)",
+              display: "flex",
+              alignItems: "flex-end",
+              padding: "20px",
+              boxSizing: "border-box"
             }}>
-              Air Freight
+              <div>
+                <div style={{ fontSize: "11px", color: "#3b82f6", fontWeight: "800", textTransform: "uppercase", letterSpacing: "1.5px", marginBottom: "4px" }}>
+                  Boraq Logistics
+                </div>
+                <div style={{ fontSize: "20px", fontWeight: "900", color: "#ffffff" }}>
+                  Air Freight
+                </div>
+              </div>
             </div>
           </div>
 
           {/* Card 3: Land Express */}
           <div className="tilt-card-3d" style={{
-            height: "420px",
+            height: "380px",
             borderRadius: "16px",
             overflow: "hidden",
             position: "relative",
@@ -402,25 +417,33 @@ export default function LandingPage({ onOpenLogin }) {
             border: "1px solid rgba(255,255,255,0.08)",
             cursor: "pointer"
           }}>
-            <img src="/boraq_truck.jpg" style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.85 }} />
+            <img src="/boraq_truck.jpg" style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.8 }} />
             <div style={{
               position: "absolute",
-              bottom: "20px",
-              left: "20px",
-              color: "#ffffff",
-              fontSize: "20px",
-              fontWeight: "800",
-              writingMode: "vertical-rl",
-              transform: "rotate(180deg)",
-              letterSpacing: "2px"
+              bottom: 0,
+              left: 0,
+              right: 0,
+              height: "45%",
+              background: "linear-gradient(to top, rgba(3,7,18,0.95) 0%, transparent 100%)",
+              display: "flex",
+              alignItems: "flex-end",
+              padding: "20px",
+              boxSizing: "border-box"
             }}>
-              Land Express
+              <div>
+                <div style={{ fontSize: "11px", color: "#3b82f6", fontWeight: "800", textTransform: "uppercase", letterSpacing: "1.5px", marginBottom: "4px" }}>
+                  Boraq Logistics
+                </div>
+                <div style={{ fontSize: "20px", fontWeight: "900", color: "#ffffff" }}>
+                  Land Express
+                </div>
+              </div>
             </div>
           </div>
 
           {/* Card 4: Sea Freight */}
           <div className="tilt-card-3d" style={{
-            height: "420px",
+            height: "380px",
             borderRadius: "16px",
             overflow: "hidden",
             position: "relative",
@@ -428,19 +451,27 @@ export default function LandingPage({ onOpenLogin }) {
             border: "1px solid rgba(255,255,255,0.08)",
             cursor: "pointer"
           }}>
-            <img src="/boraq_ship.jpg" style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.85 }} />
+            <img src="/boraq_ship.jpg" style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.8 }} />
             <div style={{
               position: "absolute",
-              bottom: "20px",
-              left: "20px",
-              color: "#ffffff",
-              fontSize: "20px",
-              fontWeight: "800",
-              writingMode: "vertical-rl",
-              transform: "rotate(180deg)",
-              letterSpacing: "2px"
+              bottom: 0,
+              left: 0,
+              right: 0,
+              height: "45%",
+              background: "linear-gradient(to top, rgba(3,7,18,0.95) 0%, transparent 100%)",
+              display: "flex",
+              alignItems: "flex-end",
+              padding: "20px",
+              boxSizing: "border-box"
             }}>
-              Sea Freight
+              <div>
+                <div style={{ fontSize: "11px", color: "#3b82f6", fontWeight: "800", textTransform: "uppercase", letterSpacing: "1.5px", marginBottom: "4px" }}>
+                  Boraq Logistics
+                </div>
+                <div style={{ fontSize: "20px", fontWeight: "900", color: "#ffffff" }}>
+                  Sea Freight
+                </div>
+              </div>
             </div>
           </div>
 
