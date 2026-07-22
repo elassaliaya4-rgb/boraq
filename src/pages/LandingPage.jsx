@@ -10,9 +10,6 @@ export default function LandingPage({ onOpenLogin }) {
   const [activeTab, setActiveTab] = useState("tracking");
   const [showToolModal, setShowToolModal] = useState(false);
 
-  // Active Presentation Sub-Page: 1 | 2 | 3 | 4 | 5 | 6 (Matches the 6 Slides)
-  const [activePage, setActivePage] = useState(1);
-
   // Tracking database states
   const [trackCode, setTrackCode] = useState("");
   const [trackResult, setTrackResult] = useState(null);
@@ -28,6 +25,17 @@ export default function LandingPage({ onOpenLogin }) {
   const [weight, setWeight] = useState(1);
   const [serviceType, setServiceType] = useState("express");
   const [estimatedPrice, setEstimatedPrice] = useState(null);
+
+  // Scroll Position for Parallax and Slide highlights
+  const [scrollY, setScrollY] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrollY(window.scrollY);
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   // Fetch agencies on mount
   useEffect(() => {
@@ -83,16 +91,6 @@ export default function LandingPage({ onOpenLogin }) {
 
   const cities = Array.from(new Set(agencies.map(a => a.city).filter(Boolean)));
 
-  // Navigation Slide definitions
-  const slides = [
-    { id: 1, name: isAr ? "الرئيسية" : "Accueil" },
-    { id: 2, name: isAr ? "من نحن" : "À Propos" },
-    { id: 3, name: isAr ? "الموثوقية" : "Fiabilité" },
-    { id: 4, name: isAr ? "خدماتنا" : "Prestations" },
-    { id: 5, name: isAr ? "أنواع الشحن" : "Fret" },
-    { id: 6, name: isAr ? "اتصل بنا" : "Contacts" }
-  ];
-
   return (
     <div dir={isAr ? "rtl" : "ltr"} style={{
       minHeight: "100vh",
@@ -101,9 +99,6 @@ export default function LandingPage({ onOpenLogin }) {
       fontFamily: "Inter, system-ui, -apple-system, sans-serif",
       margin: 0,
       padding: "20px 40px",
-      display: "flex",
-      flexDirection: "column",
-      justifyContent: "space-between",
       boxSizing: "border-box",
       overflowX: "hidden"
     }}>
@@ -118,10 +113,14 @@ export default function LandingPage({ onOpenLogin }) {
         borderBottom: "1px solid rgba(255,255,255,0.06)",
         boxSizing: "border-box",
         marginBottom: "30px",
-        zIndex: 10
+        position: "sticky",
+        top: 0,
+        background: "#090e1ab8",
+        backdropFilter: "blur(12px)",
+        zIndex: 100
       }}>
         {/* Brand Logo with Animated Lightning Bolt */}
-        <div style={{ display: "flex", alignItems: "center", gap: "10px", cursor: "pointer" }} onClick={() => setActivePage(1)}>
+        <div style={{ display: "flex", alignItems: "center", gap: "10px", cursor: "pointer" }} onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
           <svg className="logo-lightning-bolt" width="24" height="24" viewBox="0 0 24 24" fill="#3b82f6">
             <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
           </svg>
@@ -133,7 +132,7 @@ export default function LandingPage({ onOpenLogin }) {
           </div>
         </div>
 
-        {/* Central Nav Links (Switches Active Presentation Page) */}
+        {/* Central Nav Links (Switches Active Presentation Page via anchors) */}
         <nav className="desktop-nav" style={{
           display: "flex",
           alignItems: "center",
@@ -141,27 +140,14 @@ export default function LandingPage({ onOpenLogin }) {
           fontSize: "13px",
           fontWeight: "700"
         }}>
-          {slides.map(s => (
-            <button
-              key={s.id}
-              onClick={() => setActivePage(s.id)}
-              style={{
-                background: activePage === s.id ? "#111827" : "transparent",
-                color: activePage === s.id ? "#ffffff" : "#94a3b8",
-                border: "none",
-                padding: "8px 16px",
-                borderRadius: "20px",
-                cursor: "pointer",
-                fontWeight: "800",
-                transition: "all 0.25s ease"
-              }}
-            >
-              {s.name}
-            </button>
-          ))}
+          <a href="#home-slide" style={{ color: "#94a3b8", textDecoration: "none", fontWeight: "800" }}>{isAr ? "الرئيسية" : "Accueil"}</a>
+          <a href="#about-slide" style={{ color: "#94a3b8", textDecoration: "none", fontWeight: "800" }}>{isAr ? "من نحن" : "À Propos"}</a>
+          <a href="#services-slide" style={{ color: "#94a3b8", textDecoration: "none", fontWeight: "800" }}>{isAr ? "خدماتنا" : "Prestations"}</a>
+          <a href="#fret-slide" style={{ color: "#94a3b8", textDecoration: "none", fontWeight: "800" }}>{isAr ? "أنواع الشحن" : "Fret"}</a>
+          <a href="#contacts-slide" style={{ color: "#94a3b8", textDecoration: "none", fontWeight: "800" }}>{isAr ? "اتصل بنا" : "Contacts"}</a>
           <button
             onClick={() => setLang(isAr ? "fr" : "ar")}
-            style={{ background: "transparent", color: "#94a3b8", border: "none", cursor: "pointer", fontWeight: "800" }}
+            style={{ background: "transparent", color: "#94a3b8", border: "none", cursor: "pointer", fontWeight: "800", fontSize: "13px" }}
           >
             {isAr ? "Français" : "العربية"}
           </button>
@@ -190,464 +176,308 @@ export default function LandingPage({ onOpenLogin }) {
         </div>
       </header>
 
-      {/* ── 6 INDIVIDUAL FULL-SCREEN PRESENTATION PAGES ── */}
+      {/* ── COHESIVE VERTICAL PRESENTATION FLOW ── */}
       <main style={{
-        flex: 1,
         display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
+        flexDirection: "column",
+        gap: "60px",
         width: "100%",
-        boxSizing: "border-box",
-        minHeight: "460px"
+        maxWidth: "1000px",
+        margin: "0 auto",
+        boxSizing: "border-box"
       }}>
         
-        {/* PAGE 1: PRINCIPAL / HOME PAGE (Slide 1 Cover) */}
-        {activePage === 1 && (
+        {/* SLIDE 1: HOME PAGE / COVER (Mockup image 1 design) */}
+        <section id="home-slide" style={{
+          height: "460px",
+          borderRadius: "24px",
+          overflow: "hidden",
+          position: "relative",
+          boxShadow: "0 20px 50px rgba(0,0,0,0.6)",
+          border: "1px solid rgba(255,255,255,0.08)",
+          transform: `perspective(1000px) rotateX(${Math.max(-5, 5 - scrollY * 0.02)}deg)`,
+          transition: "transform 0.1s ease-out"
+        }} className="tilt-card-3d">
+          <img src="/boraq_truck.jpg" style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.35 }} />
+          
+          {/* Header info overlays */}
+          <div style={{ position: "absolute", top: "24px", left: "24px", right: "24px", display: "flex", justifyContent: "space-between", fontSize: "12px", color: "#94a3b8" }}>
+            <span>Ain Sebaa, Casablanca, Maroc</span>
+            <span>+212 522 000 000</span>
+          </div>
+
           <div style={{
-            width: "100%",
-            maxWidth: "1000px",
-            height: "440px",
-            borderRadius: "24px",
-            overflow: "hidden",
-            position: "relative",
-            boxShadow: "0 20px 50px rgba(0,0,0,0.6)",
-            border: "1px solid rgba(255,255,255,0.08)",
-            animation: "fadeInUp 0.5s ease-out"
-          }} className="tilt-card-3d">
-            <img src="/boraq_truck.jpg" style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.35 }} />
+            position: "absolute",
+            bottom: "40px",
+            left: "40px",
+            right: "40px",
+            textAlign: isAr ? "right" : "left"
+          }}>
+            {/* Slide Logo Header */}
+            <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "16px" }}>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="#3b82f6">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+              </svg>
+              <span style={{ fontSize: "24px", fontWeight: "900", color: "#ffffff", letterSpacing: "-0.03em" }}>Boraq</span>
+              <span style={{ fontSize: "11px", color: "#94a3b8", fontWeight: "700", textTransform: "uppercase" }}>Transport & Logistics</span>
+            </div>
             
-            {/* Header info overlays */}
-            <div style={{ position: "absolute", top: "24px", left: "24px", right: "24px", display: "flex", justifyContent: "space-between", fontSize: "12px", color: "#94a3b8" }}>
-              <span>Ain Sebaa, Casablanca, Maroc</span>
-              <span>+212 522 000 000</span>
+            <h1 style={{ fontSize: "clamp(28px, 5vw, 48px)", fontWeight: "900", color: "#ffffff", margin: "0 0 20px 0", lineHeight: 1.15 }}>
+              {isAr ? "حمولتكم، مسؤوليتنا" : "Votre cargaison, notre responsabilité"}
+            </h1>
+
+            {/* Direct access to Suivi/Simulateur popup */}
+            <div style={{ display: "flex", gap: "12px" }}>
+              <button
+                onClick={() => { setActiveTab("tracking"); setShowToolModal(true); }}
+                style={{ background: "#3b82f6", color: "#fff", border: "none", padding: "12px 28px", borderRadius: "30px", fontWeight: "800", cursor: "pointer" }}
+              >
+                {isAr ? "تتبع الشحنة ➔" : "Suivre mon envoi ➔"}
+              </button>
+              <button
+                onClick={() => { setActiveTab("simulator"); setShowToolModal(true); }}
+                style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)", color: "#fff", padding: "12px 28px", borderRadius: "30px", fontWeight: "800", cursor: "pointer" }}
+              >
+                {isAr ? "احسب التسعيرة" : "Simuler tarif"}
+              </button>
+            </div>
+          </div>
+        </section>
+
+        {/* SLIDE 2: ABOUT US (Mockup image 2 design) */}
+        <section id="about-slide" style={{
+          height: "460px",
+          borderRadius: "24px",
+          overflow: "hidden",
+          position: "relative",
+          boxShadow: "0 20px 50px rgba(0,0,0,0.6)",
+          border: "1px solid rgba(255,255,255,0.08)",
+          padding: "40px",
+          boxSizing: "border-box",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "space-between",
+          textAlign: isAr ? "right" : "left",
+          transform: `perspective(1000px) rotateX(${Math.max(-5, 5 - Math.abs(scrollY - 500) * 0.01)}deg)`,
+          transition: "transform 0.1s ease-out"
+        }} className="tilt-card-3d">
+          <img src="/boraq_ship.jpg" style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.15, position: "absolute", top: 0, left: 0, zIndex: 1 }} />
+          
+          <div style={{ zIndex: 2, position: "relative" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "12px", color: "#3b82f6", fontWeight: "800", textTransform: "uppercase", marginBottom: "12px" }}>
+              <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#3b82f6" }} />
+              {isAr ? "من نحن" : "À PROPOS DE NOUS"}
             </div>
 
-            <div style={{
-              position: "absolute",
-              bottom: "40px",
-              left: "40px",
-              right: "40px",
-              textAlign: isAr ? "right" : "left"
-            }}>
-              {/* Slide Logo Header */}
-              <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "16px" }}>
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="#3b82f6">
-                  <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
-                </svg>
-                <span style={{ fontSize: "24px", fontWeight: "900", color: "#ffffff", letterSpacing: "-0.03em" }}>Boraq</span>
-                <span style={{ fontSize: "11px", color: "#94a3b8", fontWeight: "700", textTransform: "uppercase" }}>Transport & Logistics</span>
-              </div>
-              
-              <h1 style={{ fontSize: "clamp(28px, 5vw, 48px)", fontWeight: "900", color: "#ffffff", margin: "0 0 20px 0", lineHeight: 1.15 }}>
-                {isAr ? "حمولتكم، مسؤوليتنا" : "Votre cargaison, notre responsabilité"}
-              </h1>
+            <h2 style={{ fontSize: "clamp(22px, 4vw, 36px)", fontWeight: "900", color: "#ffffff", margin: "0 0 20px 0", lineHeight: 1.2 }}>
+              {isAr ? "الربط اللوجستي الدولي الموثوق" : "Garant de confiance & précision internationale"}
+            </h2>
 
-              {/* Direct access to Suivi/Simulateur popup */}
-              <div style={{ display: "flex", gap: "12px" }}>
+            <p style={{ fontSize: "15px", color: "#cbd5e1", lineHeight: 1.7, margin: 0, maxWidth: "600px" }}>
+              {isAr
+                ? "لأكثر من 10 سنوات، تعمل البراق كشريك معتمد لوجستياً بين المغرب وأوروبا لنقل شحنات البضائع والحلول التجارية المتكاملة والآمنة، نضمن الفحص الدقيق والالتزام بالمواعيد."
+                : "Depuis plus de 10 ans, Boraq Logistics est le partenaire stratégique agréé pour le transport routier international de marchandises et de fret industriel entre le Maroc et l'Europe."}
+            </p>
+          </div>
+
+          <div style={{ zIndex: 2, position: "relative", fontSize: "12px", color: "#64748b", fontWeight: "700" }}>
+            BORAQ LOGISTICS INTERNATIONAL S.A.
+          </div>
+        </section>
+
+        {/* SLIDE 3: PRESTATIONS & SERVICES */}
+        <section id="services-slide" style={{
+          height: "460px",
+          borderRadius: "24px",
+          overflow: "hidden",
+          position: "relative",
+          boxShadow: "0 20px 50px rgba(0,0,0,0.6)",
+          border: "1px solid rgba(255,255,255,0.08)",
+          padding: "40px",
+          boxSizing: "border-box",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "space-between",
+          textAlign: isAr ? "right" : "left",
+          transform: `perspective(1000px) rotateX(${Math.max(-5, 5 - Math.abs(scrollY - 1000) * 0.01)}deg)`,
+          transition: "transform 0.1s ease-out"
+        }} className="tilt-card-3d">
+          <img src="/boraq_plane.jpg" style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.15, position: "absolute", top: 0, left: 0, zIndex: 1 }} />
+          
+          <div style={{ zIndex: 2, position: "relative" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "12px", color: "#3b82f6", fontWeight: "800", textTransform: "uppercase", marginBottom: "12px" }}>
+              <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#3b82f6" }} />
+              {isAr ? "خدماتنا" : "DESTINATIONS & SOLUTIONS"}
+            </div>
+
+            <h2 style={{ fontSize: "28px", fontWeight: "900", color: "#ffffff", margin: "0 0 24px 0" }}>
+              {isAr ? "حلول النقل والخدمات اللوجستية" : "Solutions logistiques intégrées"}
+            </h2>
+
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "16px", fontSize: "13px" }}>
+              <div style={{ background: "rgba(255,255,255,0.03)", padding: "14px", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.05)" }}>
+                <div style={{ fontWeight: "800", color: "#ffffff", marginBottom: "4px" }}>Transport FTL / LTL</div>
+                <span style={{ color: "#94a3b8", fontSize: "11px" }}>{isAr ? "حمولة كاملة أو شحن جزئي للمستودعات" : "Transit routier en camions complets ou groupage"}</span>
+              </div>
+              <div style={{ background: "rgba(255,255,255,0.03)", padding: "14px", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.05)" }}>
+                <div style={{ fontWeight: "800", color: "#ffffff", marginBottom: "4px" }}>Livraison Express</div>
+                <span style={{ color: "#94a3b8", fontSize: "11px" }}>{isAr ? "شحن سريع مستعجل تحت الرقابة" : "Livraisons rapides et urgentes sous douane"}</span>
+              </div>
+              <div style={{ background: "rgba(255,255,255,0.03)", padding: "14px", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.05)" }}>
+                <div style={{ fontWeight: "800", color: "#ffffff", marginBottom: "4px" }}>Transport Multimodal</div>
+                <span style={{ color: "#94a3b8", fontSize: "11px" }}>{isAr ? "نقل بري، بحري وجوي متكامل" : "Réseau combiné routier, maritime et aérien"}</span>
+              </div>
+              <div style={{ background: "rgba(255,255,255,0.03)", padding: "14px", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.05)" }}>
+                <div style={{ fontWeight: "800", color: "#ffffff", marginBottom: "4px" }}>Logistique & Dépôt</div>
+                <span style={{ color: "#94a3b8", fontSize: "11px" }}>{isAr ? "تخزين وتوزيع وتخليص جمركي" : "Entreposage moderne et gestion de stock"}</span>
+              </div>
+            </div>
+          </div>
+
+          <div style={{ zIndex: 2, position: "relative", fontSize: "11px", color: "#64748b" }}>
+            LIAISON DIRECTE MAROC ➔ EUROPE
+          </div>
+        </section>
+
+        {/* SLIDE 4: CARGO TYPES (Fret) */}
+        <section id="fret-slide" style={{
+          height: "460px",
+          borderRadius: "24px",
+          overflow: "hidden",
+          position: "relative",
+          boxShadow: "0 20px 50px rgba(0,0,0,0.6)",
+          border: "1px solid rgba(255,255,255,0.08)",
+          padding: "40px",
+          boxSizing: "border-box",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "space-between",
+          textAlign: isAr ? "right" : "left",
+          transform: `perspective(1000px) rotateX(${Math.max(-5, 5 - Math.abs(scrollY - 1500) * 0.01)}deg)`,
+          transition: "transform 0.1s ease-out"
+        }} className="tilt-card-3d">
+          <img src="/boraq_ship.jpg" style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.15, position: "absolute", top: 0, left: 0, zIndex: 1 }} />
+          
+          <div style={{ zIndex: 2, position: "relative" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "12px", color: "#3b82f6", fontWeight: "800", textTransform: "uppercase", marginBottom: "6px" }}>
+              <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#3b82f6" }} />
+              {isAr ? "تصنيف الحمولات" : "TYPES DE FRET ACCEPTE"}
+            </div>
+
+            <h2 style={{ fontSize: "28px", fontWeight: "900", color: "#ffffff", margin: "0 0 6px 0" }}>
+              {isAr ? "ننقل 99% من أنواع البضائع الصناعية" : "Nous transportons 99% des marchandises"}
+            </h2>
+            <p style={{ fontSize: "12px", color: "#cbd5e1", margin: "0 0 20px 0" }}>
+              {isAr ? "مطابقة تامة لمعايير السلامة والتخليص الجمركي الدولي" : "Conformité totale avec les réglementations de transport international routier"}
+            </p>
+
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "12px" }}>
+              {[
+                { name: "Liquide", ar: "سائل" },
+                { name: "Dangereux", ar: "خطير" },
+                { name: "Inflammable", ar: "قابل للاشتعال" },
+                { name: "Fragile", ar: "قابل للكسر" },
+                { name: "Lourd", ar: "ثقيل" },
+                { name: "Vrac", ar: "صب" }
+              ].map(c => (
+                <div key={c.name} style={{
+                  background: "rgba(255,255,255,0.03)",
+                  border: "1px solid rgba(255,255,255,0.08)",
+                  padding: "16px 10px",
+                  borderRadius: "10px",
+                  textAlign: "center",
+                  fontSize: "13px",
+                  fontWeight: "800",
+                  color: "#ffffff"
+                }}>
+                  {isAr ? c.ar : c.name}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div style={{ zIndex: 2, position: "relative", fontSize: "11px", color: "#64748b" }}>
+            ADAPTATION ET COMPLIANCE AUX NORMES T.I.R.
+          </div>
+        </section>
+
+        {/* SLIDE 5: CONTACTS */}
+        <section id="contacts-slide" style={{
+          height: "460px",
+          borderRadius: "24px",
+          overflow: "hidden",
+          position: "relative",
+          boxShadow: "0 20px 50px rgba(0,0,0,0.6)",
+          border: "1px solid rgba(255,255,255,0.08)",
+          padding: "40px",
+          boxSizing: "border-box",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "space-between",
+          textAlign: isAr ? "right" : "left",
+          transform: `perspective(1000px) rotateX(${Math.max(-5, 5 - Math.abs(scrollY - 2000) * 0.01)}deg)`,
+          transition: "transform 0.1s ease-out"
+        }} className="tilt-card-3d">
+          <img src="/boraq_truck.jpg" style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.15, position: "absolute", top: 0, left: 0, zIndex: 1 }} />
+          
+          <div style={{ zIndex: 2, position: "relative" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "12px", color: "#3b82f6", fontWeight: "800", textTransform: "uppercase", marginBottom: "12px" }}>
+              <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#3b82f6" }} />
+              {isAr ? "قنوات الاتصال" : "CONTACTS & DEPOTS"}
+            </div>
+
+            <h2 style={{ fontSize: "28px", fontWeight: "900", color: "#ffffff", margin: "0 0 20px 0" }}>
+              {isAr ? "اتصل بقسم اللوجستيك الدولي" : "Faites décoller vos expéditions"}
+            </h2>
+
+            <div style={{ display: "grid", gridTemplateColumns: "1.2fr 0.8fr", gap: "20px" }} className="responsive-grid-landing">
+              {/* Details list */}
+              <div style={{ display: "flex", flexDirection: "column", gap: "10px", fontSize: "14px", color: "#cbd5e1" }}>
+                <div><b>📍 {isAr ? "المقر الرئيسي للمغرب:" : "Siège Maroc:"}</b> Zone Industrielle Ain Sebaa, Casablanca</div>
+                <div><b>📞 {isAr ? "الهاتف المباشر:" : "Tél Opérationnel:"}</b> +212 522 000 000</div>
+                <div><b>✉️ {isAr ? "البريد الإلكتروني:" : "Email Pro:"}</b> contact@boraq.online</div>
+                <div><b>🌐 {isAr ? "الوكالات التابعة بأوروبا:" : "Dépôts Partenaires:"}</b> Espagne, France, Italie</div>
+              </div>
+
+              {/* Direct Action Button */}
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
                 <button
                   onClick={() => { setActiveTab("tracking"); setShowToolModal(true); }}
-                  style={{ background: "#3b82f6", color: "#fff", border: "none", padding: "12px 28px", borderRadius: "30px", fontWeight: "800", cursor: "pointer" }}
-                >
-                  {isAr ? "تتبع الشحنة ➔" : "Suivre mon envoi ➔"}
-                </button>
-                <button
-                  onClick={() => { setActiveTab("simulator"); setShowToolModal(true); }}
-                  style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)", color: "#fff", padding: "12px 28px", borderRadius: "30px", fontWeight: "800", cursor: "pointer" }}
-                >
-                  {isAr ? "احسب التسعيرة" : "Simuler tarif"}
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* PAGE 2: À PROPOS (Slide 2) */}
-        {activePage === 2 && (
-          <div style={{
-            width: "100%",
-            maxWidth: "1000px",
-            height: "440px",
-            borderRadius: "24px",
-            overflow: "hidden",
-            position: "relative",
-            boxShadow: "0 20px 50px rgba(0,0,0,0.6)",
-            border: "1px solid rgba(255,255,255,0.08)",
-            padding: "40px",
-            boxSizing: "border-box",
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "space-between",
-            textAlign: isAr ? "right" : "left",
-            animation: "fadeInUp 0.5s ease-out"
-          }} className="tilt-card-3d">
-            <img src="/boraq_ship.jpg" style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.15, position: "absolute", top: 0, left: 0, zIndex: 1 }} />
-            
-            <div style={{ zIndex: 2, position: "relative" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "12px", color: "#3b82f6", fontWeight: "800", textTransform: "uppercase", marginBottom: "12px" }}>
-                <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#3b82f6" }} />
-                {isAr ? "من نحن" : "À PROPOS DE NOUS"}
-              </div>
-
-              <h2 style={{ fontSize: "clamp(22px, 4vw, 36px)", fontWeight: "900", color: "#ffffff", margin: "0 0 20px 0", lineHeight: 1.2 }}>
-                {isAr ? "الربط اللوجستي الدولي الموثوق" : "Garant de confiance & précision internationale"}
-              </h2>
-
-              <p style={{ fontSize: "15px", color: "#cbd5e1", lineHeight: 1.7, margin: 0, maxWidth: "600px" }}>
-                {isAr
-                  ? "لأكثر من 10 سنوات، تعمل البراق كشريك معتمد لوجستياً بين المغرب وأوروبا لنقل شحنات البضائع والحلول التجارية المتكاملة والآمنة، نضمن الفحص الدقيق والالتزام بالمواعيد."
-                  : "Depuis plus de 10 ans, Boraq Logistics est le partenaire stratégique agréé pour le transport routier international de marchandises et de fret industriel entre le Maroc et l'Europe."}
-              </p>
-            </div>
-
-            <div style={{ zIndex: 2, position: "relative", fontSize: "12px", color: "#64748b", fontWeight: "700" }}>
-              BORAQ LOGISTICS INTERNATIONAL S.A.
-            </div>
-          </div>
-        )}
-
-        {/* PAGE 3: FIABILITÉ (Slide 3) */}
-        {activePage === 3 && (
-          <div style={{
-            width: "100%",
-            maxWidth: "1000px",
-            height: "440px",
-            borderRadius: "24px",
-            overflow: "hidden",
-            position: "relative",
-            boxShadow: "0 20px 50px rgba(0,0,0,0.6)",
-            border: "1px solid rgba(255,255,255,0.08)",
-            padding: "40px",
-            boxSizing: "border-box",
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "space-between",
-            textAlign: isAr ? "right" : "left",
-            animation: "fadeInUp 0.5s ease-out"
-          }} className="tilt-card-3d">
-            <img src="/boraq_train.jpg" style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.15, position: "absolute", top: 0, left: 0, zIndex: 1 }} />
-            
-            <div style={{ zIndex: 2, position: "relative" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "12px", color: "#3b82f6", fontWeight: "800", textTransform: "uppercase", marginBottom: "12px" }}>
-                <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#3b82f6" }} />
-                {isAr ? "لماذا يثق بنا العملاء" : "POURQUOI LES CLIENTS NOUS FONT CONFIANCE"}
-              </div>
-
-              <h2 style={{ fontSize: "28px", fontWeight: "900", color: "#ffffff", margin: "0 0 24px 0" }}>
-                {isAr ? "الالتزامات الخمس لخدمات البراق" : "Cinq engagements d'excellence"}
-              </h2>
-
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "20px" }}>
-                <div>
-                  <div style={{ fontWeight: "800", color: "#3b82f6", fontSize: "14px", marginBottom: "6px" }}>{isAr ? "أسعار تنافسية" : "Prix Compétitif"}</div>
-                  <div style={{ fontSize: "12px", color: "#94a3b8" }}>{isAr ? "تعريفات شحن متوازنة ومدروسة" : "Rapport qualité-prix optimal pour les entreprises"}</div>
-                </div>
-                <div>
-                  <div style={{ fontWeight: "800", color: "#3b82f6", fontSize: "14px", marginBottom: "6px" }}>{isAr ? "دقة المواعيد" : "Respect des Délais"}</div>
-                  <div style={{ fontSize: "12px", color: "#94a3b8" }}>{isAr ? "شحن مجدول منتظم دون تأخير" : "Liaisons régulières et rapides Maroc-Europe"}</div>
-                </div>
-                <div>
-                  <div style={{ fontWeight: "800", color: "#3b82f6", fontSize: "14px", marginBottom: "6px" }}>{isAr ? "تتبع فوري كود موحد" : "Suivi Code-barres"}</div>
-                  <div style={{ fontSize: "12px", color: "#94a3b8" }}>{isAr ? "تتبع الشحنة بدقة في أي لحظة" : "Traçabilité constante de vos marchandises"}</div>
-                </div>
-                <div>
-                  <div style={{ fontWeight: "800", color: "#3b82f6", fontSize: "14px", marginBottom: "6px" }}>{isAr ? "مرونة الحجم" : "Haute Flexibilité"}</div>
-                  <div style={{ fontSize: "12px", color: "#94a3b8" }}>{isAr ? "شاحنات معدة لكافة الأحجام والأوزان" : "Flotte adaptée aux chargements industriels"}</div>
-                </div>
-              </div>
-            </div>
-
-            <div style={{ zIndex: 2, position: "relative", fontSize: "11px", color: "#64748b" }}>
-              ENGAGEMENT QUALITÉ BORAQ 2026
-            </div>
-          </div>
-        )}
-
-        {/* PAGE 4: PRESTATIONS / SERVICES (Slide 4) */}
-        {activePage === 4 && (
-          <div style={{
-            width: "100%",
-            maxWidth: "1000px",
-            height: "440px",
-            borderRadius: "24px",
-            overflow: "hidden",
-            position: "relative",
-            boxShadow: "0 20px 50px rgba(0,0,0,0.6)",
-            border: "1px solid rgba(255,255,255,0.08)",
-            padding: "40px",
-            boxSizing: "border-box",
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "space-between",
-            textAlign: isAr ? "right" : "left",
-            animation: "fadeInUp 0.5s ease-out"
-          }} className="tilt-card-3d">
-            <img src="/boraq_plane.jpg" style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.15, position: "absolute", top: 0, left: 0, zIndex: 1 }} />
-            
-            <div style={{ zIndex: 2, position: "relative" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "12px", color: "#3b82f6", fontWeight: "800", textTransform: "uppercase", marginBottom: "12px" }}>
-                <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#3b82f6" }} />
-                {isAr ? "خدماتنا" : "DESTINATIONS & SOLUTIONS"}
-              </div>
-
-              <h2 style={{ fontSize: "28px", fontWeight: "900", color: "#ffffff", margin: "0 0 24px 0" }}>
-                {isAr ? "حلول النقل والخدمات اللوجستية" : "Solutions logistiques intégrées"}
-              </h2>
-
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "16px", fontSize: "13px" }}>
-                <div style={{ background: "rgba(255,255,255,0.03)", padding: "14px", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.05)" }}>
-                  <div style={{ fontWeight: "800", color: "#ffffff", marginBottom: "4px" }}>Transport FTL / LTL</div>
-                  <span style={{ color: "#94a3b8", fontSize: "11px" }}>{isAr ? "حمولة كاملة أو شحن جزئي للمستودعات" : "Transit routier en camions complets ou groupage"}</span>
-                </div>
-                <div style={{ background: "rgba(255,255,255,0.03)", padding: "14px", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.05)" }}>
-                  <div style={{ fontWeight: "800", color: "#ffffff", marginBottom: "4px" }}>Livraison Express</div>
-                  <span style={{ color: "#94a3b8", fontSize: "11px" }}>{isAr ? "شحن سريع مستعجل تحت الرقابة" : "Livraisons rapides et urgentes sous douane"}</span>
-                </div>
-                <div style={{ background: "rgba(255,255,255,0.03)", padding: "14px", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.05)" }}>
-                  <div style={{ fontWeight: "800", color: "#ffffff", marginBottom: "4px" }}>Transport Multimodal</div>
-                  <span style={{ color: "#94a3b8", fontSize: "11px" }}>{isAr ? "نقل بري، بحري وجوي متكامل" : "Réseau combiné routier, maritime et aérien"}</span>
-                </div>
-                <div style={{ background: "rgba(255,255,255,0.03)", padding: "14px", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.05)" }}>
-                  <div style={{ fontWeight: "800", color: "#ffffff", marginBottom: "4px" }}>Logistique & Dépôt</div>
-                  <span style={{ color: "#94a3b8", fontSize: "11px" }}>{isAr ? "تخزين وتوزيع وتخليص جمركي" : "Entreposage moderne et gestion de stock"}</span>
-                </div>
-              </div>
-            </div>
-
-            <div style={{ zIndex: 2, position: "relative", fontSize: "11px", color: "#64748b" }}>
-              LIAISON DIRECTE MAROC ➔ EUROPE
-            </div>
-          </div>
-        )}
-
-        {/* PAGE 5: CARGO TYPES / FRET (Slide 5) */}
-        {activePage === 5 && (
-          <div style={{
-            width: "100%",
-            maxWidth: "1000px",
-            height: "440px",
-            borderRadius: "24px",
-            overflow: "hidden",
-            position: "relative",
-            boxShadow: "0 20px 50px rgba(0,0,0,0.6)",
-            border: "1px solid rgba(255,255,255,0.08)",
-            padding: "40px",
-            boxSizing: "border-box",
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "space-between",
-            textAlign: isAr ? "right" : "left",
-            animation: "fadeInUp 0.5s ease-out"
-          }} className="tilt-card-3d">
-            <img src="/boraq_ship.jpg" style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.15, position: "absolute", top: 0, left: 0, zIndex: 1 }} />
-            
-            <div style={{ zIndex: 2, position: "relative" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "12px", color: "#3b82f6", fontWeight: "800", textTransform: "uppercase", marginBottom: "6px" }}>
-                <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#3b82f6" }} />
-                {isAr ? "تصنيف الحمولات" : "TYPES DE FRET ACCEPTE"}
-              </div>
-
-              <h2 style={{ fontSize: "28px", fontWeight: "900", color: "#ffffff", margin: "0 0 6px 0" }}>
-                {isAr ? "ننقل 99% من أنواع البضائع الصناعية" : "Nous transportons 99% des marchandises"}
-              </h2>
-              <p style={{ fontSize: "12px", color: "#cbd5e1", margin: "0 0 20px 0" }}>
-                {isAr ? "مطابقة تامة لمعايير السلامة والتخليص الجمركي الدولي" : "Conformité totale avec les réglementations de transport international routier"}
-              </p>
-
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "12px" }}>
-                {[
-                  { name: "Liquide", ar: "سائل" },
-                  { name: "Dangereux", ar: "خطير" },
-                  { name: "Inflammable", ar: "قابل للاشتعال" },
-                  { name: "Fragile", ar: "قابل للكسر" },
-                  { name: "Lourd", ar: "ثقيل" },
-                  { name: "Vrac", ar: "صب" }
-                ].map(c => (
-                  <div key={c.name} style={{
-                    background: "rgba(255,255,255,0.03)",
-                    border: "1px solid rgba(255,255,255,0.08)",
-                    padding: "16px 10px",
-                    borderRadius: "10px",
-                    textAlign: "center",
-                    fontSize: "13px",
+                  style={{
+                    background: "#3b82f6",
+                    color: "#ffffff",
+                    border: "none",
+                    padding: "16px 30px",
+                    borderRadius: "30px",
                     fontWeight: "800",
-                    color: "#ffffff"
-                  }}>
-                    {isAr ? c.ar : c.name}
-                  </div>
-                ))}
+                    fontSize: "14px",
+                    cursor: "pointer",
+                    boxShadow: "0 4px 15px rgba(59,130,246,0.4)"
+                  }}
+                >
+                  {isAr ? "تتبع شحنتك الآن ➔" : "Suivre mon cargo ➔"}
+                </button>
               </div>
-            </div>
-
-            <div style={{ zIndex: 2, position: "relative", fontSize: "11px", color: "#64748b" }}>
-              ADAPTATION ET COMPLIANCE AUX NORMES T.I.R.
             </div>
           </div>
-        )}
 
-        {/* PAGE 6: CONTACTS (Slide 6) */}
-        {activePage === 6 && (
-          <div style={{
-            width: "100%",
-            maxWidth: "1000px",
-            height: "440px",
-            borderRadius: "24px",
-            overflow: "hidden",
-            position: "relative",
-            boxShadow: "0 20px 50px rgba(0,0,0,0.6)",
-            border: "1px solid rgba(255,255,255,0.08)",
-            padding: "40px",
-            boxSizing: "border-box",
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "space-between",
-            textAlign: isAr ? "right" : "left",
-            animation: "fadeInUp 0.5s ease-out"
-          }} className="tilt-card-3d">
-            <img src="/boraq_truck.jpg" style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.15, position: "absolute", top: 0, left: 0, zIndex: 1 }} />
-            
-            <div style={{ zIndex: 2, position: "relative" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "12px", color: "#3b82f6", fontWeight: "800", textTransform: "uppercase", marginBottom: "12px" }}>
-                <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#3b82f6" }} />
-                {isAr ? "قنوات الاتصال" : "CONTACTS & DEPOTS"}
-              </div>
-
-              <h2 style={{ fontSize: "28px", fontWeight: "900", color: "#ffffff", margin: "0 0 20px 0" }}>
-                {isAr ? "اتصل بقسم اللوجستيك الدولي" : "Faites décoller vos expéditions"}
-              </h2>
-
-              <div style={{ display: "grid", gridTemplateColumns: "1.2fr 0.8fr", gap: "20px" }} className="responsive-grid-landing">
-                {/* Details list */}
-                <div style={{ display: "flex", flexDirection: "column", gap: "10px", fontSize: "14px", color: "#cbd5e1" }}>
-                  <div><b>📍 {isAr ? "المقر الرئيسي للمغرب:" : "Siège Maroc:"}</b> Zone Industrielle Ain Sebaa, Casablanca</div>
-                  <div><b>📞 {isAr ? "الهاتف المباشر:" : "Tél Opérationnel:"}</b> +212 522 000 000</div>
-                  <div><b>✉️ {isAr ? "البريد الإلكتروني:" : "Email Pro:"}</b> contact@boraq.online</div>
-                  <div><b>🌐 {isAr ? "الوكالات التابعة بأوروبا:" : "Dépôts Partenaires:"}</b> Espagne, France, Italie</div>
-                </div>
-
-                {/* Direct Action Button */}
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <button
-                    onClick={() => { setActiveTab("tracking"); setShowToolModal(true); }}
-                    style={{
-                      background: "#3b82f6",
-                      color: "#ffffff",
-                      border: "none",
-                      padding: "16px 30px",
-                      borderRadius: "30px",
-                      fontWeight: "800",
-                      fontSize: "14px",
-                      cursor: "pointer",
-                      boxShadow: "0 4px 15px rgba(59,130,246,0.4)"
-                    }}
-                  >
-                    {isAr ? "تتبع شحنتك الآن ➔" : "Suivre mon cargo ➔"}
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <div style={{ zIndex: 2, position: "relative", fontSize: "11px", color: "#64748b" }}>
-              ASSISTANCE COMMERCIALE DISPONIBLE 24/7
-            </div>
+          <div style={{ zIndex: 2, position: "relative", fontSize: "11px", color: "#64748b" }}>
+            ASSISTANCE COMMERCIALE DISPONIBLE 24/7
           </div>
-        )}
+        </section>
 
       </main>
 
-      {/* ── FOOTER SLIDER PROCESS NAVIGATION (Slide Deck Selector) ── */}
+      {/* ── FOOTER ── */}
       <footer style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        width: "100%",
-        padding: "20px 0 10px 0",
+        padding: "40px 0 10px 0",
+        textAlign: "center",
         borderTop: "1px solid rgba(255,255,255,0.06)",
-        marginTop: "40px",
-        boxSizing: "border-box",
-        zIndex: 10
+        fontSize: "12px",
+        color: "#6b7280",
+        marginTop: "40px"
       }}>
-        {/* Left Side: Numeric Indicator 01 / 06 */}
-        <div style={{ fontSize: "14px", fontWeight: "800", color: "#64748b" }}>
-          <span style={{ color: "#ffffff", fontSize: "16px", fontWeight: "900" }}>0{activePage}</span> / 06
-        </div>
-
-        {/* Center: Horizontal Navigation Slide title pills */}
-        <div style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "8px",
-          background: "rgba(255,255,255,0.04)",
-          padding: "6px 12px",
-          borderRadius: "24px",
-          border: "1px solid rgba(255,255,255,0.08)"
-        }} className="desktop-only-table">
-          {slides.map(s => {
-            const isActive = activePage === s.id;
-            return (
-              <div
-                key={s.id}
-                onClick={() => setActivePage(s.id)}
-                style={{
-                  padding: "8px 16px",
-                  borderRadius: "20px",
-                  background: isActive ? "rgba(255,255,255,0.1)" : "transparent",
-                  color: isActive ? "#ffffff" : "#94a3b8",
-                  fontWeight: "800",
-                  fontSize: "12px",
-                  cursor: "pointer",
-                  transition: "all 0.2s ease",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "6px"
-                }}
-              >
-                <span>{s.id}. {s.name}</span>
-                {isActive && (
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-                )}
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Right Side: Directional Arrow buttons */}
-        <div style={{ display: "flex", gap: "8px" }}>
-          <button
-            onClick={() => setActivePage(prev => Math.max(1, prev - 1))}
-            style={{
-              width: "36px",
-              height: "36px",
-              borderRadius: "50%",
-              background: "rgba(255,255,255,0.06)",
-              border: "1px solid rgba(255,255,255,0.12)",
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: "#ffffff"
-            }}
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
-          </button>
-
-          <button
-            onClick={() => setActivePage(prev => Math.min(6, prev + 1))}
-            style={{
-              width: "36px",
-              height: "36px",
-              borderRadius: "50%",
-              background: "rgba(255,255,255,0.06)",
-              border: "1px solid rgba(255,255,255,0.12)",
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: "#ffffff"
-            }}
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-          </button>
-        </div>
+        © {new Date().getFullYear()} BORAQ. All rights reserved. International Transport Brokerage.
       </footer>
 
       {/* ── POPUP TOOL MODAL OVERLAY (For Clean interactive tracking/agencies/simulator panels) ── */}
