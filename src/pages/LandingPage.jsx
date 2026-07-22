@@ -295,28 +295,6 @@ export default function LandingPage({ onOpenLogin }) {
                   objectFit: "contain",
                   filter: "drop-shadow(0 20px 40px rgba(0,0,0,0.1))"
                 }} />
-                
-                {/* 360° circular orange badge */}
-                <div style={{
-                  position: "absolute",
-                  top: "60px",
-                  left: "20px",
-                  width: "64px",
-                  height: "64px",
-                  borderRadius: "50%",
-                  background: "#ff6b00",
-                  color: "#ffffff",
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: "12px",
-                  fontWeight: "900",
-                  boxShadow: "0 10px 20px rgba(255,107,0,0.4)"
-                }}>
-                  <span>360°</span>
-                  <span>🔄</span>
-                </div>
               </div>
 
             </div>
