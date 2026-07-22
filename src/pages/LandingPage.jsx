@@ -266,22 +266,6 @@ export default function LandingPage({ onOpenLogin }) {
             </p>
           </div>
 
-          {/* Overlay right selector thumbnails */}
-          <div style={{
-            position: "absolute",
-            bottom: "20px",
-            right: "20px",
-            display: "flex",
-            gap: "10px",
-            pointerEvents: "auto"
-          }} className="desktop-only-table">
-            <div style={{ width: "40px", height: "40px", borderRadius: "8px", border: "1px solid rgba(255,255,255,0.2)", overflow: "hidden" }}>
-              <img src="/boraq_ship.jpg" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-            </div>
-            <div style={{ width: "40px", height: "40px", borderRadius: "8px", border: "1px solid rgba(255,255,255,0.2)", overflow: "hidden" }}>
-              <img src="/boraq_truck.jpg" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-            </div>
-          </div>
         </div>
 
         {/* Dynamic spacer pushing content below the absolute positioned airplane */}
