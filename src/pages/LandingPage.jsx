@@ -217,7 +217,7 @@ export default function LandingPage({ onOpenLogin }) {
           margin: "0 auto",
           zIndex: 2
         }}>
-          <img src="/hero_plane.jpg" alt="Air Cargo Delivery" style={{
+          <img src="/boraq_plane.jpg" className="hero-floating-visual" alt="Air Cargo Delivery" style={{
             width: "100%",
             borderRadius: "20px",
             boxShadow: "0 20px 50px rgba(0,0,0,0.6)"
@@ -341,15 +341,16 @@ export default function LandingPage({ onOpenLogin }) {
         }} className="responsive-grid-landing">
           
           {/* Card 1: Rail Freight */}
-          <div style={{
+          <div className="tilt-card-3d" style={{
             height: "420px",
             borderRadius: "16px",
             overflow: "hidden",
             position: "relative",
             boxShadow: "0 15px 35px rgba(0,0,0,0.5)",
-            border: "1px solid rgba(255,255,255,0.08)"
+            border: "1px solid rgba(255,255,255,0.08)",
+            cursor: "pointer"
           }}>
-            <img src="/boraq_packaging.jpg" style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.85 }} />
+            <img src="/boraq_train.jpg" style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.85 }} />
             <div style={{
               position: "absolute",
               bottom: "20px",
@@ -366,15 +367,16 @@ export default function LandingPage({ onOpenLogin }) {
           </div>
 
           {/* Card 2: Air Freight */}
-          <div style={{
+          <div className="tilt-card-3d" style={{
             height: "420px",
             borderRadius: "16px",
             overflow: "hidden",
             position: "relative",
             boxShadow: "0 15px 35px rgba(0,0,0,0.5)",
-            border: "1px solid rgba(255,255,255,0.08)"
+            border: "1px solid rgba(255,255,255,0.08)",
+            cursor: "pointer"
           }}>
-            <img src="/hero_plane.jpg" style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.85 }} />
+            <img src="/boraq_plane.jpg" style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.85 }} />
             <div style={{
               position: "absolute",
               bottom: "20px",
@@ -391,15 +393,16 @@ export default function LandingPage({ onOpenLogin }) {
           </div>
 
           {/* Card 3: Land Express */}
-          <div style={{
+          <div className="tilt-card-3d" style={{
             height: "420px",
             borderRadius: "16px",
             overflow: "hidden",
             position: "relative",
             boxShadow: "0 15px 35px rgba(0,0,0,0.5)",
-            border: "1px solid rgba(255,255,255,0.08)"
+            border: "1px solid rgba(255,255,255,0.08)",
+            cursor: "pointer"
           }}>
-            <img src="/boraq_3d_truck.jpg" style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.85 }} />
+            <img src="/boraq_truck.jpg" style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.85 }} />
             <div style={{
               position: "absolute",
               bottom: "20px",
@@ -416,15 +419,16 @@ export default function LandingPage({ onOpenLogin }) {
           </div>
 
           {/* Card 4: Sea Freight */}
-          <div style={{
+          <div className="tilt-card-3d" style={{
             height: "420px",
             borderRadius: "16px",
             overflow: "hidden",
             position: "relative",
             boxShadow: "0 15px 35px rgba(0,0,0,0.5)",
-            border: "1px solid rgba(255,255,255,0.08)"
+            border: "1px solid rgba(255,255,255,0.08)",
+            cursor: "pointer"
           }}>
-            <img src="/boraq_collage.jpg" style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.85 }} />
+            <img src="/boraq_ship.jpg" style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.85 }} />
             <div style={{
               position: "absolute",
               bottom: "20px",
