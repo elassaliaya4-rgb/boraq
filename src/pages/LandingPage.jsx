@@ -29,6 +29,17 @@ export default function LandingPage({ onOpenLogin }) {
   // Accordion active row state for "This is how we work"
   const [activeAccordion, setActiveAccordion] = useState("strategy");
 
+  // Scroll Position for Parallax effect
+  const [scrollY, setScrollY] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrollY(window.scrollY);
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   // Fetch agencies on mount
   useEffect(() => {
     async function fetchAgencies() {
@@ -191,35 +202,47 @@ export default function LandingPage({ onOpenLogin }) {
         </div>
       </header>
 
-      {/* ── 2. HERO AREA (Be Globally Connected) ── */}
+      {/* ── 2. HERO AREA (Be Globally Connected - Parallax Behind Typography) ── */}
       <section style={{
-        padding: "80px 0 60px 0",
+        padding: "120px 0 100px 0",
         textAlign: "center",
-        position: "relative"
+        position: "relative",
+        overflow: "visible"
       }}>
+        {/* Main Title positioned in foreground */}
         <h1 style={{
-          fontSize: "clamp(42px, 7vw, 90px)",
+          fontSize: "clamp(46px, 8vw, 100px)",
           fontWeight: "900",
           color: "#ffffff",
-          margin: "0 0 20px 0",
+          margin: "0 auto 40px auto",
           letterSpacing: "-0.04em",
-          lineHeight: "1.05"
+          lineHeight: "0.95",
+          position: "relative",
+          zIndex: 10,
+          textShadow: "0 4px 30px rgba(0,0,0,0.9)",
+          maxWidth: "850px"
         }}>
           {isAr ? "كن متصلاً بالعالم" : "Be Globally Connected"}
         </h1>
 
-        {/* Airplane Hero Visual (Transversal flying look) */}
+        {/* Airplane Hero Visual positioned absolutely BEHIND heading */}
         <div style={{
-          position: "relative",
+          position: "absolute",
+          top: "10px",
+          left: "50%",
+          transform: `translateX(-50%) translateY(${scrollY * 0.25}px) scale(${1 + scrollY * 0.0003})`,
           width: "100%",
-          maxWidth: "900px",
-          margin: "0 auto",
-          zIndex: 2
+          maxWidth: "920px",
+          zIndex: 1,
+          opacity: 0.75,
+          pointerEvents: "none",
+          transition: "transform 0.1s ease-out"
         }}>
           <img src="/boraq_plane.jpg" className="hero-floating-visual" alt="Air Cargo Delivery" style={{
             width: "100%",
-            borderRadius: "20px",
-            boxShadow: "0 20px 50px rgba(0,0,0,0.6)"
+            borderRadius: "24px",
+            boxShadow: "0 20px 60px rgba(0,0,0,0.8)",
+            filter: "brightness(0.65)"
           }} />
 
           {/* Overlay left paragraph block */}
@@ -233,7 +256,8 @@ export default function LandingPage({ onOpenLogin }) {
             backdropFilter: "blur(8px)",
             padding: "16px",
             borderRadius: "12px",
-            border: "1px solid rgba(255,255,255,0.08)"
+            border: "1px solid rgba(255,255,255,0.08)",
+            pointerEvents: "auto"
           }} className="desktop-only-table">
             <p style={{ fontSize: "11px", color: "#9ca3af", margin: 0, lineHeight: 1.5 }}>
               {isAr
@@ -248,19 +272,27 @@ export default function LandingPage({ onOpenLogin }) {
             bottom: "20px",
             right: "20px",
             display: "flex",
-            gap: "10px"
+            gap: "10px",
+            pointerEvents: "auto"
           }} className="desktop-only-table">
             <div style={{ width: "40px", height: "40px", borderRadius: "8px", border: "1px solid rgba(255,255,255,0.2)", overflow: "hidden" }}>
-              <img src="/boraq_collage.jpg" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+              <img src="/boraq_ship.jpg" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
             </div>
             <div style={{ width: "40px", height: "40px", borderRadius: "8px", border: "1px solid rgba(255,255,255,0.2)", overflow: "hidden" }}>
-              <img src="/boraq_3d_truck.jpg" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+              <img src="/boraq_truck.jpg" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
             </div>
           </div>
         </div>
 
-        <div style={{ fontSize: "16px", fontWeight: "700", color: "#9ca3af", marginTop: "30px", textTransform: "uppercase", letterSpacing: "0.15em" }}>
-          {isAr ? "شحن جوي ودولي سريع" : "Fast International Air & Land Delivery"}
+        {/* Dynamic spacer pushing content below the absolute positioned airplane */}
+        <div style={{
+          position: "relative",
+          zIndex: 10,
+          marginTop: "440px"
+        }}>
+          <div style={{ fontSize: "16px", fontWeight: "700", color: "#9ca3af", textTransform: "uppercase", letterSpacing: "0.15em" }}>
+            {isAr ? "شحن جوي ودولي سريع" : "Fast International Air & Land Delivery"}
+          </div>
         </div>
       </section>
 
