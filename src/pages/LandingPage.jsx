@@ -95,7 +95,7 @@ export default function LandingPage({ onOpenLogin }) {
 
   return (
     <div dir={isAr ? "rtl" : "ltr"} style={{
-      background: "#ffffff", // Pure crisp white theme matching Bankar screenshots
+      background: "#ffffff", // Pure white theme matching Bankar
       color: "#1e293b",
       fontFamily: "Inter, system-ui, -apple-system, sans-serif",
       margin: 0,
@@ -166,10 +166,10 @@ export default function LandingPage({ onOpenLogin }) {
         </div>
       </header>
 
-      {/* ── STACK OF THE 5 BANKAR-STYLED SECTIONS ── */}
+      {/* ── STACK OF THE 8 BANKAR-STYLED SECTIONS (100% Matching Screenshot) ── */}
       <main style={{ width: "100%" }}>
 
-        {/* ── SECTION 1: HERO (Bankar Design Cover) ── */}
+        {/* ── SECTION 1: HERO (Bankar Design Cover & Card) ── */}
         <section id="hero" style={{
           minHeight: "175vh",
           background: "#ffffff",
@@ -406,7 +406,37 @@ export default function LandingPage({ onOpenLogin }) {
           </div>
         </section>
 
-        {/* ── SECTION 2: SHIPPING & LOGISTICS SERVICES (Bankar Page 2 Top) ── */}
+        {/* ── STATS SECTION (Below Dark Card) ── */}
+        <section style={{
+          padding: "60px 80px",
+          background: "#fff9f6", // Subtle warm pinkish-white background matching screenshot
+          borderBottom: "1px solid #f2e2dc"
+        }}>
+          <div style={{
+            display: "flex",
+            justifyContent: "space-around",
+            alignItems: "center",
+            flexWrap: "wrap",
+            gap: "40px",
+            maxWidth: "1100px",
+            margin: "0 auto"
+          }}>
+            <div style={{ textAlign: "center" }}>
+              <div style={{ fontSize: "44px", fontWeight: "950", color: "#0f172a" }}>30+</div>
+              <div style={{ fontSize: "12px", color: "#64748b", fontWeight: "700", textTransform: "uppercase", marginTop: "4px" }}>Countries Covered</div>
+            </div>
+            <div style={{ textAlign: "center" }}>
+              <div style={{ fontSize: "44px", fontWeight: "950", color: "#0f172a" }}>$20B</div>
+              <div style={{ fontSize: "12px", color: "#64748b", fontWeight: "700", textTransform: "uppercase", marginTop: "4px" }}>Total Cargo Delivered</div>
+            </div>
+            <div style={{ textAlign: "center" }}>
+              <div style={{ fontSize: "44px", fontWeight: "950", color: "#0f172a" }}>300M</div>
+              <div style={{ fontSize: "12px", color: "#64748b", fontWeight: "700", textTransform: "uppercase", marginTop: "4px" }}>Tons of Cargo Delivered</div>
+            </div>
+          </div>
+        </section>
+
+        {/* ── SECTION 2: SHIPPING & LOGISTICS SERVICES ── */}
         <section id="services" style={{
           padding: "100px 40px",
           background: "#ffffff",
@@ -481,17 +511,17 @@ export default function LandingPage({ onOpenLogin }) {
           </div>
         </section>
 
-        {/* ── SECTION 3: POWERING LOGISTICS (Bankar Page 2 Middle) ── */}
+        {/* ── SECTION 3: POWERING LOGISTICS ── */}
         <section id="powering" style={{
           padding: "100px 40px",
-          background: "#f8fafc", // Contrast soft grey background
+          background: "#f8fafc",
           color: "#0f172a",
           boxSizing: "border-box"
         }}>
           <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
             <div style={{ display: "grid", gridTemplateColumns: "1.1fr 0.9fr", gap: "60px", alignItems: "center" }} className="responsive-grid-landing">
               
-              {/* Left Column: List highlights */}
+              {/* Left Column */}
               <div style={{ textAlign: isAr ? "right" : "left" }}>
                 <h2 style={{ fontSize: "38px", fontWeight: "900", color: "#0f172a", margin: "0 0 16px 0", lineHeight: 1.1 }}>
                   Powering logistics across business
@@ -517,7 +547,7 @@ export default function LandingPage({ onOpenLogin }) {
                 </div>
               </div>
 
-              {/* Right Column: Containers Stack picture */}
+              {/* Right Column */}
               <div style={{
                 borderRadius: "24px",
                 overflow: "hidden",
@@ -530,7 +560,7 @@ export default function LandingPage({ onOpenLogin }) {
           </div>
         </section>
 
-        {/* ── SECTION 4: FIND LOCATIONS / WORLD MAP (Bankar Page 2 Map) ── */}
+        {/* ── SECTION 4: FIND LOCATIONS ── */}
         <section id="agencies" style={{
           padding: "100px 40px",
           background: "#ffffff",
@@ -545,7 +575,7 @@ export default function LandingPage({ onOpenLogin }) {
               Our international partner agencies and logistics depots span Morocco, Spain, France, and Italy.
             </p>
 
-            {/* Interactive World Map container */}
+            {/* World Map Container */}
             <div style={{
               position: "relative",
               borderRadius: "24px",
@@ -555,7 +585,7 @@ export default function LandingPage({ onOpenLogin }) {
             }}>
               <img src="/boraq_map_tracking.jpg" style={{ width: "100%", display: "block", filter: "grayscale(1) brightness(0.95)" }} />
               
-              {/* Map floating popup badge */}
+              {/* Floating popup badge */}
               <div style={{
                 position: "absolute",
                 top: "40%",
@@ -578,7 +608,7 @@ export default function LandingPage({ onOpenLogin }) {
           </div>
         </section>
 
-        {/* ── SECTION 5: TRACK OR CALCULATE (Bankar Page 2 Bottom) ── */}
+        {/* ── SECTION 5: TRACK OR CALCULATE ── */}
         <section id="tracking-section" style={{
           minHeight: "80vh",
           position: "relative",
@@ -606,7 +636,7 @@ export default function LandingPage({ onOpenLogin }) {
             left: 0,
             right: 0,
             bottom: 0,
-            background: "#090e1a", // Deep dark background
+            background: "#090e1a",
             zIndex: 2
           }} />
 
@@ -631,7 +661,7 @@ export default function LandingPage({ onOpenLogin }) {
                   Track or Calculate your shipments
                 </h2>
                 
-                {/* Custom toggle buttons */}
+                {/* Toggle buttons */}
                 <div style={{ display: "flex", gap: "10px", marginTop: "30px" }}>
                   <button
                     onClick={() => setBottomWidgetTab("track")}
@@ -762,18 +792,245 @@ export default function LandingPage({ onOpenLogin }) {
           </div>
         </section>
 
+        {/* ── SECTION 6: EXPLORE ALL CONTAINERS FACILITIES (New!) ── */}
+        <section style={{
+          padding: "100px 40px",
+          background: "#ffffff",
+          color: "#0f172a",
+          boxSizing: "border-box"
+        }}>
+          <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
+            
+            {/* Header row */}
+            <div style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              marginBottom: "40px"
+            }}>
+              <h2 style={{ fontSize: "38px", fontWeight: "950", color: "#0f172a", margin: 0 }}>
+                Explore all containers facilities
+              </h2>
+              <button style={{
+                background: "transparent",
+                border: "1.5px solid #e2e8f0",
+                padding: "10px 24px",
+                borderRadius: "24px",
+                fontSize: "13px",
+                fontWeight: "800",
+                color: "#0f172a",
+                cursor: "pointer"
+              }}>
+                See All
+              </button>
+            </div>
+
+            {/* Grid of 3 Facility Cards */}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "24px" }} className="responsive-grid-landing">
+              
+              {/* Card 1 */}
+              <div style={{ border: "1.5px solid #e2e8f0", borderRadius: "24px", overflow: "hidden", background: "#ffffff" }}>
+                <img src="/boraq_container.jpg" style={{ width: "100%", height: "220px", objectFit: "cover" }} />
+                <div style={{ padding: "20px", textAlign: "left" }}>
+                  <h4 style={{ fontSize: "16px", fontWeight: "850", margin: "0 0 6px 0" }}>40ft Flat Rack Container</h4>
+                  <span style={{ fontSize: "14px", fontWeight: "900", color: "#ff6b00" }}>$3,170 <span style={{ fontSize: "12px", color: "#64748b", fontWeight: "600" }}>/ year</span></span>
+                </div>
+              </div>
+
+              {/* Card 2 */}
+              <div style={{ border: "1.5px solid #ff6b00", borderRadius: "24px", overflow: "hidden", background: "#ffffff", position: "relative" }}>
+                <img src="/boraq_crane_lift.jpg" style={{ width: "100%", height: "220px", objectFit: "cover" }} />
+                <div style={{ padding: "20px", textAlign: "left", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <div>
+                    <h4 style={{ fontSize: "16px", fontWeight: "850", margin: "0 0 6px 0" }}>20ft Open Top Container</h4>
+                    <span style={{ fontSize: "14px", fontWeight: "900", color: "#ff6b00" }}>$2,870 <span style={{ fontSize: "12px", color: "#64748b", fontWeight: "600" }}>/ year</span></span>
+                  </div>
+                  <span style={{ width: "32px", height: "32px", borderRadius: "50%", background: "#ff6b00", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: "900" }}>➔</span>
+                </div>
+              </div>
+
+              {/* Card 3 */}
+              <div style={{ border: "1.5px solid #e2e8f0", borderRadius: "24px", overflow: "hidden", background: "#ffffff" }}>
+                <img src="/boraq_warehouse.jpg" style={{ width: "100%", height: "220px", objectFit: "cover" }} />
+                <div style={{ padding: "20px", textAlign: "left" }}>
+                  <h4 style={{ fontSize: "16px", fontWeight: "850", margin: "0 0 6px 0" }}>40ft Reefer Container</h4>
+                  <span style={{ fontSize: "14px", fontWeight: "900", color: "#ff6b00" }}>$3,820 <span style={{ fontSize: "12px", color: "#64748b", fontWeight: "600" }}>/ year</span></span>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </section>
+
+        {/* ── SECTION 7: LET US DELIVER YOUR PACKAGE (New!) ── */}
+        <section style={{
+          padding: "80px 40px",
+          background: "#fff9f6", // Warm gradient background matching screenshot
+          textAlign: "center",
+          borderTop: "1px solid #f2e2dc"
+        }}>
+          <div style={{ maxWidth: "800px", margin: "0 auto" }}>
+            <h2 style={{ fontSize: "38px", fontWeight: "950", color: "#0f172a", margin: "0 0 24px 0" }}>
+              Let Us Deliver Your Package To Its Destination
+            </h2>
+            <div style={{ display: "flex", justifyContent: "center", gap: "16px" }}>
+              <button
+                onClick={() => { setActiveTab("simulator"); setShowToolModal(true); }}
+                style={{
+                  background: "#ff6b00",
+                  color: "#ffffff",
+                  border: "none",
+                  padding: "14px 32px",
+                  borderRadius: "30px",
+                  fontWeight: "800",
+                  cursor: "pointer",
+                  boxShadow: "0 4px 15px rgba(255,107,0,0.3)"
+                }}
+              >
+                Order Now
+              </button>
+              <button
+                onClick={() => { setActiveTab("tracking"); setShowToolModal(true); }}
+                style={{
+                  background: "transparent",
+                  border: "1.5px solid #0f172a",
+                  color: "#0f172a",
+                  padding: "14px 32px",
+                  borderRadius: "30px",
+                  fontWeight: "800",
+                  cursor: "pointer"
+                }}
+              >
+                Contact Us
+              </button>
+            </div>
+          </div>
+        </section>
+
       </main>
 
-      {/* ── FOOTER ── */}
+      {/* ── SECTION 8: FULL PREMIUM FOOTER (New!) ── */}
       <footer style={{
-        padding: "40px 0 20px 0",
-        textAlign: "center",
-        borderTop: "1px solid #e2e8f0",
-        fontSize: "12px",
-        color: "#64748b",
-        background: "#f8fafc"
+        background: "#090e1a",
+        color: "#ffffff",
+        padding: "80px 80px 40px 80px",
+        boxSizing: "border-box",
+        position: "relative"
       }}>
-        © {new Date().getFullYear()} BORAQ. All rights reserved. International Transport Brokerage.
+        
+        {/* Foot top links row */}
+        <div style={{
+          display: "grid",
+          gridTemplateColumns: "1.5fr 1fr 1fr 1.5fr",
+          gap: "40px",
+          borderBottom: "1px solid rgba(255,255,255,0.06)",
+          paddingBottom: "60px",
+          marginBottom: "40px"
+        }} className="responsive-grid-landing">
+          
+          {/* Column 1: Brand details */}
+          <div style={{ textAlign: "left" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "20px" }}>
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="#ff6b00">
+                <circle cx="12" cy="12" r="10" stroke="#ff6b00" strokeWidth="2" fill="none" />
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" fill="#ff6b00" />
+              </svg>
+              <span style={{ fontSize: "22px", fontWeight: "950", color: "#ffffff", letterSpacing: "-0.04em" }}>Boraq.</span>
+            </div>
+            <p style={{ fontSize: "13px", color: "#94a3b8", lineHeight: 1.6, maxWidth: "260px" }}>
+              Your cargo - our responsibility. Direct logistics route connects between Morocco and Europe terminals.
+            </p>
+          </div>
+
+          {/* Column 2: Company */}
+          <div style={{ textAlign: "left" }}>
+            <h5 style={{ fontSize: "14px", fontWeight: "800", color: "#ffffff", margin: "0 0 20px 0", textTransform: "uppercase", letterSpacing: "1px" }}>Company</h5>
+            <div style={{ display: "flex", flexDirection: "column", gap: "10px", fontSize: "13px", color: "#94a3b8" }}>
+              <span style={{ cursor: "pointer" }}>About Us</span>
+              <span style={{ cursor: "pointer" }}>Services</span>
+              <span style={{ cursor: "pointer" }}>Locations</span>
+              <span style={{ cursor: "pointer" }}>Review</span>
+            </div>
+          </div>
+
+          {/* Column 3: Product */}
+          <div style={{ textAlign: "left" }}>
+            <h5 style={{ fontSize: "14px", fontWeight: "800", color: "#ffffff", margin: "0 0 20px 0", textTransform: "uppercase", letterSpacing: "1px" }}>Product</h5>
+            <div style={{ display: "flex", flexDirection: "column", gap: "10px", fontSize: "13px", color: "#94a3b8" }}>
+              <span style={{ cursor: "pointer" }}>Flat Rack</span>
+              <span style={{ cursor: "pointer" }}>Open Top</span>
+              <span style={{ cursor: "pointer" }}>Reefer</span>
+              <span style={{ cursor: "pointer" }}>Dry Container</span>
+            </div>
+          </div>
+
+          {/* Column 4: Newsletter */}
+          <div style={{ textAlign: "left" }}>
+            <h5 style={{ fontSize: "14px", fontWeight: "800", color: "#ffffff", margin: "0 0 20px 0", textTransform: "uppercase", letterSpacing: "1px" }}>Join our newsletter</h5>
+            <div style={{
+              display: "flex",
+              alignItems: "center",
+              background: "rgba(255,255,255,0.05)",
+              border: "1px solid rgba(255,255,255,0.1)",
+              borderRadius: "24px",
+              padding: "4px 6px 4px 18px",
+              marginBottom: "20px"
+            }}>
+              <input
+                type="email"
+                placeholder="Your email address"
+                style={{ border: "none", background: "transparent", outline: "none", color: "#ffffff", fontSize: "13px", width: "100%" }}
+              />
+              <button style={{
+                background: "#ff6b00",
+                border: "none",
+                width: "36px",
+                height: "36px",
+                borderRadius: "50%",
+                cursor: "pointer",
+                color: "#ffffff",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center"
+              }}>➔</button>
+            </div>
+
+            {/* Social Icons row */}
+            <div style={{ display: "flex", gap: "14px" }}>
+              <span style={{ cursor: "pointer", color: "#94a3b8" }}>🌐</span>
+              <span style={{ cursor: "pointer", color: "#94a3b8" }}>💬</span>
+              <span style={{ cursor: "pointer", color: "#94a3b8" }}>💼</span>
+              <span style={{ cursor: "pointer", color: "#94a3b8" }}>📷</span>
+            </div>
+          </div>
+
+        </div>
+
+        {/* Foot copyright */}
+        <div style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          fontSize: "12px",
+          color: "#64748b"
+        }}>
+          <span>© {new Date().getFullYear()} BORAQ. All rights reserved.</span>
+          <span>Terms & Conditions | Privacy Policy</span>
+        </div>
+
+        {/* Faint watermark graphic background */}
+        <div style={{
+          position: "absolute",
+          bottom: 0,
+          left: 0,
+          right: 0,
+          height: "150px",
+          backgroundImage: "url('/boraq_ship.jpg')",
+          backgroundSize: "cover",
+          backgroundPosition: "center bottom",
+          opacity: 0.05,
+          pointerEvents: "none"
+        }} />
       </footer>
 
       {/* ── POPUP TOOL MODAL OVERLAY (For Floating quick access if needed) ── */}
