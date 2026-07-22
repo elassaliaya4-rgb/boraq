@@ -198,8 +198,37 @@ export default function LandingPage({ onOpenLogin }) {
         }}>
           
           {/* WHITE TOP PORTION */}
-          <div className="section-hero-white">
+          <div className="section-hero-white" style={{ position: "relative", overflow: "hidden" }}>
+            {/* Parallax Triptych Background */}
             <div style={{
+              position: "absolute",
+              top: "-15%",
+              left: 0,
+              right: 0,
+              bottom: "-15%",
+              backgroundImage: "url('boraq_promise.jpg')",
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              transform: `translateY(${scrollY * 0.12}px)`,
+              zIndex: 1,
+              pointerEvents: "none"
+            }} />
+            {/* Soft semi-transparent frosted-glass overlay for readability */}
+            <div style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: "rgba(255, 255, 255, 0.90)",
+              backdropFilter: "blur(6px)",
+              zIndex: 2,
+              pointerEvents: "none"
+            }} />
+
+            <div style={{
+              position: "relative",
+              zIndex: 10,
               display: "flex",
               alignItems: "center",
               justifyContent: "space-between",
