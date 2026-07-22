@@ -230,13 +230,13 @@ export default function LandingPage({ onOpenLogin }) {
           position: "absolute",
           top: "10px",
           left: "50%",
-          transform: `translateX(-50%) translateY(${scrollY * 0.25}px) scale(${1 + scrollY * 0.0003})`,
+          transform: `translateX(-50%) translateY(${scrollY * 0.1}px) rotate(${scrollY * 0.03}deg) scale(${1 + scrollY * 0.0006})`,
           width: "100%",
           maxWidth: "920px",
           zIndex: 1,
           opacity: 0.75,
           pointerEvents: "none",
-          transition: "transform 0.1s ease-out"
+          transition: "transform 0.8s cubic-bezier(0.1, 0.9, 0.2, 1)"
         }}>
           <img src="/boraq_plane.jpg" className="hero-floating-visual" alt="Air Cargo Delivery" style={{
             width: "100%",
