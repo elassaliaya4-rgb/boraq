@@ -10,6 +10,22 @@ export default function LandingPage({ onOpenLogin }) {
   const [activeTab, setActiveTab] = useState("tracking");
   const [showToolModal, setShowToolModal] = useState(false);
 
+  // 3D container tilt mouse states
+  const [tilt, setTilt] = useState({ x: 0, y: 0 });
+  const [isHovered, setIsHovered] = useState(false);
+
+  const handleMouseMove = (e) => {
+    const card = e.currentTarget;
+    const box = card.getBoundingClientRect();
+    const x = e.clientX - box.left;
+    const y = e.clientY - box.top;
+    const centerX = box.width / 2;
+    const centerY = box.height / 2;
+    const rotateX = -(y - centerY) / 6; // Real-time 3D tilt sensitivity
+    const rotateY = (x - centerX) / 6;
+    setTilt({ x: rotateX, y: rotateY });
+  };
+
   // Scroll Position for header animations
   const [scrollY, setScrollY] = useState(0);
 
@@ -132,11 +148,11 @@ export default function LandingPage({ onOpenLogin }) {
         </div>
 
         {/* Links */}
-        <div style={{ display: "flex", gap: "24px", fontSize: "13px", fontWeight: "800", color: "#64748b" }} className="desktop-only-table">
-          <a href="#services" style={{ textDecoration: "none", color: "inherit" }}>{isAr ? "الخدمات" : "Services"}</a>
-          <a href="#powering" style={{ textDecoration: "none", color: "inherit" }}>{isAr ? "مزايانا" : "Powering"}</a>
-          <a href="#agencies" style={{ textDecoration: "none", color: "inherit" }}>{isAr ? "فروعنا" : "Locations"}</a>
-          <a href="#tracking-section" style={{ textDecoration: "none", color: "inherit" }}>{isAr ? "التتبع" : "Track Cargo"}</a>
+        <div style={{ display: "flex", alignItems: "center", fontSize: "13px", fontWeight: "800", color: "#64748b" }} className="desktop-only-table">
+          <a href="#services" style={{ textDecoration: "none", color: "inherit", margin: "0 12px" }}>{isAr ? "الخدمات" : "Services"}</a>
+          <a href="#powering" style={{ textDecoration: "none", color: "inherit", margin: "0 12px" }}>{isAr ? "مزايانا" : "Powering"}</a>
+          <a href="#agencies" style={{ textDecoration: "none", color: "inherit", margin: "0 12px" }}>{isAr ? "فروعنا" : "Locations"}</a>
+          <a href="#tracking-section" style={{ textDecoration: "none", color: "inherit", margin: "0 12px" }}>{isAr ? "التتبع" : "Track Cargo"}</a>
         </div>
 
         {/* Brand & Language actions */}
@@ -209,24 +225,25 @@ export default function LandingPage({ onOpenLogin }) {
                   <span>Maroc - Europe</span>
                 </div>
 
-                {/* Pickup & destination search bar */}
                 <div style={{
                   display: "flex",
                   alignItems: "center",
                   background: "#ffffff",
                   borderRadius: "30px",
-                  padding: "8px 12px 8px 24px",
+                  padding: "8px 16px",
                   boxShadow: "0 15px 35px rgba(0,0,0,0.06)",
                   border: "1.5px solid #e2e8f0",
                   gap: "10px",
-                  maxWidth: "460px"
+                  maxWidth: "460px",
+                  width: "100%",
+                  boxSizing: "border-box"
                 }}>
                   <input
                     type="text"
                     value={pickupCity}
                     onChange={e => setPickupCity(e.target.value)}
                     placeholder={isAr ? "منين باغي تصيفط؟" : "Pickup location"}
-                    style={{ border: "none", outline: "none", fontSize: "14px", width: "160px", color: "#1e293b", fontWeight: "700" }}
+                    style={{ border: "none", outline: "none", fontSize: "14px", flex: 1, minWidth: "100px", color: "#1e293b", fontWeight: "700" }}
                   />
                   <div style={{ width: "1px", height: "24px", background: "#e2e8f0" }} />
                   <input
@@ -234,7 +251,7 @@ export default function LandingPage({ onOpenLogin }) {
                     value={destCity}
                     onChange={e => setDestCity(e.target.value)}
                     placeholder={isAr ? "لفين باغي توصل؟" : "Destination location"}
-                    style={{ border: "none", outline: "none", fontSize: "14px", width: "160px", color: "#1e293b", fontWeight: "700" }}
+                    style={{ border: "none", outline: "none", fontSize: "14px", flex: 1, minWidth: "100px", color: "#1e293b", fontWeight: "700" }}
                   />
                   <button
                     onClick={() => { setActiveTab("simulator"); setShowToolModal(true); }}
@@ -257,11 +274,20 @@ export default function LandingPage({ onOpenLogin }) {
                 </div>
               </div>
 
-              {/* Right angled floating 3D container illustration */}
-              <div className="hero-visual-wrapper" style={{
-                transform: `translateY(${scrollY * 0.1}px)`,
-                transition: "transform 0.1s ease-out"
-              }}>
+              {/* Right angled floating 3D container illustration with mouse tilt rotation */}
+              <div
+                className="hero-visual-wrapper"
+                onMouseMove={handleMouseMove}
+                onMouseEnter={() => setIsHovered(true)}
+                onMouseLeave={() => { setIsHovered(false); setTilt({ x: 0, y: 0 }); }}
+                style={{
+                  transform: isHovered 
+                    ? `perspective(1000px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg) scale3d(1.05, 1.05, 1.05) translateY(${scrollY * 0.05}px)`
+                    : `perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1) translateY(${scrollY * 0.05}px)`,
+                  transition: isHovered ? "transform 0.05s ease-out" : "transform 0.5s ease-out",
+                  cursor: "pointer"
+                }}
+              >
                 <img src="boraq_container.jpg" alt="Boraq Container" style={{
                   width: "100%",
                   objectFit: "contain",
