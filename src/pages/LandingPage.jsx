@@ -26,20 +26,6 @@ export default function LandingPage({ onOpenLogin }) {
   const [serviceType, setServiceType] = useState("express");
   const [estimatedPrice, setEstimatedPrice] = useState(null);
 
-  // Accordion active row state for "This is how we work"
-  const [activeAccordion, setActiveAccordion] = useState("strategy");
-
-  // Scroll Position for Parallax effect
-  const [scrollY, setScrollY] = useState(0);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrollY(window.scrollY);
-    };
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
   // Fetch agencies on mount
   useEffect(() => {
     async function fetchAgencies() {
@@ -73,7 +59,7 @@ export default function LandingPage({ onOpenLogin }) {
         .single();
 
       if (error || !data) {
-        setTrackError(isAr ? "لم نجد أي شحنة بهذا الرقم" : "Aucun envoi trouvé avec ce numéro");
+        setTrackError(isAr ? "لم نجد أي شحنة بهذا الرقم" : "Aucun envoi trouvé");
       } else {
         setTrackResult(data);
       }
@@ -95,17 +81,18 @@ export default function LandingPage({ onOpenLogin }) {
   const cities = Array.from(new Set(agencies.map(a => a.city).filter(Boolean)));
 
   return (
-    <div dir={isAr ? "rtl" : "ltr"} className="landing-page-wrapper" style={{
+    <div dir={isAr ? "rtl" : "ltr"} style={{
       minHeight: "100vh",
-      background: "#030712", // Pure premium Shiftler black background
-      color: "#ffffff",
-      fontFamily: "system-ui, -apple-system, sans-serif",
+      background: "#090e1a", // Deep slate-blue/black matching mockup background
+      color: "#e2e8f0",
+      fontFamily: "Inter, system-ui, -apple-system, sans-serif",
       margin: 0,
+      padding: "20px 40px",
       boxSizing: "border-box",
       overflowX: "hidden"
     }}>
       
-      {/* ── 1. NAVBAR (Shiftler Replica style) ── */}
+      {/* ── NAVBAR ── */}
       <header style={{
         display: "flex",
         alignItems: "center",
@@ -113,22 +100,23 @@ export default function LandingPage({ onOpenLogin }) {
         width: "100%",
         padding: "10px 0",
         borderBottom: "1px solid rgba(255,255,255,0.06)",
-        boxSizing: "border-box"
+        boxSizing: "border-box",
+        marginBottom: "30px"
       }}>
-        {/* Brand Logo with Animated Lightning bolt */}
+        {/* Brand Logo */}
         <div style={{ display: "flex", alignItems: "center", gap: "10px", cursor: "pointer" }} onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
-          <svg className="logo-lightning-bolt" width="26" height="26" viewBox="0 0 24 24" fill="#3b82f6">
+          <svg className="logo-lightning-bolt" width="24" height="24" viewBox="0 0 24 24" fill="#3b82f6">
             <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
           </svg>
           <div>
-            <div className="logo-text-shift" style={{ fontSize: "24px", fontWeight: "900", letterSpacing: "-0.04em", lineHeight: "1" }}>Boraq</div>
-            <div style={{ fontSize: "10px", color: "#9ca3af", fontWeight: "600", marginTop: "2px" }}>
-              {isAr ? "نقل البضائع الدولي" : "International Freight"}
+            <div className="logo-text-shift" style={{ fontSize: "22px", fontWeight: "900", letterSpacing: "-0.04em", lineHeight: "1" }}>Boraq</div>
+            <div style={{ fontSize: "10px", color: "#94a3b8", fontWeight: "600", marginTop: "2px" }}>
+              {isAr ? "شحن دولي لوجستي" : "Transport & Logistics"}
             </div>
           </div>
         </div>
 
-        {/* Menu Links */}
+        {/* Central Nav Links */}
         <nav className="desktop-nav" style={{
           display: "flex",
           alignItems: "center",
@@ -136,65 +124,48 @@ export default function LandingPage({ onOpenLogin }) {
           fontSize: "13px",
           fontWeight: "700"
         }}>
-          <a href="#services-grid" style={{ color: "#ffffff", textDecoration: "none" }}>{isAr ? "الخدمات" : "Services"}</a>
           <button
             onClick={() => { setActiveTab("tracking"); setShowToolModal(true); }}
-            style={{ background: "transparent", color: "#9ca3af", border: "none", cursor: "pointer", fontWeight: "700", fontSize: "13px" }}
+            style={{ background: "transparent", color: "#94a3b8", border: "none", cursor: "pointer", fontWeight: "700" }}
           >
             {isAr ? "تتبع الشحنات" : "Suivi Cargo"}
           </button>
           <button
             onClick={() => { setActiveTab("agencies"); setShowToolModal(true); }}
-            style={{ background: "transparent", color: "#9ca3af", border: "none", cursor: "pointer", fontWeight: "700", fontSize: "13px" }}
+            style={{ background: "transparent", color: "#94a3b8", border: "none", cursor: "pointer", fontWeight: "700" }}
           >
-            {isAr ? "الشبكة والوكالات" : "Réseau National"}
+            {isAr ? "وكالاتنا" : "Nos agences"}
           </button>
           <button
             onClick={() => { setActiveTab("simulator"); setShowToolModal(true); }}
-            style={{ background: "transparent", color: "#9ca3af", border: "none", cursor: "pointer", fontWeight: "700", fontSize: "13px" }}
+            style={{ background: "transparent", color: "#94a3b8", border: "none", cursor: "pointer", fontWeight: "700" }}
           >
-            {isAr ? "الأسعار" : "Tarifs"}
+            {isAr ? "الأسعار" : "Simulation"}
           </button>
           <button
             onClick={() => setLang(isAr ? "fr" : "ar")}
-            style={{ background: "transparent", color: "#9ca3af", border: "none", cursor: "pointer", fontWeight: "700", fontSize: "13px" }}
+            style={{ background: "transparent", color: "#94a3b8", border: "none", cursor: "pointer", fontWeight: "700" }}
           >
             {isAr ? "Français" : "العربية"}
           </button>
         </nav>
 
-        {/* Right Call & Track actions */}
-        <div style={{ display: "flex", alignItems: "center", gap: "20px", fontSize: "13px" }}>
-          <span style={{ color: "#9ca3af" }} className="desktop-only-table">
-            📞 {isAr ? "اتصل بنا: " : "Call Us On: "} <b>+212 522 000 000</b>
+        {/* Right CTA Actions */}
+        <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+          <span style={{ fontSize: "13px", color: "#94a3b8" }} className="desktop-only-table">
+            📞 +212 522 000 000
           </span>
-
-          <button
-            onClick={() => { setActiveTab("tracking"); setShowToolModal(true); }}
-            style={{
-              background: "#3b82f6",
-              color: "#ffffff",
-              border: "none",
-              padding: "8px 20px",
-              borderRadius: "20px",
-              fontWeight: "800",
-              cursor: "pointer",
-              boxShadow: "0 4px 15px rgba(59,130,246,0.3)"
-            }}
-          >
-            {isAr ? "تتبع الآن" : "Track Now"}
-          </button>
-
           <button
             onClick={onOpenLogin}
             style={{
-              background: "rgba(255,255,255,0.06)",
-              border: "1px solid rgba(255,255,255,0.12)",
+              background: "#3b82f6",
+              border: "none",
               color: "#ffffff",
-              padding: "8px 18px",
+              padding: "8px 20px",
               borderRadius: "20px",
               fontWeight: "700",
-              cursor: "pointer"
+              cursor: "pointer",
+              boxShadow: "0 2px 10px rgba(59,130,246,0.3)"
             }}
           >
             {isAr ? "فضاء الخدامة" : "Espace Pro"}
@@ -202,362 +173,293 @@ export default function LandingPage({ onOpenLogin }) {
         </div>
       </header>
 
-      {/* ── 2. HERO AREA (Be Globally Connected - Parallax Behind Typography) ── */}
-      <section style={{
-        padding: "120px 0 100px 0",
-        textAlign: "center",
-        position: "relative",
-        overflow: "visible"
-      }}>
-        {/* Main Title positioned in foreground */}
-        <h1 style={{
-          fontSize: "clamp(46px, 8vw, 100px)",
-          fontWeight: "900",
-          color: "#ffffff",
-          margin: "0 auto 40px auto",
-          letterSpacing: "-0.04em",
-          lineHeight: "0.95",
-          position: "relative",
-          zIndex: 10,
-          textShadow: "0 4px 30px rgba(0,0,0,0.9)",
-          maxWidth: "850px"
-        }}>
-          {isAr ? "كن متصلاً بالعالم" : "Be Globally Connected"}
-        </h1>
-
-        {/* Airplane Hero Visual positioned absolutely BEHIND heading */}
+      {/* ── 6-SLIDES COHESIVE PRESENTATION GRID (Replica of the mockup) ── */}
+      <main style={{
+        display: "grid",
+        gridTemplateColumns: "repeat(auto-fit, minmax(480px, 1fr))",
+        gap: "24px",
+        width: "100%",
+        boxSizing: "border-box"
+      }} className="responsive-grid-landing">
+        
+        {/* ── SLIDE 1: HERO / COVER PANEL ── */}
         <div style={{
-          position: "absolute",
-          top: "10px",
-          left: "50%",
-          transform: `translateX(-50%) translateY(${scrollY * 0.1}px) rotate(${scrollY * 0.03}deg) scale(${1 + scrollY * 0.0006})`,
-          width: "100%",
-          maxWidth: "920px",
-          zIndex: 1,
-          opacity: 0.75,
-          pointerEvents: "none",
-          transition: "transform 0.8s cubic-bezier(0.1, 0.9, 0.2, 1)"
-        }}>
-          <img src="/boraq_plane.jpg" className="hero-floating-visual" alt="Air Cargo Delivery" style={{
-            width: "100%",
-            borderRadius: "24px",
-            boxShadow: "0 20px 60px rgba(0,0,0,0.8)",
-            filter: "brightness(0.65)"
-          }} />
+          height: "360px",
+          borderRadius: "16px",
+          overflow: "hidden",
+          position: "relative",
+          boxShadow: "0 10px 30px rgba(0,0,0,0.5)",
+          border: "1px solid rgba(255,255,255,0.06)"
+        }} className="tilt-card-3d">
+          <img src="/boraq_truck.jpg" style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.4 }} />
+          
+          {/* Header elements inside slide */}
+          <div style={{ position: "absolute", top: "20px", left: "20px", right: "20px", display: "flex", justifyContent: "space-between", fontSize: "11px", color: "#94a3b8" }}>
+            <span>{isAr ? "الوكالات المعتمدة" : "Ain Sebaa, Casablanca"}</span>
+            <span>+212 522 000 000</span>
+          </div>
 
-          {/* Overlay left paragraph block */}
           <div style={{
             position: "absolute",
-            bottom: "20px",
-            left: "20px",
-            maxWidth: "280px",
-            textAlign: "left",
-            background: "rgba(3,7,18,0.75)",
-            backdropFilter: "blur(8px)",
-            padding: "16px",
-            borderRadius: "12px",
-            border: "1px solid rgba(255,255,255,0.08)",
-            pointerEvents: "auto"
-          }} className="desktop-only-table">
-            <p style={{ fontSize: "11px", color: "#9ca3af", margin: 0, lineHeight: 1.5 }}>
+            bottom: "30px",
+            left: "30px",
+            right: "30px",
+            textAlign: isAr ? "right" : "left"
+          }}>
+            {/* Slide Logo */}
+            <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "14px" }}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="#3b82f6">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+              </svg>
+              <span style={{ fontSize: "20px", fontWeight: "900", color: "#ffffff", letterSpacing: "-0.03em" }}>Boraq</span>
+              <span style={{ fontSize: "10px", color: "#94a3b8", fontWeight: "700" }}>Transport & Logistics</span>
+            </div>
+            
+            <h2 style={{ fontSize: "24px", fontWeight: "800", color: "#ffffff", margin: 0 }}>
+              {isAr ? "حمولتكم، مسؤوليتنا" : "Votre cargaison, notre responsabilité"}
+            </h2>
+          </div>
+        </div>
+
+        {/* ── SLIDE 2: ABOUT US PANEL ── */}
+        <div style={{
+          height: "360px",
+          borderRadius: "16px",
+          overflow: "hidden",
+          position: "relative",
+          boxShadow: "0 10px 30px rgba(0,0,0,0.5)",
+          border: "1px solid rgba(255,255,255,0.06)",
+          padding: "30px",
+          boxSizing: "border-box",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "space-between",
+          textAlign: isAr ? "right" : "left"
+        }} className="tilt-card-3d">
+          <img src="/boraq_ship.jpg" style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.15, position: "absolute", top: 0, left: 0, zIndex: 1 }} />
+          
+          <div style={{ zIndex: 2, position: "relative" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "12px", color: "#3b82f6", fontWeight: "800", textTransform: "uppercase", marginBottom: "10px" }}>
+              <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#3b82f6" }} />
+              {isAr ? "من نحن" : "À propos de nous"}
+            </div>
+            
+            <h3 style={{ fontSize: "24px", fontWeight: "800", color: "#ffffff", margin: "0 0 16px 0" }}>
+              {isAr ? "ضمان الموثوقية والدقة اللوجستية" : "Garant de confiance & précision"}
+            </h3>
+            
+            <p style={{ fontSize: "13px", color: "#94a3b8", lineHeight: 1.6, margin: 0, maxWidth: "440px" }}>
               {isAr
-                ? "شحن جوي وبحري سريع من المغرب نحو كافة الدول الأوروبية. خدمة شحن الحمولات والمعدات الصناعية والسلع بدقة متناهية."
-                : "Fast international cargo transit from Morocco to European destinations. Ensuring high-priority delivery and secure handling."}
+                ? "لأكثر من 10 سنوات، تعمل البراق كشريك معتمد لوجستياً بين المغرب وأوروبا لنقل حمولات البضائع والحلول التجارية المتكاملة والآمنة."
+                : "Depuis plus de 10 ans, Boraq assure des liaisons logistiques quotidiennes entre le Maroc et l'Europe pour le transport de marchandises industrielles."}
             </p>
           </div>
 
-        </div>
-
-        {/* Dynamic spacer pushing content below the absolute positioned airplane */}
-        <div style={{
-          position: "relative",
-          zIndex: 10,
-          marginTop: "440px"
-        }}>
-          <div style={{ fontSize: "16px", fontWeight: "700", color: "#9ca3af", textTransform: "uppercase", letterSpacing: "0.15em" }}>
-            {isAr ? "شحن جوي ودولي سريع" : "Fast International Air & Land Delivery"}
+          <div style={{ zIndex: 2, position: "relative", fontSize: "11px", color: "#64748b" }}>
+            BORAQ LOGISTICS INTERNATIONAL
           </div>
         </div>
-      </section>
 
-      {/* ── 3. MIDDLE BRAND VALUE PROPOSITION (Change & Anticipate) ── */}
-      <section style={{
-        padding: "60px 0",
-        textAlign: "center",
-        maxWidth: "800px",
-        margin: "0 auto",
-        borderTop: "1px solid rgba(255,255,255,0.06)"
-      }}>
-        <h2 style={{
-          fontSize: "clamp(22px, 3.5vw, 36px)",
-          fontWeight: "800",
-          color: "#ffffff",
-          lineHeight: "1.4",
-          margin: "0 0 20px 0"
-        }}>
-          {isAr ? "لا نتكيف مع التغيير، بل نتوقعه! 💡" : "We don't adapt to change, we anticipate it! 💡"}
-        </h2>
-        <p style={{
-          fontSize: "18px",
-          color: "#9ca3af",
-          lineHeight: "1.6",
-          margin: "0 0 30px 0"
-        }}>
-          {isAr ? "حلولنا اللوجستية الرقمية تربط تجارتك وشحناتك دولياً بـ أمان وسلاسة." : "Our digital solutions have transformed brands and empowered businesses "}
-          <span style={{ color: "#6366f1", fontWeight: "800" }}>{isAr ? "عالمياً. 🚀" : "globally. 🚀"}</span>
-        </p>
-
-        {/* 4 Rounded Pills */}
-        <div style={{ display: "flex", gap: "10px", justifyContent: "center", flexWrap: "wrap" }}>
-          {["Professional", "Affordable", "Modern", "Trustworthy"].map(p => (
-            <span key={p} style={{
-              background: "rgba(255,255,255,0.04)",
-              border: "1px solid rgba(255,255,255,0.08)",
-              color: "#d1d5db",
-              padding: "6px 16px",
-              borderRadius: "20px",
-              fontSize: "12px",
-              fontWeight: "700"
-            }}>{p}</span>
-          ))}
-        </div>
-      </section>
-
-      {/* ── 4. VERTICAL SERVICES GRID SECTION (SERVICES Backdrop) ── */}
-      <section id="services-grid" style={{
-        padding: "80px 0",
-        position: "relative"
-      }}>
-        {/* Massive backdrop text SERVICE */}
+        {/* ── SLIDE 3: ENGAGEMENTS / TRUST PANEL ── */}
         <div style={{
-          position: "absolute",
-          top: "40px",
-          left: "50%",
-          transform: "translateX(-50%)",
-          fontSize: "clamp(80px, 15vw, 190px)",
-          fontWeight: "900",
-          color: "rgba(255,255,255,0.02)",
-          letterSpacing: "0.1em",
-          userSelect: "none",
-          zIndex: 1
-        }}>
-          SERVICE
-        </div>
-
-        {/* The Grid of 4 vertical cards */}
-        <div style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-          gap: "20px",
+          height: "360px",
+          borderRadius: "16px",
+          overflow: "hidden",
           position: "relative",
-          zIndex: 2,
-          maxWidth: "1100px",
-          margin: "0 auto"
-        }} className="responsive-grid-landing">
+          boxShadow: "0 10px 30px rgba(0,0,0,0.5)",
+          border: "1px solid rgba(255,255,255,0.06)",
+          padding: "30px",
+          boxSizing: "border-box",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "space-between",
+          textAlign: isAr ? "right" : "left"
+        }} className="tilt-card-3d">
+          <img src="/boraq_train.jpg" style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.15, position: "absolute", top: 0, left: 0, zIndex: 1 }} />
           
-          {/* Card 1: Rail Freight */}
-          <div className="tilt-card-3d" style={{
-            height: "380px",
-            borderRadius: "16px",
-            overflow: "hidden",
-            position: "relative",
-            boxShadow: "0 15px 35px rgba(0,0,0,0.5)",
-            border: "1px solid rgba(255,255,255,0.08)",
-            cursor: "pointer"
-          }}>
-            <img src="/boraq_train.jpg" style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.8 }} />
-            <div style={{
-              position: "absolute",
-              bottom: 0,
-              left: 0,
-              right: 0,
-              height: "45%",
-              background: "linear-gradient(to top, rgba(3,7,18,0.95) 0%, transparent 100%)",
-              display: "flex",
-              alignItems: "flex-end",
-              padding: "20px",
-              boxSizing: "border-box"
-            }}>
+          <div style={{ zIndex: 2, position: "relative" }}>
+            <h3 style={{ fontSize: "20px", fontWeight: "800", color: "#ffffff", margin: "0 0 18px 0" }}>
+              {isAr ? "لماذا يثق بنا العملاء؟" : "Pourquoi nous faire confiance?"}
+            </h3>
+
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", fontSize: "12px" }}>
               <div>
-                <div style={{ fontSize: "11px", color: "#3b82f6", fontWeight: "800", textTransform: "uppercase", letterSpacing: "1.5px", marginBottom: "4px" }}>
-                  Boraq Logistics
-                </div>
-                <div style={{ fontSize: "20px", fontWeight: "900", color: "#ffffff" }}>
-                  Rail Freight
-                </div>
+                <div style={{ fontWeight: "800", color: "#3b82f6", marginBottom: "4px" }}>{isAr ? "أسعار معقولة" : "Prix abordable"}</div>
+                <div style={{ color: "#94a3b8" }}>{isAr ? "تعريفات تنافسية للغاية" : "Tarifs optimisés"}</div>
+              </div>
+              <div>
+                <div style={{ fontWeight: "800", color: "#3b82f6", marginBottom: "4px" }}>{isAr ? "سرعة التوصيل" : "Vitesse d'expédition"}</div>
+                <div style={{ color: "#94a3b8" }}>{isAr ? "التزام تام بالمواعيد" : "Respect strict des délais"}</div>
+              </div>
+              <div>
+                <div style={{ fontWeight: "800", color: "#3b82f6", marginBottom: "4px" }}>{isAr ? "تتبع ذكي" : "Suivi en temps réel"}</div>
+                <div style={{ color: "#94a3b8" }}>{isAr ? "تتبع فوري ومستمر" : "Traçabilité par code-barres"}</div>
+              </div>
+              <div>
+                <div style={{ fontWeight: "800", color: "#3b82f6", marginBottom: "4px" }}>{isAr ? "مرونة لوجستية" : "Haute flexibilité"}</div>
+                <div style={{ color: "#94a3b8" }}>{isAr ? "حلول نقل مخصصة" : "Flotte de véhicules adaptée"}</div>
               </div>
             </div>
           </div>
 
-          {/* Card 2: Air Freight */}
-          <div className="tilt-card-3d" style={{
-            height: "380px",
-            borderRadius: "16px",
-            overflow: "hidden",
-            position: "relative",
-            boxShadow: "0 15px 35px rgba(0,0,0,0.5)",
-            border: "1px solid rgba(255,255,255,0.08)",
-            cursor: "pointer"
-          }}>
-            <img src="/boraq_plane.jpg" style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.8 }} />
-            <div style={{
-              position: "absolute",
-              bottom: 0,
-              left: 0,
-              right: 0,
-              height: "45%",
-              background: "linear-gradient(to top, rgba(3,7,18,0.95) 0%, transparent 100%)",
-              display: "flex",
-              alignItems: "flex-end",
-              padding: "20px",
-              boxSizing: "border-box"
-            }}>
-              <div>
-                <div style={{ fontSize: "11px", color: "#3b82f6", fontWeight: "800", textTransform: "uppercase", letterSpacing: "1.5px", marginBottom: "4px" }}>
-                  Boraq Logistics
-                </div>
-                <div style={{ fontSize: "20px", fontWeight: "900", color: "#ffffff" }}>
-                  Air Freight
-                </div>
-              </div>
-            </div>
+          <div style={{ zIndex: 2, position: "relative", fontSize: "11px", color: "#3b82f6", fontWeight: "700" }}>
+            {isAr ? "موثوقية الشحن والتتبع ➔" : "Fiabilité de transport & traçabilité ➔"}
           </div>
-
-          {/* Card 3: Land Express */}
-          <div className="tilt-card-3d" style={{
-            height: "380px",
-            borderRadius: "16px",
-            overflow: "hidden",
-            position: "relative",
-            boxShadow: "0 15px 35px rgba(0,0,0,0.5)",
-            border: "1px solid rgba(255,255,255,0.08)",
-            cursor: "pointer"
-          }}>
-            <img src="/boraq_truck.jpg" style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.8 }} />
-            <div style={{
-              position: "absolute",
-              bottom: 0,
-              left: 0,
-              right: 0,
-              height: "45%",
-              background: "linear-gradient(to top, rgba(3,7,18,0.95) 0%, transparent 100%)",
-              display: "flex",
-              alignItems: "flex-end",
-              padding: "20px",
-              boxSizing: "border-box"
-            }}>
-              <div>
-                <div style={{ fontSize: "11px", color: "#3b82f6", fontWeight: "800", textTransform: "uppercase", letterSpacing: "1.5px", marginBottom: "4px" }}>
-                  Boraq Logistics
-                </div>
-                <div style={{ fontSize: "20px", fontWeight: "900", color: "#ffffff" }}>
-                  Land Express
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Card 4: Sea Freight */}
-          <div className="tilt-card-3d" style={{
-            height: "380px",
-            borderRadius: "16px",
-            overflow: "hidden",
-            position: "relative",
-            boxShadow: "0 15px 35px rgba(0,0,0,0.5)",
-            border: "1px solid rgba(255,255,255,0.08)",
-            cursor: "pointer"
-          }}>
-            <img src="/boraq_ship.jpg" style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.8 }} />
-            <div style={{
-              position: "absolute",
-              bottom: 0,
-              left: 0,
-              right: 0,
-              height: "45%",
-              background: "linear-gradient(to top, rgba(3,7,18,0.95) 0%, transparent 100%)",
-              display: "flex",
-              alignItems: "flex-end",
-              padding: "20px",
-              boxSizing: "border-box"
-            }}>
-              <div>
-                <div style={{ fontSize: "11px", color: "#3b82f6", fontWeight: "800", textTransform: "uppercase", letterSpacing: "1.5px", marginBottom: "4px" }}>
-                  Boraq Logistics
-                </div>
-                <div style={{ fontSize: "20px", fontWeight: "900", color: "#ffffff" }}>
-                  Sea Freight
-                </div>
-              </div>
-            </div>
-          </div>
-
-        </div>
-      </section>
-
-      {/* ── 5. HOW WE WORK SECTION (Accordion style) ── */}
-      <section style={{
-        padding: "60px 0",
-        maxWidth: "800px",
-        margin: "0 auto",
-        borderTop: "1px solid rgba(255,255,255,0.06)"
-      }}>
-        <div style={{ textAlign: "center", marginBottom: "40px" }}>
-          <h2 style={{ fontSize: "28px", fontWeight: "900", color: "#ffffff", margin: 0 }}>
-            {isAr ? "هكذا نعمل" : "This is how "}
-            <span style={{ color: "#3b82f6" }}>{isAr ? "بتميز" : "we work"}</span>
-          </h2>
         </div>
 
-        <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-          {/* Row 1: Strategy */}
-          <div
-            onClick={() => setActiveAccordion("strategy")}
-            style={{
-              padding: "24px 0",
-              borderBottom: "1px solid rgba(255,255,255,0.08)",
-              cursor: "pointer"
-            }}
-          >
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <span style={{ fontSize: "20px", fontWeight: "800", color: activeAccordion === "strategy" ? "#3b82f6" : "#ffffff" }}>
-                Strategy
-              </span>
-              <span>{activeAccordion === "strategy" ? "▲" : "▼"}</span>
+        {/* ── SLIDE 4: SERVICES / DESTINATIONS PANEL ── */}
+        <div style={{
+          height: "360px",
+          borderRadius: "16px",
+          overflow: "hidden",
+          position: "relative",
+          boxShadow: "0 10px 30px rgba(0,0,0,0.5)",
+          border: "1px solid rgba(255,255,255,0.06)",
+          padding: "30px",
+          boxSizing: "border-box",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "space-between",
+          textAlign: isAr ? "right" : "left"
+        }} className="tilt-card-3d">
+          <img src="/boraq_plane.jpg" style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.15, position: "absolute", top: 0, left: 0, zIndex: 1 }} />
+          
+          <div style={{ zIndex: 2, position: "relative" }}>
+            <h3 style={{ fontSize: "20px", fontWeight: "800", color: "#ffffff", margin: "0 0 16px 0" }}>
+              {isAr ? "خدمات النقل الدولي" : "Nos services logistiques"}
+            </h3>
+
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", fontSize: "12px" }}>
+              <div style={{ background: "rgba(255,255,255,0.03)", padding: "10px", borderRadius: "8px", border: "1px solid rgba(255,255,255,0.04)" }}>
+                <div style={{ fontWeight: "800", color: "#ffffff" }}>Transport FTL / LTL</div>
+                <span style={{ color: "#94a3b8" }}>{isAr ? "شحن حمولات كاملة ومجزأة" : "Camion complet et groupage"}</span>
+              </div>
+              <div style={{ background: "rgba(255,255,255,0.03)", padding: "10px", borderRadius: "8px", border: "1px solid rgba(255,255,255,0.04)" }}>
+                <div style={{ fontWeight: "800", color: "#ffffff" }}>Express Delivery</div>
+                <span style={{ color: "#94a3b8" }}>{isAr ? "توصيل سريع مستعجل" : "Expéditions prioritaires"}</span>
+              </div>
+              <div style={{ background: "rgba(255,255,255,0.03)", padding: "10px", borderRadius: "8px", border: "1px solid rgba(255,255,255,0.04)" }}>
+                <div style={{ fontWeight: "800", color: "#ffffff" }}>Multimodal Transit</div>
+                <span style={{ color: "#94a3b8" }}>{isAr ? "شحن بري بحري وجوي" : "Routier, mer et air combinés"}</span>
+              </div>
+              <div style={{ background: "rgba(255,255,255,0.03)", padding: "10px", borderRadius: "8px", border: "1px solid rgba(255,255,255,0.04)" }}>
+                <div style={{ fontWeight: "800", color: "#ffffff" }}>Outsourcing</div>
+                <span style={{ color: "#94a3b8" }}>{isAr ? "إدارة وتخزين لوجستي" : "Entreposage et logistique"}</span>
+              </div>
             </div>
-            {activeAccordion === "strategy" && (
-              <p style={{ fontSize: "14px", color: "#9ca3af", marginTop: "12px", lineHeight: "1.6", animation: "fadeInUp 0.3s ease" }}>
-                {isAr
-                  ? "نقوم بالتخطيط والتنسيق اللوجستي المسبق للشاحنات وخطوط الملاحة لضمان الوصول السريع وتقليل التكاليف الإدارية."
-                  : "We map optimal routing networks across borders, ensuring custom clearance documentation is processed ahead of departure."}
-              </p>
-            )}
           </div>
 
-          {/* Row 2: Reliability */}
-          <div
-            onClick={() => setActiveAccordion("reliability")}
-            style={{
-              padding: "24px 0",
-              borderBottom: "1px solid rgba(255,255,255,0.08)",
-              cursor: "pointer"
-            }}
-          >
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <span style={{ fontSize: "20px", fontWeight: "800", color: activeAccordion === "reliability" ? "#3b82f6" : "#ffffff" }}>
-                Reliability
-              </span>
-              <span>{activeAccordion === "reliability" ? "▲" : "▼"}</span>
-            </div>
-            {activeAccordion === "reliability" && (
-              <p style={{ fontSize: "14px", color: "#9ca3af", marginTop: "12px", lineHeight: "1.6", animation: "fadeInUp 0.3s ease" }}>
-                {isAr
-                  ? "التزام كامل بمواعيد التسليم المحددة وأمان الشحنات مع تغطية شاملة للتأمين وضمان التعويض."
-                  : "On-time cargo delivery with real-time GPS coordinates and verified proof of delivery scans at every hub."}
-              </p>
-            )}
+          <div style={{ zIndex: 2, position: "relative", fontSize: "11px", color: "#64748b" }}>
+            {isAr ? "نعمل بين المغرب وأوروبا" : "Réseau Maroc vers l'Europe"}
           </div>
         </div>
-      </section>
+
+        {/* ── SLIDE 5: CARGO TYPES PANEL ── */}
+        <div style={{
+          height: "360px",
+          borderRadius: "16px",
+          overflow: "hidden",
+          position: "relative",
+          boxShadow: "0 10px 30px rgba(0,0,0,0.5)",
+          border: "1px solid rgba(255,255,255,0.06)",
+          padding: "30px",
+          boxSizing: "border-box",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "space-between",
+          textAlign: isAr ? "right" : "left"
+        }} className="tilt-card-3d">
+          <img src="/boraq_ship.jpg" style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.15, position: "absolute", top: 0, left: 0, zIndex: 1 }} />
+          
+          <div style={{ zIndex: 2, position: "relative" }}>
+            <h3 style={{ fontSize: "20px", fontWeight: "800", color: "#ffffff", margin: "0 0 6px 0" }}>
+              {isAr ? "ننقل 99% من أنواع البضائع" : "Nous transportons 99% du fret"}
+            </h3>
+            <span style={{ fontSize: "11px", color: "#94a3b8" }}>
+              {isAr ? "تصنيف حمولات الشحن الصناعي والتجاري" : "Classification de chargement industriel"}
+            </span>
+
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "10px", marginTop: "18px" }}>
+              {["Liquide", "Dangereux", "Inflammable", "Fragile", "Lourd", "Vrac"].map(c => (
+                <div key={c} style={{
+                  background: "rgba(255,255,255,0.04)",
+                  border: "1px solid rgba(255,255,255,0.08)",
+                  padding: "12px 6px",
+                  borderRadius: "8px",
+                  textAlign: "center",
+                  fontSize: "12px",
+                  fontWeight: "700"
+                }}>
+                  {c}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div style={{ zIndex: 2, position: "relative", fontSize: "11px", color: "#64748b" }}>
+            COMPLIANCE ET NORMES INTERNATIONALES
+          </div>
+        </div>
+
+        {/* ── SLIDE 6: CONTACTS PANEL ── */}
+        <div style={{
+          height: "360px",
+          borderRadius: "16px",
+          overflow: "hidden",
+          position: "relative",
+          boxShadow: "0 10px 30px rgba(0,0,0,0.5)",
+          border: "1px solid rgba(255,255,255,0.06)",
+          padding: "30px",
+          boxSizing: "border-box",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "space-between",
+          textAlign: isAr ? "right" : "left"
+        }} className="tilt-card-3d">
+          <img src="/boraq_truck.jpg" style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.15, position: "absolute", top: 0, left: 0, zIndex: 1 }} />
+          
+          <div style={{ zIndex: 2, position: "relative" }}>
+            <h3 style={{ fontSize: "20px", fontWeight: "800", color: "#ffffff", margin: "0 0 16px 0" }}>
+              {isAr ? "اتصل بنا" : "Contacts & Dépôts"}
+            </h3>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: "10px", fontSize: "13px", color: "#cbd5e1" }}>
+              <div>
+                <b>📍 {isAr ? "المقر الرئيسي:" : "Siège:"}</b> Ain Sebaa, Casablanca, Maroc
+              </div>
+              <div>
+                <b>📞 {isAr ? "الهاتف:" : "Tél:"}</b> +212 522 000 000
+              </div>
+              <div>
+                <b>✉️ {isAr ? "البريد الإلكتروني:" : "Email:"}</b> contact@boraq.online
+              </div>
+              <div>
+                <b>🌐 {isAr ? "الفروع الدولية:" : "Dépôts:"}</b> France, Espagne, Italie
+              </div>
+            </div>
+          </div>
+
+          <div style={{ zIndex: 2, position: "relative" }}>
+            <button
+              onClick={() => { setActiveTab("tracking"); setShowToolModal(true); }}
+              style={{
+                background: "#3b82f6",
+                color: "#ffffff",
+                border: "none",
+                padding: "8px 24px",
+                borderRadius: "20px",
+                fontWeight: "700",
+                fontSize: "12px",
+                cursor: "pointer",
+                boxShadow: "0 4px 12px rgba(59,130,246,0.3)"
+              }}
+            >
+              {isAr ? "تتبع شحنتك الآن ➔" : "Suivre mon cargo ➔"}
+            </button>
+          </div>
+        </div>
+
+      </main>
 
       {/* ── FOOTER ── */}
       <footer style={{
@@ -571,7 +473,7 @@ export default function LandingPage({ onOpenLogin }) {
         © {new Date().getFullYear()} BORAQ. All rights reserved. International Transport Brokerage.
       </footer>
 
-      {/* ── POPUP TOOL MODAL OVERLAY (For Clean interactive tracking/agencies panels) ── */}
+      {/* ── POPUP TOOL MODAL OVERLAY (For Clean interactive tracking/agencies/simulator panels) ── */}
       {showToolModal && (
         <div style={{
           position: "fixed",
