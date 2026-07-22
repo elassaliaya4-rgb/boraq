@@ -301,90 +301,108 @@ export default function LandingPage({ onOpenLogin }) {
           </div>
 
           {/* DARK BOTTOM PORTION */}
-          <div className="section-hero-dark">
-            {/* Partners Logo row */}
+          <div className="section-hero-dark" style={{ position: "relative", overflow: "hidden" }}>
+            {/* Parallax Faint Triptych Background */}
             <div style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              flexWrap: "wrap",
-              gap: "20px",
-              opacity: 0.4,
-              borderBottom: "1px solid rgba(255,255,255,0.06)",
-              paddingBottom: "40px",
-              marginBottom: "60px"
-            }}>
-              {["OXFAM", "DT Global", "NAYBA", "MOVE", "Winsupply", "FERGUSON"].map(p => (
-                <span key={p} style={{ fontSize: "16px", fontWeight: "900", color: "#ffffff" }}>{p}</span>
-              ))}
-            </div>
+              position: "absolute",
+              top: "-15%",
+              left: 0,
+              right: 0,
+              bottom: "-15%",
+              backgroundImage: "url('boraq_promise.jpg')",
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              transform: `translateY(${(scrollY - 400) * 0.08}px)`,
+              zIndex: 1,
+              opacity: 0.18,
+              pointerEvents: "none"
+            }} />
 
-            {/* 2-Column Info layout */}
-            <div style={{
-              display: "grid",
-              gridTemplateColumns: "1fr 1.2fr",
-              gap: "60px",
-              alignItems: "center"
-            }} className="responsive-grid-landing">
-              
-              {/* Left container visual */}
+            <div style={{ position: "relative", zIndex: 10 }}>
+              {/* Partners Logo row */}
               <div style={{
-                borderRadius: "24px",
-                overflow: "hidden",
-                boxShadow: "0 25px 50px rgba(0,0,0,0.4)"
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                flexWrap: "wrap",
+                gap: "20px",
+                opacity: 0.4,
+                borderBottom: "1px solid rgba(255,255,255,0.06)",
+                paddingBottom: "40px",
+                marginBottom: "60px"
               }}>
-                <img src="boraq_crane_lift.jpg" style={{ width: "100%", display: "block" }} />
+                {["OXFAM", "DT Global", "NAYBA", "MOVE", "Winsupply", "FERGUSON"].map(p => (
+                  <span key={p} style={{ fontSize: "16px", fontWeight: "900", color: "#ffffff" }}>{p}</span>
+                ))}
               </div>
 
-              {/* Right text details */}
-              <div style={{ textAlign: isAr ? "right" : "left" }}>
-                <div style={{ fontSize: "28px", fontWeight: "900", color: "#ff6b00", marginBottom: "10px" }}>
-                  #1 Morocco-Europe Logistics Solution
-                </div>
+              {/* 2-Column Info layout */}
+              <div style={{
+                display: "grid",
+                gridTemplateColumns: "1fr 1.2fr",
+                gap: "60px",
+                alignItems: "center"
+              }} className="responsive-grid-landing">
                 
-                <h3 style={{ fontSize: "36px", fontWeight: "900", color: "#ffffff", margin: "0 0 20px 0", lineHeight: 1.15 }}>
-                  {isAr ? "حلول النقل البري والبحري المتكاملة" : "Nationwide Delivery Logistics Solution"}
-                </h3>
-
-                <p style={{ fontSize: "15px", color: "#94a3b8", lineHeight: 1.7, marginBottom: "30px" }}>
-                  {isAr
-                    ? "تلتزم شركة البراق بتقديم خطوط ربط تجارية يومية ودائمة لنقل البضائع والمعدات الصناعية والسلع من المغرب إلى شتى الوجهات الأوروبية بدقة واحترافية متناهية."
-                    : "Boraq Logistics is a premium international cargo company specializing in freight connections between Morocco and Europe. We provide daily links, secure customs operations, and custom transport services for all cargo categories."}
-                </p>
-
-                {/* Call to actions */}
-                <div style={{ display: "flex", gap: "16px" }}>
-                  <button
-                    onClick={() => { setActiveTab("simulator"); setShowToolModal(true); }}
-                    style={{
-                      background: "#ff6b00",
-                      color: "#ffffff",
-                      border: "none",
-                      padding: "14px 30px",
-                      borderRadius: "30px",
-                      fontWeight: "800",
-                      cursor: "pointer"
-                    }}
-                  >
-                    {isAr ? "احسب التسعيرة ➔" : "Get a Quote ➔"}
-                  </button>
-                  <button
-                    onClick={() => { setActiveTab("agencies"); setShowToolModal(true); }}
-                    style={{
-                      background: "rgba(255,255,255,0.06)",
-                      border: "1px solid rgba(255,255,255,0.12)",
-                      color: "#ffffff",
-                      padding: "14px 30px",
-                      borderRadius: "30px",
-                      fontWeight: "800",
-                      cursor: "pointer"
-                    }}
-                  >
-                    {isAr ? "اعرف المزيد" : "Learn More"}
-                  </button>
+                {/* Left container visual */}
+                <div style={{
+                  borderRadius: "24px",
+                  overflow: "hidden",
+                  boxShadow: "0 25px 50px rgba(0,0,0,0.4)"
+                }}>
+                  <img src="boraq_crane_lift.jpg" style={{ width: "100%", display: "block" }} />
                 </div>
-              </div>
 
+                {/* Right text details */}
+                <div style={{ textAlign: isAr ? "right" : "left" }}>
+                  <div style={{ fontSize: "28px", fontWeight: "900", color: "#ff6b00", marginBottom: "10px" }}>
+                    #1 Morocco-Europe Logistics Solution
+                  </div>
+                  
+                  <h3 style={{ fontSize: "36px", fontWeight: "900", color: "#ffffff", margin: "0 0 20px 0", lineHeight: 1.15 }}>
+                    {isAr ? "حلول النقل البري والبحري المتكاملة" : "Nationwide Delivery Logistics Solution"}
+                  </h3>
+
+                  <p style={{ fontSize: "15px", color: "#94a3b8", lineHeight: 1.7, marginBottom: "30px" }}>
+                    {isAr
+                      ? "تلتزم شركة البراق بتقديم خطوط ربط تجارية يومية ودائمة لنقل البضائع والمعدات الصناعية والسلع من المغرب إلى شتى الوجهات الأوروبية بدقة واحترافية متناهية."
+                      : "Boraq Logistics is a premium international cargo company specializing in freight connections between Morocco and Europe. We provide daily links, secure customs operations, and custom transport services for all cargo categories."}
+                  </p>
+
+                  {/* Call to actions */}
+                  <div style={{ display: "flex", gap: "16px" }}>
+                    <button
+                      onClick={() => { setActiveTab("simulator"); setShowToolModal(true); }}
+                      style={{
+                        background: "#ff6b00",
+                        color: "#ffffff",
+                        border: "none",
+                        padding: "14px 30px",
+                        borderRadius: "30px",
+                        fontWeight: "800",
+                        cursor: "pointer"
+                      }}
+                    >
+                      {isAr ? "احسب التسعيرة ➔" : "Get a Quote ➔"}
+                    </button>
+                    <button
+                      onClick={() => { setActiveTab("agencies"); setShowToolModal(true); }}
+                      style={{
+                        background: "rgba(255,255,255,0.06)",
+                        border: "1px solid rgba(255,255,255,0.12)",
+                        color: "#ffffff",
+                        padding: "14px 30px",
+                        borderRadius: "30px",
+                        fontWeight: "800",
+                        cursor: "pointer"
+                      }}
+                    >
+                      {isAr ? "اعرف المزيد" : "Learn More"}
+                    </button>
+                  </div>
+                </div>
+
+              </div>
             </div>
           </div>
         </section>
